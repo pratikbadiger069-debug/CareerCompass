@@ -14,7 +14,221 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      career_recommendations: {
+        Row: {
+          career_title: string
+          created_at: string
+          description: string | null
+          growth_outlook: string | null
+          id: string
+          is_dismissed: boolean
+          is_saved: boolean
+          match_score: number | null
+          related_fields: string[]
+          required_skills: string[]
+          salary_range: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          career_title: string
+          created_at?: string
+          description?: string | null
+          growth_outlook?: string | null
+          id?: string
+          is_dismissed?: boolean
+          is_saved?: boolean
+          match_score?: number | null
+          related_fields?: string[]
+          required_skills?: string[]
+          salary_range?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Update: {
+          career_title?: string
+          created_at?: string
+          description?: string | null
+          growth_outlook?: string | null
+          id?: string
+          is_dismissed?: boolean
+          is_saved?: boolean
+          match_score?: number | null
+          related_fields?: string[]
+          required_skills?: string[]
+          salary_range?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      chat_messages: {
+        Row: {
+          content: string
+          conversation_id: string
+          created_at: string
+          id: string
+          role: string
+          user_id: string
+        }
+        Insert: {
+          content: string
+          conversation_id?: string
+          created_at?: string
+          id?: string
+          role?: string
+          user_id?: string
+        }
+        Update: {
+          content?: string
+          conversation_id?: string
+          created_at?: string
+          id?: string
+          role?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      roadmap_milestones: {
+        Row: {
+          category: string
+          created_at: string
+          description: string | null
+          id: string
+          order_index: number
+          recommendation_id: string | null
+          status: string
+          target_date: string | null
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          category?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          order_index?: number
+          recommendation_id?: string | null
+          status?: string
+          target_date?: string | null
+          title: string
+          updated_at?: string
+          user_id?: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          order_index?: number
+          recommendation_id?: string | null
+          status?: string
+          target_date?: string | null
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "roadmap_milestones_recommendation_id_fkey"
+            columns: ["recommendation_id"]
+            isOneToOne: false
+            referencedRelation: "career_recommendations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      saved_colleges: {
+        Row: {
+          application_deadline: string | null
+          city: string | null
+          college_name: string
+          country: string | null
+          created_at: string
+          id: string
+          notes: string | null
+          program: string | null
+          tuition_estimate: string | null
+          updated_at: string
+          user_id: string
+          website_url: string | null
+        }
+        Insert: {
+          application_deadline?: string | null
+          city?: string | null
+          college_name: string
+          country?: string | null
+          created_at?: string
+          id?: string
+          notes?: string | null
+          program?: string | null
+          tuition_estimate?: string | null
+          updated_at?: string
+          user_id?: string
+          website_url?: string | null
+        }
+        Update: {
+          application_deadline?: string | null
+          city?: string | null
+          college_name?: string
+          country?: string | null
+          created_at?: string
+          id?: string
+          notes?: string | null
+          program?: string | null
+          tuition_estimate?: string | null
+          updated_at?: string
+          user_id?: string
+          website_url?: string | null
+        }
+        Relationships: []
+      }
+      user_profiles: {
+        Row: {
+          avatar_url: string | null
+          career_goals: string | null
+          created_at: string
+          current_grade: string | null
+          education_level: string | null
+          field_of_interest: string | null
+          full_name: string | null
+          id: string
+          onboarding_completed: boolean
+          target_country: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          career_goals?: string | null
+          created_at?: string
+          current_grade?: string | null
+          education_level?: string | null
+          field_of_interest?: string | null
+          full_name?: string | null
+          id?: string
+          onboarding_completed?: boolean
+          target_country?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Update: {
+          avatar_url?: string | null
+          career_goals?: string | null
+          created_at?: string
+          current_grade?: string | null
+          education_level?: string | null
+          field_of_interest?: string | null
+          full_name?: string | null
+          id?: string
+          onboarding_completed?: boolean
+          target_country?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
