@@ -187,43 +187,76 @@ export type Database = {
       user_profiles: {
         Row: {
           avatar_url: string | null
+          budget_range: string | null
+          career_goal: string | null
           career_goals: string | null
           created_at: string
           current_grade: string | null
+          current_marks: string | null
+          current_skills: string[]
           education_level: string | null
+          education_stage: string | null
+          extra_context: string | null
           field_of_interest: string | null
           full_name: string | null
+          goal_type: string | null
           id: string
+          institution_name: string | null
+          interests: string[]
           onboarding_completed: boolean
+          stream: string | null
           target_country: string | null
+          timeline: string | null
           updated_at: string
           user_id: string
         }
         Insert: {
           avatar_url?: string | null
+          budget_range?: string | null
+          career_goal?: string | null
           career_goals?: string | null
           created_at?: string
           current_grade?: string | null
+          current_marks?: string | null
+          current_skills?: string[]
           education_level?: string | null
+          education_stage?: string | null
+          extra_context?: string | null
           field_of_interest?: string | null
           full_name?: string | null
+          goal_type?: string | null
           id?: string
+          institution_name?: string | null
+          interests?: string[]
           onboarding_completed?: boolean
+          stream?: string | null
           target_country?: string | null
+          timeline?: string | null
           updated_at?: string
           user_id?: string
         }
         Update: {
           avatar_url?: string | null
+          budget_range?: string | null
+          career_goal?: string | null
           career_goals?: string | null
           created_at?: string
           current_grade?: string | null
+          current_marks?: string | null
+          current_skills?: string[]
           education_level?: string | null
+          education_stage?: string | null
+          extra_context?: string | null
           field_of_interest?: string | null
           full_name?: string | null
+          goal_type?: string | null
           id?: string
+          institution_name?: string | null
+          interests?: string[]
           onboarding_completed?: boolean
+          stream?: string | null
           target_country?: string | null
+          timeline?: string | null
           updated_at?: string
           user_id?: string
         }
