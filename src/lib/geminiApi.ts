@@ -1,4 +1,5 @@
 import { generateRoadmap } from "./roadmap.functions";
+import type { RoadmapResult } from "./roadmap.server";
 
 /**
  * Frontend entry point for career recommendations.
@@ -6,6 +7,6 @@ import { generateRoadmap } from "./roadmap.functions";
  */
 export async function generateCareerRoadmap(
   userProfile: Record<string, unknown>,
-): Promise<Record<string, unknown>> {
+): Promise<RoadmapResult> {
   return await generateRoadmap({ data: { userProfile } });
 }

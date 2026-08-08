@@ -1,6 +1,7 @@
 import { PATHWAY_SYSTEM_PROMPT } from "./roadmap.prompt";
 
-export type RoadmapResult = Record<string, unknown>;
+export type Json = string | number | boolean | null | Json[] | { [key: string]: Json };
+export type RoadmapResult = { [key: string]: Json };
 
 export async function generateRoadmapFromProfile(
   userProfile: Record<string, unknown>,
