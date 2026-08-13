@@ -79,13 +79,13 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "PathWay — AI-Powered Career & Education Advisor" },
+      { title: "CareerCompass — AI-Powered Career & Education Advisor" },
       {
         name: "description",
         content:
           "AI-powered career and education guidance: matched careers, a personal roadmap, advisor chat and saved colleges.",
       },
-      { property: "og:title", content: "PathWay — AI-Powered Career & Education Advisor" },
+      { property: "og:title", content: "CareerCompass — AI-Powered Career & Education Advisor" },
       {
         property: "og:description",
         content:

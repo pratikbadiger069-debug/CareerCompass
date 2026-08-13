@@ -8,12 +8,12 @@ import { useAuth } from "@/hooks/useAuth";
 export const Route = createFileRoute("/_authenticated/dashboard")({
   head: () => ({
     meta: [
-      { title: "Your PathWay Dashboard" },
+      { title: "Your CareerCompass Dashboard" },
       {
         name: "description",
         content: "Your career matches, roadmap, advisor chat and saved colleges in one place.",
       },
-      { property: "og:title", content: "Your PathWay Dashboard" },
+      { property: "og:title", content: "Your CareerCompass Dashboard" },
       {
         property: "og:description",
         content: "Your career matches, roadmap, advisor chat and saved colleges in one place.",
@@ -39,7 +39,7 @@ function Dashboard() {
 
   return (
     <main className="mx-auto min-h-screen w-full max-w-3xl px-6 py-16">
-      <h1 className="text-3xl font-bold">Welcome to PathWay</h1>
+      <h1 className="text-3xl font-bold">Welcome to CareerCompass</h1>
       <p className="mt-2 text-muted-foreground">
         {isGuest
           ? "You're exploring in demo mode. Create an account to keep everything you build here."

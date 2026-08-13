@@ -1,4 +1,4 @@
-# PathWay — Cloud Backend, Auth, and Landing Page
+# CareerCompass — Cloud Backend, Auth, and Landing Page
 
 Set up the backend (database + authentication) and build the public landing page. App pages come later.
 
@@ -29,7 +29,7 @@ Security on every table:
 
 Dark navy `#1E3A5F` base with gold `#F5B342` accents, used as theme tokens rather than one-off colors.
 
-- Hero with the headline "PathWay — AI-Powered Career & Education Advisor", a short subheadline, and two CTAs: **Sign Up** (gold, primary) and **Try Demo Mode** (outlined gold).
+- Hero with the headline "CareerCompass — AI-Powered Career & Education Advisor", a short subheadline, and two CTAs: **Sign Up** (gold, primary) and **Try Demo Mode** (outlined gold).
 - Supporting sections: how it works (three steps), feature highlights matching the data model (career matches, roadmap, AI chat, saved colleges), and a closing CTA.
 - Header shows Sign In when signed out and a dashboard/sign-out affordance when signed in.
 - Page-specific title, description, and social preview metadata.

@@ -14,14 +14,14 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 
 const DESCRIPTION =
-  "PathWay matches you to careers you'll thrive in, builds a step-by-step roadmap, answers your questions and tracks the colleges you care about.";
+  "CareerCompass matches you to careers you'll thrive in, builds a step-by-step roadmap, answers your questions and tracks the colleges you care about.";
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "PathWay — AI-Powered Career & Education Advisor" },
+      { title: "CareerCompass — AI-Powered Career & Education Advisor" },
       { name: "description", content: DESCRIPTION },
-      { property: "og:title", content: "PathWay — AI-Powered Career & Education Advisor" },
+      { property: "og:title", content: "CareerCompass — AI-Powered Career & Education Advisor" },
       { property: "og:description", content: DESCRIPTION },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -60,7 +60,7 @@ const STEPS = [
   },
   {
     title: "Get matched",
-    body: "PathWay reads your profile and surfaces careers that genuinely fit — with reasons.",
+    body: "CareerCompass reads your profile and surfaces careers that genuinely fit — with reasons.",
   },
   {
     title: "Follow your roadmap",
@@ -93,7 +93,7 @@ function Landing() {
     <div className="min-h-screen">
       <header className="mx-auto flex w-full max-w-6xl items-center justify-between px-6 py-6">
         <span className="font-display text-lg font-bold tracking-tight">
-          Path<span className="text-primary">Way</span>
+          Career<span className="text-primary">Compass</span>
         </span>
         {!loading && isAuthenticated ? (
           <Button asChild size="sm">
@@ -116,7 +116,7 @@ function Landing() {
           </span>
 
           <h1 className="mt-8 text-4xl leading-[1.08] font-bold text-balance sm:text-6xl">
-            PathWay — AI-Powered Career &amp; Education Advisor
+            CareerCompass — AI-Powered Career &amp; Education Advisor
           </h1>
 
           <p className="mx-auto mt-6 max-w-2xl text-base text-pretty text-muted-foreground sm:text-lg">
@@ -209,7 +209,7 @@ function Landing() {
       </section>
 
       <footer className="border-t border-border/50 py-8 text-center text-xs text-muted-foreground">
-        © {new Date().getFullYear()} PathWay. AI-powered career &amp; education guidance.
+        © {new Date().getFullYear()} CareerCompass. AI-powered career &amp; education guidance.
       </footer>
     </div>
   );

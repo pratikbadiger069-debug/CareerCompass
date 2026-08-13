@@ -20,13 +20,13 @@ import { cn } from "@/lib/utils";
 export const Route = createFileRoute("/_authenticated/onboarding")({
   head: () => ({
     meta: [
-      { title: "Set Up Your PathWay Profile" },
+      { title: "Set Up Your CareerCompass Profile" },
       {
         name: "description",
         content:
-          "Tell PathWay about your education, interests and goals so we can build your personalised career roadmap.",
+          "Tell CareerCompass about your education, interests and goals so we can build your personalised career roadmap.",
       },
-      { property: "og:title", content: "Set Up Your PathWay Profile" },
+      { property: "og:title", content: "Set Up Your CareerCompass Profile" },
       {
         property: "og:description",
         content:

@@ -1,4 +1,4 @@
-# PathWay Advisor
+# CareerCompass Advisor
 
 Create a Supabase database with these tables: user_profiles, career_recommendations, 
 
@@ -10,7 +10,7 @@ users to read/write rows where user_id = auth.uid().
 
 Then set up Supabase Auth with email/password and Google OAuth.
 
-Build a landing page with the headline "PathWay — AI-Powered Career & Education Advisor" 
+Build a landing page with the headline "CareerCompass — AI-Powered Career & Education Advisor" 
 
 and CTA buttons for Sign Up and Try Demo Mode. Dark navy (#1E3A5F) + gold (#F5B342) theme.
 

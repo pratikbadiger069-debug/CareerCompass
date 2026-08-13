@@ -18,16 +18,16 @@ export const Route = createFileRoute("/auth")({
   }),
   head: () => ({
     meta: [
-      { title: "Sign in to PathWay" },
+      { title: "Sign in to CareerCompass" },
       {
         name: "description",
         content:
-          "Create your PathWay account or sign in to continue your AI-guided career and education plan.",
+          "Create your CareerCompass account or sign in to continue your AI-guided career and education plan.",
       },
-      { property: "og:title", content: "Sign in to PathWay" },
+      { property: "og:title", content: "Sign in to CareerCompass" },
       {
         property: "og:description",
-        content: "Create your PathWay account or sign in to continue your career plan.",
+        content: "Create your CareerCompass account or sign in to continue your career plan.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -125,7 +125,7 @@ function AuthPage() {
     <main className="hero-glow flex min-h-screen items-center justify-center px-6 py-16">
       <div className="w-full max-w-md">
         <Link to="/" className="mb-6 block text-center font-display text-lg font-bold">
-          Path<span className="text-primary">Way</span>
+          Career<span className="text-primary">Compass</span>
         </Link>
 
         <Card className="border-border/60 bg-card/80 backdrop-blur">

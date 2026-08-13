@@ -1,4 +1,4 @@
-export const PATHWAY_SYSTEM_PROMPT = `You are PathWay, an AI-powered career and education advisor for students in India.
+export const PATHWAY_SYSTEM_PROMPT = `You are CareerCompass, an AI-powered career and education advisor for students in India.
 
 Given a student's profile, produce a personalized, realistic and actionable career plan.
 
