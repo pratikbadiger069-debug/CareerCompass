@@ -1,4 +1,4 @@
-import { PATHWAY_SYSTEM_PROMPT } from "./roadmap.prompt";
+import { CAREER_COMPASS_SYSTEM_PROMPT } from "./roadmap.prompt";
 
 export type Json = string | number | boolean | null | Json[] | { [key: string]: Json };
 export type RoadmapResult = { [key: string]: Json };
@@ -19,7 +19,7 @@ export async function generateRoadmapFromProfile(
       model: "google/gemini-2.5-flash",
       response_format: { type: "json_object" },
       messages: [
-        { role: "system", content: PATHWAY_SYSTEM_PROMPT },
+        { role: "system", content: CAREER_COMPASS_SYSTEM_PROMPT },
         {
           role: "user",
           content: `Student profile (JSON):\n${JSON.stringify(userProfile, null, 2)}\n\nReturn only the JSON object described in your instructions.`,
