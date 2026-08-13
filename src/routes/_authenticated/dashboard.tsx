@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, type ReactNode } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { ArrowRight, Compass, GraduationCap, Lightbulb, Link2, Route as RouteIcon, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -85,10 +85,7 @@ function Dashboard() {
             {path.options.map((option) => (
               <div key={option.title} className="rounded-xl border border-border/60 p-4">
                 <div className="flex items-start justify-between gap-3">
-                  <div>
-                    <p className="font-semibold">{option.title}</p>
-                    <p className="mt-1 text-sm text-muted-foreground">{option.description}</p>
-                  </div>
+                  <div><p className="font-semibold">{option.title}</p><p className="mt-1 text-sm text-muted-foreground">{option.description}</p></div>
                   <span className="rounded-full bg-primary/10 px-2 py-1 text-xs text-primary">{option.kind}</span>
                 </div>
                 <p className="mt-3 text-xs font-medium">Next: {option.nextSteps[0]}</p>
@@ -106,15 +103,7 @@ function Dashboard() {
                 {path.whatIf.map((item, index) => <SelectItem key={item.question} value={String(index)}>{item.question}</SelectItem>)}
               </SelectContent>
             </Select>
-            {scenario && (
-              <div className="mt-4 rounded-xl bg-secondary/50 p-4">
-                <p className="text-sm leading-6">{scenario.answer}</p>
-                <p className="mt-4 text-sm font-semibold">Possible next paths</p>
-                <ul className="mt-2 space-y-2 text-sm text-muted-foreground">
-                  {scenario.alternatives.map((item) => <li key={item} className="flex gap-2"><ArrowRight className="mt-0.5 size-4 shrink-0 text-primary" />{item}</li>)}
-                </ul>
-              </div>
-            )}
+            {scenario && <div className="mt-4 rounded-xl bg-secondary/50 p-4"><p className="text-sm leading-6">{scenario.answer}</p><p className="mt-4 text-sm font-semibold">Possible next paths</p><ul className="mt-2 space-y-2 text-sm text-muted-foreground">{scenario.alternatives.map((item) => <li key={item} className="flex gap-2"><ArrowRight className="mt-0.5 size-4 shrink-0 text-primary" />{item}</li>)}</ul></div>}
           </CardContent>
         </Card>
       </section>
@@ -122,30 +111,20 @@ function Dashboard() {
       <section className="mt-8 grid gap-6 lg:grid-cols-2">
         <Card className="border-border/60 bg-card/70">
           <CardHeader><CardTitle>Backup paths</CardTitle></CardHeader>
-          <CardContent className="space-y-3">
-            {path.backups.map((backup) => <div key={backup.title} className="rounded-xl border border-border/60 p-4"><p className="font-semibold">{backup.title}</p><p className="mt-1 text-sm text-muted-foreground">{backup.description}</p><p className="mt-2 text-xs">Why it works: {backup.whyItWorks}</p></div>)}
-          </CardContent>
+          <CardContent className="space-y-3">{path.backups.map((backup) => <div key={backup.title} className="rounded-xl border border-border/60 p-4"><p className="font-semibold">{backup.title}</p><p className="mt-1 text-sm text-muted-foreground">{backup.description}</p><p className="mt-2 text-xs">Why it works: {backup.whyItWorks}</p></div>)}</CardContent>
         </Card>
 
         <Card className="border-border/60 bg-card/70">
           <CardHeader><CardTitle className="flex items-center gap-2"><Link2 className="size-5 text-primary" /> Exam Connections</CardTitle></CardHeader>
-          <CardContent className="space-y-3">
-            {EXAM_CONNECTIONS.map((connection) => <div key={connection.exam} className="rounded-xl border border-border/60 p-4"><p className="font-semibold">{connection.exam}</p><p className="mt-1 text-sm text-muted-foreground">Also explore: {connection.connectedExams.join(", ")}</p><p className="mt-2 text-xs">{connection.note}</p></div>)}
-          </CardContent>
+          <CardContent className="space-y-3">{EXAM_CONNECTIONS.map((connection) => <div key={connection.exam} className="rounded-xl border border-border/60 p-4"><p className="font-semibold">{connection.exam}</p><p className="mt-1 text-sm text-muted-foreground">Also explore: {connection.connectedExams.join(", ")}</p><p className="mt-2 text-xs">{connection.note}</p></div>)}</CardContent>
         </Card>
       </section>
 
-      <Card className="mt-8 border-primary/20 bg-primary/5">
-        <CardContent className="p-5">
-          <p className="text-sm font-semibold">Your current direction</p>
-          <p className="mt-1 text-sm text-muted-foreground">{path.summary}</p>
-          <div className="mt-4 flex flex-wrap gap-2">{path.careers.map((career) => <span key={career} className="rounded-full border border-border/60 px-3 py-1 text-xs">{career}</span>)}</div>
-        </CardContent>
-      </Card>
+      <Card className="mt-8 border-primary/20 bg-primary/5"><CardContent className="p-5"><p className="text-sm font-semibold">Your current direction</p><p className="mt-1 text-sm text-muted-foreground">{path.summary}</p><div className="mt-4 flex flex-wrap gap-2">{path.careers.map((career) => <span key={career} className="rounded-full border border-border/60 px-3 py-1 text-xs">{career}</span>)}</div></CardContent></Card>
     </main>
   );
 }
 
-function MapStep({ icon, title, value }: { icon: React.ReactNode; title: string; value: string }) {
+function MapStep({ icon, title, value }: { icon: ReactNode; title: string; value: string }) {
   return <Card className="border-border/60 bg-card/70"><CardContent className="p-4"><div className="flex items-center gap-2 text-primary">{icon}<span className="text-xs font-semibold uppercase tracking-wide">{title}</span></div><p className="mt-2 text-sm font-semibold">{value}</p></CardContent></Card>;
 }
