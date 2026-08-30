@@ -78,7 +78,7 @@ export const STREAM_VALUE_TO_PATH: Record<string, string> = {
   other: "mpc",
 };
 
-export const CAREER_PATHS: StreamPath[] = [
+export const CAREER_PATHS: [StreamPath, ...StreamPath[]] = [
   {
     id: "mpc",
     name: "MPC / Science (PCM)",
