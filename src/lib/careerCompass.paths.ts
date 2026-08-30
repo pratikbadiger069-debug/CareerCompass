@@ -345,7 +345,8 @@ export const CAREER_PATHS: [StreamPath, ...StreamPath[]] = [
     options: [
       {
         title: "Software and IT roles",
-        description: "Placement or off-campus hiring into development, data, testing or cloud roles.",
+        description:
+          "Placement or off-campus hiring into development, data, testing or cloud roles.",
         kind: "career",
         nextSteps: [
           "Build 2-3 real projects and publish them on GitHub",
@@ -399,7 +400,8 @@ export const CAREER_PATHS: [StreamPath, ...StreamPath[]] = [
       {
         title: "Skill-first job switch",
         description: "Certifications in cloud, data analytics, testing or cybersecurity.",
-        whyItWorks: "These roles hire on demonstrable skill and projects rather than college brand.",
+        whyItWorks:
+          "These roles hire on demonstrable skill and projects rather than college brand.",
       },
       {
         title: "M.Tech via GATE",
@@ -414,7 +416,8 @@ export const CAREER_PATHS: [StreamPath, ...StreamPath[]] = [
       {
         title: "Creative / self-employed track",
         description: "Photography, music, dance, design or content as primary income.",
-        whyItWorks: "Portfolio-driven fields reward consistent output; your degree still stays on your CV.",
+        whyItWorks:
+          "Portfolio-driven fields reward consistent output; your degree still stays on your CV.",
       },
     ],
     whatIf: [
@@ -493,7 +496,8 @@ export const CAREER_PATHS: [StreamPath, ...StreamPath[]] = [
     options: [
       {
         title: "CA / CMA / CS",
-        description: "Professional qualifications you can start right after Class 12, alongside B.Com.",
+        description:
+          "Professional qualifications you can start right after Class 12, alongside B.Com.",
         kind: "education",
         nextSteps: [
           "Register for the foundation level early",
@@ -529,7 +533,8 @@ export const CAREER_PATHS: [StreamPath, ...StreamPath[]] = [
       {
         title: "Data / business analytics",
         description: "Analytics roles built on Excel, SQL and a BI tool.",
-        whyItWorks: "Commerce students already have business context; the tools are learnable in months.",
+        whyItWorks:
+          "Commerce students already have business context; the tools are learnable in months.",
       },
       {
         title: "Government and banking",
@@ -568,7 +573,14 @@ export const CAREER_PATHS: [StreamPath, ...StreamPath[]] = [
     stage: "After Class 10",
     summary:
       "History, political science, psychology, literature, economics and design — civil services, law, media, psychology and social sciences.",
-    courses: ["BA / BA (Hons)", "BA LLB", "B.Des", "BJMC (journalism)", "Psychology degrees", "B.Ed"],
+    courses: [
+      "BA / BA (Hons)",
+      "BA LLB",
+      "B.Des",
+      "BJMC (journalism)",
+      "Psychology degrees",
+      "B.Ed",
+    ],
     exams: [
       "CUET",
       "CLAT / AILET",
@@ -712,7 +724,12 @@ export const EXAM_CONNECTIONS: ExamConnection[] = [
   },
   {
     exam: "UPSC CSE",
-    connectedExams: ["State PSC", "UPSC CAPF", "SSC CGL (GS overlap)", "UGC-NET (optional subject)"],
+    connectedExams: [
+      "State PSC",
+      "UPSC CAPF",
+      "SSC CGL (GS overlap)",
+      "UGC-NET (optional subject)",
+    ],
     note: "General studies and current affairs are the common core across all of these.",
   },
   {
