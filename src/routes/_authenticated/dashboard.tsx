@@ -23,6 +23,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
 import type { Tables } from "@/integrations/supabase/types";
 import { useAuth } from "@/hooks/useAuth";
@@ -67,6 +68,7 @@ function Dashboard() {
   const [status, setStatus] = useState<Status>("idle");
   const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
   const [milestones, setMilestones] = useState<Milestone[]>([]);
+  const [extraContext, setExtraContext] = useState("");
   const [error, setError] = useState<string | null>(null);
 
   const path = useMemo<StreamPath>(() => {
@@ -77,14 +79,24 @@ function Dashboard() {
   const scenario = path.whatIf[scenarioIndex] ?? path.whatIf[0];
 
   // --- Core fetch-or-generate logic ---
-  const loadRecommendations = useCallback(async () => {
+  const loadRecommendations = useCallback(async (forceRegenerate = false) => {
     if (!user || isGuest) return;
 
     setStatus("loading");
     setError(null);
 
     try {
-      // 1. Check if recommendations already exist
+      // Load the profile first so saved context is available on every visit.
+      const { data: profile, error: profileError } = await supabase
+        .from("user_profiles")
+        .select("*")
+        .eq("user_id", user.id)
+        .single();
+
+      if (profileError) throw new Error(`Could not load your profile: ${profileError.message}`);
+      setExtraContext(profile.extra_context ?? "");
+
+      // Keep existing results unless this is an explicit manual regeneration.
       const { data: existing, error: fetchError } = await supabase
         .from("career_recommendations")
         .select("*")
@@ -92,8 +104,8 @@ function Dashboard() {
 
       if (fetchError) throw new Error(fetchError.message);
 
-      if (existing && existing.length > 0) {
-        // 4. Rows already exist — skip AI, load saved data
+      if (!forceRegenerate && existing && existing.length > 0) {
+        // Rows already exist — skip AI, load saved data.
         setRecommendations(existing);
         const recIds = existing.map((r) => r.id);
         const { data: savedMilestones } = await supabase
@@ -106,16 +118,31 @@ function Dashboard() {
         return;
       }
 
-      // 2. No rows — fetch user profile, then call AI
-      const { data: profile, error: profileError } = await supabase
-        .from("user_profiles")
-        .select("*")
-        .eq("user_id", user.id)
-        .single();
+      const contextForRoadmap = forceRegenerate ? extraContext.trim() : (profile.extra_context ?? "");
+      const profileForRoadmap = { ...profile, extra_context: contextForRoadmap };
 
-      if (profileError) throw new Error(`Could not load your profile: ${profileError.message}`);
+      if (forceRegenerate) {
+        const { error: profileUpdateError } = await supabase
+          .from("user_profiles")
+          .update({ extra_context: contextForRoadmap || null })
+          .eq("user_id", user.id);
+        if (profileUpdateError) throw new Error(`Failed to save your context: ${profileUpdateError.message}`);
 
-      const aiResult = await generateCareerRoadmap(profile as Record<string, unknown>);
+        // Delete dependent rows first, then remove the old recommendations.
+        const { error: milestonesDeleteError } = await supabase
+          .from("roadmap_milestones")
+          .delete()
+          .eq("user_id", user.id);
+        if (milestonesDeleteError) throw new Error(`Failed to clear the old roadmap: ${milestonesDeleteError.message}`);
+
+        const { error: recommendationsDeleteError } = await supabase
+          .from("career_recommendations")
+          .delete()
+          .eq("user_id", user.id);
+        if (recommendationsDeleteError) throw new Error(`Failed to clear old recommendations: ${recommendationsDeleteError.message}`);
+      }
+
+      const aiResult = await generateCareerRoadmap(profileForRoadmap as Record<string, unknown>);
 
       // 3a. Insert career_recommendations
       const aiRecs = (aiResult as Record<string, unknown>)["recommendations"] as
@@ -256,6 +283,32 @@ function Dashboard() {
             <Sparkles className="size-5 text-primary" />
             <h2 className="text-xl font-bold">Your AI-Powered Recommendations</h2>
           </div>
+
+          <div className="mb-6 flex flex-col gap-4 rounded-xl border border-border/60 bg-card/50 p-4 sm:flex-row sm:items-end">
+            <div className="min-w-0 flex-1">
+              <label htmlFor="extra-context" className="mb-2 block text-sm font-semibold">
+                Tell us more
+              </label>
+              <Textarea
+                id="extra-context"
+                value={extraContext}
+                onChange={(event) => setExtraContext(event.target.value)}
+                maxLength={500}
+                disabled={status === "loading"}
+                placeholder="Anything else we should know? E.g. specific companies you admire, a subject you struggled with, family expectations, health/location constraints..."
+                className="min-h-24 resize-y"
+              />
+              <p className="mt-1 text-right text-xs text-muted-foreground">{extraContext.length}/500</p>
+            </div>
+            <Button
+              type="button"
+              onClick={() => void loadRecommendations(true)}
+              disabled={status === "loading"}
+              className="shrink-0 gap-2"
+            >
+              {status === "loading" ? <Loader2 className="size-4 animate-spin" /> : <Sparkles className="size-4" />}
+              Generate My Roadmap
+            </Button>
 
           {/* Loading skeleton */}
           {status === "loading" && <LoadingSkeleton prefersReduced={prefersReduced} />}
