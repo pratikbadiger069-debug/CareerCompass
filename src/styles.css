@@ -144,17 +144,15 @@
     radial-gradient(55% 50% at 85% 15%, oklch(0.352 0.056 249.5 / 75%) 0%, transparent 65%);
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  @keyframes roadmap-pulse {
-    0%, 100% {
-      box-shadow: 0 0 0 0 oklch(0.802 0.137 76.5 / 40%);
-    }
-    50% {
-      box-shadow: 0 0 16px 4px oklch(0.802 0.137 76.5 / 25%);
-    }
+@keyframes roadmap-pulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 oklch(0.802 0.137 76.5 / 40%);
   }
+  50% {
+    box-shadow: 0 0 16px 4px oklch(0.802 0.137 76.5 / 25%);
+  }
+}
 
-  @utility roadmap-pulse {
-    animation: roadmap-pulse 2s ease-in-out infinite;
-  }
+@utility roadmap-pulse {
+  animation: roadmap-pulse 2s ease-in-out infinite;
 }
