@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { motion, AnimatePresence } from "framer-motion";
+import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -16,6 +18,8 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { cn } from "@/lib/utils";
+import { usePrefersReducedMotion } from "@/hooks/use-reduced-motion";
+import { getScaleOnHover } from "@/lib/motion";
 
 export const Route = createFileRoute("/_authenticated/onboarding")({
   head: () => ({
@@ -149,6 +153,8 @@ function Onboarding() {
   const [form, setForm] = useState<FormState>(EMPTY);
   const [skillDraft, setSkillDraft] = useState("");
   const [saving, setSaving] = useState(false);
+  const prefersReduced = usePrefersReducedMotion();
+  const scale = getScaleOnHover(prefersReduced);
 
   useEffect(() => {
     let active = true;
@@ -268,25 +274,39 @@ function Onboarding() {
         {step === 5 && "In your own words. The more detail, the better the plan."}
       </p>
 
-      <div className="mt-8 space-y-8">
+      <div className="mt-8 space-y-8 overflow-hidden">
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={step}
+            initial={prefersReduced ? { opacity: 0 } : { opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={prefersReduced ? { opacity: 0 } : { opacity: 0, x: -20 }}
+            transition={{ duration: 0.2 }}
+          >
         {step === 1 && (
           <div className="grid gap-3 sm:grid-cols-2">
-            {EDUCATION_STAGES.map((option) => (
-              <button
+            {EDUCATION_STAGES.map((option) => {
+              const active = form.education_stage === option.value;
+              return (
+              <motion.button
                 key={option.value}
                 type="button"
                 onClick={() => set("education_stage", option.value)}
-                aria-pressed={form.education_stage === option.value}
+                aria-pressed={active}
+                {...scale}
+                animate={active && !prefersReduced ? { scale: [1, 1.05, 1] } : {}}
+                transition={{ duration: 0.2 }}
                 className={cn(
                   "rounded-xl border border-border/60 bg-card/60 p-4 text-left transition hover:border-primary/60",
-                  form.education_stage === option.value &&
+                  active &&
                     "border-primary bg-primary/10 ring-1 ring-primary",
                 )}
               >
                 <span className="block font-medium">{option.label}</span>
                 <span className="mt-1 block text-sm text-muted-foreground">{option.hint}</span>
-              </button>
-            ))}
+              </motion.button>
+              );
+            })}
           </div>
         )}
 
@@ -295,21 +315,27 @@ function Onboarding() {
             <div>
               <Label className="mb-3 block">Stream</Label>
               <div className="grid gap-3 sm:grid-cols-3">
-                {STREAMS.map((option) => (
-                  <button
+                {STREAMS.map((option) => {
+                  const active = form.stream === option.value;
+                  return (
+                  <motion.button
                     key={option.value}
                     type="button"
                     onClick={() => set("stream", option.value)}
-                    aria-pressed={form.stream === option.value}
+                    aria-pressed={active}
+                    {...scale}
+                    animate={active && !prefersReduced ? { scale: [1, 1.05, 1] } : {}}
+                    transition={{ duration: 0.2 }}
                     className={cn(
                       "rounded-xl border border-border/60 bg-card/60 p-4 text-sm font-medium transition hover:border-primary/60",
-                      form.stream === option.value &&
+                      active &&
                         "border-primary bg-primary/10 ring-1 ring-primary",
                     )}
                   >
                     {option.label}
-                  </button>
-                ))}
+                  </motion.button>
+                  );
+                })}
               </div>
             </div>
             <div className="grid gap-6 sm:grid-cols-2">
@@ -352,11 +378,14 @@ function Onboarding() {
               {INTERESTS.map((item) => {
                 const active = form.interests.includes(item.label);
                 return (
-                  <button
+                  <motion.button
                     key={item.label}
                     type="button"
                     onClick={() => toggleInterest(item.label)}
                     aria-pressed={active}
+                    {...scale}
+                    animate={active && !prefersReduced ? { scale: [1, 1.05, 1] } : {}}
+                    transition={{ duration: 0.2 }}
                     className={cn(
                       "rounded-xl border border-border/60 bg-card/60 p-4 text-center transition hover:border-primary/60",
                       active && "border-primary bg-primary/10 ring-1 ring-primary",
@@ -364,7 +393,7 @@ function Onboarding() {
                   >
                     <span className="block text-2xl">{item.emoji}</span>
                     <span className="mt-2 block text-sm font-medium">{item.label}</span>
-                  </button>
+                  </motion.button>
                 );
               })}
             </div>
@@ -489,6 +518,8 @@ function Onboarding() {
             </div>
           </div>
         )}
+          </motion.div>
+        </AnimatePresence>
       </div>
 
       <div className="mt-10 flex items-center justify-between gap-4">
@@ -501,17 +532,22 @@ function Onboarding() {
           Back
         </Button>
         {step < TOTAL_STEPS ? (
-          <Button
-            type="button"
-            onClick={() => setStep((s) => Math.min(TOTAL_STEPS, s + 1))}
-            disabled={!canContinue}
-          >
-            Continue
-          </Button>
+          <motion.div {...scale}>
+            <Button
+              type="button"
+              onClick={() => setStep((s) => Math.min(TOTAL_STEPS, s + 1))}
+              disabled={!canContinue}
+            >
+              Continue
+            </Button>
+          </motion.div>
         ) : (
-          <Button type="button" onClick={submit} disabled={!canContinue || saving}>
-            {saving ? "Saving…" : "✨ Generate My Roadmap"}
-          </Button>
+          <motion.div {...scale}>
+            <Button type="button" onClick={submit} disabled={!canContinue || saving}>
+              {saving && <Loader2 className="mr-2 size-4 animate-spin" />}
+              {saving ? "Saving…" : "✨ Generate My Roadmap"}
+            </Button>
+          </motion.div>
         )}
       </div>
     </main>

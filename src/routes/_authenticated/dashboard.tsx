@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import {
   AlertCircle,
   ArrowRight,
@@ -9,6 +9,7 @@ import {
   Lightbulb,
   Link2,
   Loader2,
+  Map,
   Route as RouteIcon,
   ShieldCheck,
   Sparkles,
@@ -451,6 +452,14 @@ function RecommendationCard({ rec, milestones }: { rec: Recommendation; mileston
             </ul>
           </div>
         )}
+
+        {/* View Roadmap button */}
+        <Button asChild variant="outline" size="sm" className="w-full gap-2">
+          <Link to="/roadmap" search={{ rec: rec.id }}>
+            <Map className="size-4" />
+            View Roadmap
+          </Link>
+        </Button>
       </CardContent>
     </Card>
   );
