@@ -46,7 +46,7 @@ export function RevealOnScroll({
   // When the user prefers reduced motion, skip Framer Motion entirely so
   // content is always immediately visible — no flash, no JS animation dep.
   if (prefersReduced) {
-    const Tag = as as keyof JSX.IntrinsicElements;
+    const Tag = as;
     return <Tag className={className}>{children}</Tag>;
   }
 

@@ -57,7 +57,7 @@ export const Route = createFileRoute("/_authenticated/roadmap")({
     ],
   }),
   validateSearch: (search: Record<string, unknown>) => ({
-    rec: (search.rec as string) || undefined,
+    rec: (search["rec"] as string) || undefined,
   }),
   component: RoadmapPage,
 });

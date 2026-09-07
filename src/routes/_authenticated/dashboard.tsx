@@ -9,7 +9,7 @@ import {
   Lightbulb,
   Link2,
   Loader2,
-  Map,
+  Map as MapIcon,
   Route as RouteIcon,
   ShieldCheck,
   Sparkles,
@@ -404,7 +404,7 @@ function RecommendationCard({
 }: {
   rec: Recommendation;
   milestones: Milestone[];
-  variants?: Variants;
+  variants: Variants;
   cardHoverProps?: ReturnType<typeof getCardHover>;
 }) {
   const scoreColor =
@@ -491,7 +491,7 @@ function RecommendationCard({
         {/* View Roadmap button */}
         <Button asChild variant="outline" size="sm" className="w-full gap-2">
           <Link to="/roadmap" search={{ rec: rec.id }}>
-            <Map className="size-4" />
+            <MapIcon className="size-4" />
             View Roadmap
           </Link>
         </Button>
