@@ -211,7 +211,7 @@ function Landing() {
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, amount: 0.2 }}
-          className="mt-10 grid gap-6 md:grid-cols-3"
+          className="mt-10 grid gap-6 overflow-hidden md:grid-cols-3"
         >
           {STEPS.map((step, i) => (
             <motion.li
@@ -240,7 +240,7 @@ function Landing() {
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true, amount: 0.15 }}
-            className="mt-10 grid gap-6 sm:grid-cols-2"
+            className="mt-10 grid gap-6 overflow-hidden sm:grid-cols-2"
           >
             {FEATURES.map(({ icon: Icon, title, body }) => (
               <motion.article

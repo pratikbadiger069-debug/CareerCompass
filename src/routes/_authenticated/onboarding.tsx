@@ -20,7 +20,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { cn } from "@/lib/utils";
 import { usePrefersReducedMotion } from "@/hooks/use-reduced-motion";
-import { getScaleOnHover } from "@/lib/motion";
+import { getScaleOnHover, getFadeUp, getStaggerContainer } from "@/lib/motion";
 
 export const Route = createFileRoute("/_authenticated/onboarding")({
   head: () => ({
@@ -156,6 +156,8 @@ function Onboarding() {
   const [saving, setSaving] = useState(false);
   const prefersReduced = usePrefersReducedMotion();
   const scale = getScaleOnHover(prefersReduced);
+  const fadeUp = getFadeUp(prefersReduced);
+  const stagger = getStaggerContainer(prefersReduced);
 
   useEffect(() => {
     let active = true;
@@ -260,42 +262,58 @@ function Onboarding() {
         <Progress value={(step / TOTAL_STEPS) * 100} className="mt-2 h-2" />
       </div>
 
-      <h1 className="mt-8 text-3xl font-bold tracking-tight">
-        {step === 1 && "Where are you right now?"}
-        {step === 2 && "Tell us about your studies"}
-        {step === 3 && "What are you drawn to?"}
-        {step === 4 && "What are you aiming for?"}
-        {step === 5 && "Describe your dream outcome"}
-      </h1>
-      <p className="mt-2 text-muted-foreground">
-        {step === 1 && "This shapes every recommendation we make."}
-        {step === 2 && "Your stream and performance help us match realistic paths."}
-        {step === 3 && "Pick as many as you like — at least one."}
-        {step === 4 && "Goals, budget and timing keep the roadmap practical."}
-        {step === 5 && "In your own words. The more detail, the better the plan."}
-      </p>
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={`heading-${step}`}
+          variants={fadeUp}
+          initial="hidden"
+          animate="visible"
+          exit={{ opacity: 0, transition: { duration: 0.1 } }}
+        >
+          <h1 className="mt-8 text-3xl font-bold tracking-tight">
+            {step === 1 && "Where are you right now?"}
+            {step === 2 && "Tell us about your studies"}
+            {step === 3 && "What are you drawn to?"}
+            {step === 4 && "What are you aiming for?"}
+            {step === 5 && "Describe your dream outcome"}
+          </h1>
+          <p className="mt-2 text-muted-foreground">
+            {step === 1 && "This shapes every recommendation we make."}
+            {step === 2 && "Your stream and performance help us match realistic paths."}
+            {step === 3 && "Pick as many as you like — at least one."}
+            {step === 4 && "Goals, budget and timing keep the roadmap practical."}
+            {step === 5 && "In your own words. The more detail, the better the plan."}
+          </p>
+        </motion.div>
+      </AnimatePresence>
 
       <div className="mt-8 space-y-8 overflow-hidden">
         <AnimatePresence mode="wait">
           <motion.div
             key={step}
-            initial={prefersReduced ? { opacity: 0 } : { opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={prefersReduced ? { opacity: 0 } : { opacity: 0, x: -20 }}
-            transition={{ duration: 0.2 }}
+            initial={prefersReduced ? {} : { opacity: 0, x: 20 }}
+            animate={prefersReduced ? {} : { opacity: 1, x: 0 }}
+            exit={prefersReduced ? {} : { opacity: 0, x: -20 }}
+            transition={{ duration: prefersReduced ? 0 : 0.2 }}
           >
             {step === 1 && (
-              <div className="grid gap-3 sm:grid-cols-2">
+              <motion.div
+                variants={stagger}
+                initial="hidden"
+                animate="visible"
+                className="grid gap-3 sm:grid-cols-2"
+              >
                 {EDUCATION_STAGES.map((option) => {
                   const active = form.education_stage === option.value;
                   return (
                     <motion.button
                       key={option.value}
+                      variants={fadeUp}
                       type="button"
                       onClick={() => set("education_stage", option.value)}
                       aria-pressed={active}
                       {...scale}
-                      animate={active && !prefersReduced ? { scale: [1, 1.05, 1] } : {}}
+                      animate={active && !prefersReduced ? { scale: [1, 1.05, 1] } : "visible"}
                       transition={{ duration: 0.2 }}
                       className={cn(
                         "rounded-xl border border-border/60 bg-card/60 p-4 text-left transition hover:border-primary/60",
@@ -308,24 +326,30 @@ function Onboarding() {
                     </motion.button>
                   );
                 })}
-              </div>
+              </motion.div>
             )}
 
             {step === 2 && (
               <>
                 <div>
                   <Label className="mb-3 block">Stream</Label>
-                  <div className="grid gap-3 sm:grid-cols-3">
+                  <motion.div
+                    variants={stagger}
+                    initial="hidden"
+                    animate="visible"
+                    className="grid gap-3 sm:grid-cols-3"
+                  >
                     {STREAMS.map((option) => {
                       const active = form.stream === option.value;
                       return (
                         <motion.button
                           key={option.value}
+                          variants={fadeUp}
                           type="button"
                           onClick={() => set("stream", option.value)}
                           aria-pressed={active}
                           {...scale}
-                          animate={active && !prefersReduced ? { scale: [1, 1.05, 1] } : {}}
+                          animate={active && !prefersReduced ? { scale: [1, 1.05, 1] } : "visible"}
                           transition={{ duration: 0.2 }}
                           className={cn(
                             "rounded-xl border border-border/60 bg-card/60 p-4 text-sm font-medium transition hover:border-primary/60",
@@ -337,7 +361,7 @@ function Onboarding() {
                         </motion.button>
                       );
                     })}
-                  </div>
+                  </motion.div>
                 </div>
                 <div className="grid gap-6 sm:grid-cols-2">
                   <div>
@@ -375,17 +399,23 @@ function Onboarding() {
 
             {step === 3 && (
               <>
-                <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+                <motion.div
+                  variants={stagger}
+                  initial="hidden"
+                  animate="visible"
+                  className="grid grid-cols-2 gap-3 sm:grid-cols-4"
+                >
                   {INTERESTS.map((item) => {
                     const active = form.interests.includes(item.label);
                     return (
                       <motion.button
                         key={item.label}
+                        variants={fadeUp}
                         type="button"
                         onClick={() => toggleInterest(item.label)}
                         aria-pressed={active}
                         {...scale}
-                        animate={active && !prefersReduced ? { scale: [1, 1.05, 1] } : {}}
+                        animate={active && !prefersReduced ? { scale: [1, 1.05, 1] } : "visible"}
                         transition={{ duration: 0.2 }}
                         className={cn(
                           "rounded-xl border border-border/60 bg-card/60 p-4 text-center transition hover:border-primary/60",
@@ -397,7 +427,7 @@ function Onboarding() {
                       </motion.button>
                     );
                   })}
-                </div>
+                </motion.div>
                 <div>
                   <Label htmlFor="skills">Current skills</Label>
                   <div className="mt-2 flex gap-2">
@@ -419,25 +449,33 @@ function Onboarding() {
                     </Button>
                   </div>
                   {form.current_skills.length > 0 && (
-                    <ul className="mt-3 flex flex-wrap gap-2">
-                      {form.current_skills.map((skill) => (
-                        <li key={skill}>
-                          <button
-                            type="button"
-                            onClick={() =>
-                              set(
-                                "current_skills",
-                                form.current_skills.filter((s) => s !== skill),
-                              )
-                            }
-                            className="rounded-full border border-border/60 bg-secondary px-3 py-1 text-sm text-secondary-foreground transition hover:border-destructive/60"
-                            aria-label={`Remove ${skill}`}
+                    <motion.ul layout className="mt-3 flex flex-wrap gap-2">
+                      <AnimatePresence>
+                        {form.current_skills.map((skill) => (
+                          <motion.li
+                            key={skill}
+                            layout
+                            initial={{ opacity: 0, scale: 0.75 }}
+                            animate={{ opacity: 1, scale: 1, transition: { type: "spring", stiffness: 400, damping: 20 } }}
+                            exit={{ opacity: 0, scale: 0.75, transition: { duration: 0.15 } }}
                           >
-                            {skill} <span aria-hidden>×</span>
-                          </button>
-                        </li>
-                      ))}
-                    </ul>
+                            <button
+                              type="button"
+                              onClick={() =>
+                                set(
+                                  "current_skills",
+                                  form.current_skills.filter((s) => s !== skill),
+                                )
+                              }
+                              className="rounded-full border border-border/60 bg-secondary px-3 py-1 text-sm text-secondary-foreground transition hover:border-destructive/60"
+                              aria-label={`Remove ${skill}`}
+                            >
+                              {skill} <span aria-hidden>×</span>
+                            </button>
+                          </motion.li>
+                        ))}
+                      </AnimatePresence>
+                    </motion.ul>
                   )}
                 </div>
               </>
