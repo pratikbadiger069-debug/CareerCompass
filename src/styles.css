@@ -67,9 +67,11 @@
 :root,
 .dark {
   --radius: 0.75rem;
-  --navy: oklch(0.352 0.056 249.5); /* #1E3A5F */
+  --navy: oklch(0.352 0.056 249.5);
+  /* #1E3A5F */
   --navy-deep: oklch(0.24 0.045 252);
-  --gold: oklch(0.802 0.137 76.5); /* #F5B342 */
+  --gold: oklch(0.802 0.137 76.5);
+  /* #F5B342 */
 
   --background: oklch(0.198 0.038 252);
   --foreground: oklch(0.965 0.008 250);
@@ -145,9 +147,12 @@
 }
 
 @keyframes roadmap-pulse {
-  0%, 100% {
+
+  0%,
+  100% {
     box-shadow: 0 0 0 0 oklch(0.802 0.137 76.5 / 40%);
   }
+
   50% {
     box-shadow: 0 0 16px 4px oklch(0.802 0.137 76.5 / 25%);
   }
@@ -155,4 +160,5 @@
 
 @utility roadmap-pulse {
   animation: roadmap-pulse 2s ease-in-out infinite;
+}
 }
