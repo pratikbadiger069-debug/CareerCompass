@@ -43,7 +43,10 @@ export async function generateRoadmapFromProfile(
   if (!content) throw new Error("AI returned an empty response.");
 
   try {
-    return JSON.parse(content) as RoadmapResult;
+    const parsed = JSON.parse(content) as RoadmapResult;
+    console.log("[generate-roadmap] Parsed keys:", Object.keys(parsed));
+    console.log("[generate-roadmap] Full content:", content);
+    return parsed;
   } catch {
     const match = content.match(/\{[\s\S]*\}/);
     if (match) return JSON.parse(match[0]) as RoadmapResult;
