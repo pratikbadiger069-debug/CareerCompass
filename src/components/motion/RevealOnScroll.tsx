@@ -25,7 +25,9 @@ interface RevealOnScrollProps {
  * - Uses `whileInView` + `viewport={{ once: true }}` so the
  *   animation only plays once per page visit.
  * - Respects `prefers-reduced-motion`: when enabled the content
- *   appears instantly with no transform.
+ *   appears instantly with no transition — not just a faster one.
+ *   The component renders a plain HTML element so there is no
+ *   Framer Motion overhead and zero risk of a content flash.
  *
  * ```tsx
  * <RevealOnScroll>
@@ -40,7 +42,15 @@ export function RevealOnScroll({
   as = "div",
 }: RevealOnScrollProps) {
   const prefersReduced = usePrefersReducedMotion();
-  const variants = getFadeUp(prefersReduced);
+
+  // When the user prefers reduced motion, skip Framer Motion entirely so
+  // content is always immediately visible — no flash, no JS animation dep.
+  if (prefersReduced) {
+    const Tag = as as keyof JSX.IntrinsicElements;
+    return <Tag className={className}>{children}</Tag>;
+  }
+
+  const variants = getFadeUp(false);
   const Component = motion[as];
 
   return (

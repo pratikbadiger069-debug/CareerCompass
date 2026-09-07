@@ -281,7 +281,7 @@ function RoadmapPage() {
       )}
 
       {/* Loading skeleton */}
-      {loading && <TimelineSkeleton />}
+      {loading && <TimelineSkeleton prefersReduced={prefersReduced} />}
 
       {/* Empty state — no recommendations */}
       {!loading && recommendations.length === 0 && (
@@ -508,7 +508,22 @@ function RoadmapPage() {
 /*  Loading skeleton                                                         */
 /* ────────────────────────────────────────────────────────────────────────── */
 
-function TimelineSkeleton() {
+function TimelineSkeleton({ prefersReduced }: { prefersReduced: boolean }) {
+  const skeletonItems = Array.from({ length: 4 }).map((_, i) => (
+    <div key={i} className="flex gap-4">
+      <Skeleton className="size-10 shrink-0 rounded-full" />
+      <div className="flex-1 space-y-2 rounded-xl border border-border/40 bg-card/50 p-5">
+        <Skeleton className="h-5 w-3/4" />
+        <Skeleton className="h-4 w-full" />
+        <Skeleton className="h-4 w-5/6" />
+        <div className="flex gap-2 pt-1">
+          <Skeleton className="h-5 w-16 rounded-full" />
+          <Skeleton className="h-5 w-20 rounded-full" />
+        </div>
+      </div>
+    </div>
+  ));
+
   return (
     <div className="mt-8 space-y-6">
       {/* Progress bar skeleton */}
@@ -518,27 +533,31 @@ function TimelineSkeleton() {
       </div>
 
       {/* Timeline items skeleton */}
-      <motion.div
-        initial={{ opacity: 0.65 }}
-        animate={{ opacity: [0.65, 1, 0.65] }}
-        transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-        className="space-y-6"
-      >
-        {Array.from({ length: 4 }).map((_, i) => (
-          <div key={i} className="flex gap-4 animate-pulse">
-            <Skeleton className="size-10 shrink-0 rounded-full" />
-            <div className="flex-1 space-y-2 rounded-xl border border-border/40 bg-card/50 p-5">
-              <Skeleton className="h-5 w-3/4" />
-              <Skeleton className="h-4 w-full" />
-              <Skeleton className="h-4 w-5/6" />
-              <div className="flex gap-2 pt-1">
-                <Skeleton className="h-5 w-16 rounded-full" />
-                <Skeleton className="h-5 w-20 rounded-full" />
+      {prefersReduced ? (
+        <div className="space-y-6">{skeletonItems}</div>
+      ) : (
+        <motion.div
+          initial={{ opacity: 0.65 }}
+          animate={{ opacity: [0.65, 1, 0.65] }}
+          transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+          className="space-y-6"
+        >
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className="flex gap-4 animate-pulse">
+              <Skeleton className="size-10 shrink-0 rounded-full" />
+              <div className="flex-1 space-y-2 rounded-xl border border-border/40 bg-card/50 p-5">
+                <Skeleton className="h-5 w-3/4" />
+                <Skeleton className="h-4 w-full" />
+                <Skeleton className="h-4 w-5/6" />
+                <div className="flex gap-2 pt-1">
+                  <Skeleton className="h-5 w-16 rounded-full" />
+                  <Skeleton className="h-5 w-20 rounded-full" />
+                </div>
               </div>
             </div>
-          </div>
-        ))}
-      </motion.div>
+          ))}
+        </motion.div>
+      )}
     </div>
   );
 }

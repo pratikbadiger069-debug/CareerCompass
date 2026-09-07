@@ -24,13 +24,10 @@ export const fadeUp: Variants = {
   },
 };
 
-/** Reduced-motion version: instant, no transform. */
+/** Reduced-motion version: content is immediately visible — no transition at all. */
 export const fadeUpReduced: Variants = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: { duration: 0.01 },
-  },
+  hidden: { opacity: 1 },
+  visible: { opacity: 1 },
 };
 
 /* ── staggerContainer ─────────────────────────────────────────────────────
@@ -46,12 +43,13 @@ export const staggerContainer: Variants = {
   },
 };
 
-/** Reduced-motion version: no stagger. */
+/** Reduced-motion version: no stagger, no delay — children appear immediately. */
 export const staggerContainerReduced: Variants = {
   hidden: {},
   visible: {
     transition: {
       staggerChildren: 0,
+      delayChildren: 0,
     },
   },
 };
@@ -109,17 +107,11 @@ export const checkmarkPop: Variants = {
   },
 };
 
-/** Reduced-motion version: instant fade, no scale. */
+/** Reduced-motion version: immediately visible, no scale, no transition. */
 export const checkmarkPopReduced: Variants = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: { duration: 0.05 },
-  },
-  exit: {
-    opacity: 0,
-    transition: { duration: 0.05 },
-  },
+  hidden: { opacity: 1, scale: 1 },
+  visible: { opacity: 1, scale: 1 },
+  exit: { opacity: 1, scale: 1 },
 };
 
 /* ── widgetScaleFade ──────────────────────────────────────────────────────
@@ -141,17 +133,11 @@ export const widgetScaleFade: Variants = {
   },
 };
 
-/** Reduced-motion version: quick fade only. */
+/** Reduced-motion version: immediately visible, no scale, no transition. */
 export const widgetScaleFadeReduced: Variants = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: { duration: 0.05 },
-  },
-  exit: {
-    opacity: 0,
-    transition: { duration: 0.05 },
-  },
+  hidden: { opacity: 1, scale: 1, y: 0 },
+  visible: { opacity: 1, scale: 1, y: 0 },
+  exit: { opacity: 1, scale: 1, y: 0 },
 };
 
 /* ── Helpers ──────────────────────────────────────────────────────────────

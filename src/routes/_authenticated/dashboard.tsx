@@ -258,7 +258,7 @@ function Dashboard() {
           </div>
 
           {/* Loading skeleton */}
-          {status === "loading" && <LoadingSkeleton />}
+          {status === "loading" && <LoadingSkeleton prefersReduced={prefersReduced} />}
 
           {/* Error state */}
           {status === "error" && (
@@ -501,7 +501,7 @@ function RecommendationCard({
 }
 
 /* ─── Loading Skeleton ─── */
-function LoadingSkeleton() {
+function LoadingSkeleton({ prefersReduced }: { prefersReduced: boolean }) {
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-3 rounded-xl border border-primary/20 bg-primary/5 p-4">
@@ -511,34 +511,60 @@ function LoadingSkeleton() {
           <p className="mt-1 text-xs text-muted-foreground">This may take 15–30 seconds. We're analysing your profile with AI.</p>
         </div>
       </div>
-      <motion.div
-        initial={{ opacity: 0.65 }}
-        animate={{ opacity: [0.65, 1, 0.65] }}
-        transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-        className="grid gap-6 md:grid-cols-2 lg:grid-cols-3"
-      >
-        {Array.from({ length: 3 }).map((_, i) => (
-          <Card key={i} className="border-border/60 bg-card/70 animate-pulse">
-            <CardHeader className="pb-3">
-              <Skeleton className="h-5 w-3/4" />
-              <Skeleton className="mt-2 h-1.5 w-full" />
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <Skeleton className="h-4 w-full" />
-              <Skeleton className="h-4 w-5/6" />
-              <div className="flex gap-2">
-                <Skeleton className="h-5 w-20 rounded-full" />
-                <Skeleton className="h-5 w-24 rounded-full" />
-              </div>
-              <div className="flex gap-1.5">
-                <Skeleton className="h-5 w-14 rounded-full" />
-                <Skeleton className="h-5 w-16 rounded-full" />
-                <Skeleton className="h-5 w-12 rounded-full" />
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </motion.div>
+      {prefersReduced ? (
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          {Array.from({ length: 3 }).map((_, i) => (
+            <Card key={i} className="border-border/60 bg-card/70">
+              <CardHeader className="pb-3">
+                <Skeleton className="h-5 w-3/4" />
+                <Skeleton className="mt-2 h-1.5 w-full" />
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <Skeleton className="h-4 w-full" />
+                <Skeleton className="h-4 w-5/6" />
+                <div className="flex gap-2">
+                  <Skeleton className="h-5 w-20 rounded-full" />
+                  <Skeleton className="h-5 w-24 rounded-full" />
+                </div>
+                <div className="flex gap-1.5">
+                  <Skeleton className="h-5 w-14 rounded-full" />
+                  <Skeleton className="h-5 w-16 rounded-full" />
+                  <Skeleton className="h-5 w-12 rounded-full" />
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      ) : (
+        <motion.div
+          initial={{ opacity: 0.65 }}
+          animate={{ opacity: [0.65, 1, 0.65] }}
+          transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+          className="grid gap-6 md:grid-cols-2 lg:grid-cols-3"
+        >
+          {Array.from({ length: 3 }).map((_, i) => (
+            <Card key={i} className="border-border/60 bg-card/70 animate-pulse">
+              <CardHeader className="pb-3">
+                <Skeleton className="h-5 w-3/4" />
+                <Skeleton className="mt-2 h-1.5 w-full" />
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <Skeleton className="h-4 w-full" />
+                <Skeleton className="h-4 w-5/6" />
+                <div className="flex gap-2">
+                  <Skeleton className="h-5 w-20 rounded-full" />
+                  <Skeleton className="h-5 w-24 rounded-full" />
+                </div>
+                <div className="flex gap-1.5">
+                  <Skeleton className="h-5 w-14 rounded-full" />
+                  <Skeleton className="h-5 w-16 rounded-full" />
+                  <Skeleton className="h-5 w-12 rounded-full" />
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </motion.div>
+      )}
     </div>
   );
 }
