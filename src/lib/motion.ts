@@ -1,4 +1,4 @@
-import type { Variants, TargetAndTransition } from "framer-motion";
+import type { Variants, TargetAndTransition, Transition } from "framer-motion";
 
 /* ────────────────────────────────────────────────────────────────────────── */
 /*  Reusable Framer-Motion animation variants                                */
@@ -58,14 +58,20 @@ export const staggerContainerReduced: Variants = {
  * For buttons and clickable cards.
  * whileHover: scale 1.02 · whileTap: scale 0.98
  */
-export const scaleOnHover = {
+export type ScaleOnHoverProps = {
+  whileHover: TargetAndTransition;
+  whileTap: TargetAndTransition;
+  transition: Transition;
+};
+
+export const scaleOnHover: ScaleOnHoverProps = {
   whileHover: { scale: 1.02 } as TargetAndTransition,
   whileTap: { scale: 0.98 } as TargetAndTransition,
   transition: { type: "spring", stiffness: 400, damping: 20 },
 };
 
 /** Reduced-motion version: no scaling. */
-export const scaleOnHoverReduced = {
+export const scaleOnHoverReduced: ScaleOnHoverProps = {
   whileHover: {} as TargetAndTransition,
   whileTap: {} as TargetAndTransition,
   transition: { duration: 0 },
