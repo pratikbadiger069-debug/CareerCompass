@@ -26,8 +26,11 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { supabase } from "@/integrations/supabase/client";
 import type { Tables } from "@/integrations/supabase/types";
 import { useAuth } from "@/hooks/useAuth";
+import { usePrefersReducedMotion } from "@/hooks/use-reduced-motion";
+import { getStaggerContainer, getFadeUp, getCardHover } from "@/lib/motion";
 import { generateCareerRoadmap } from "@/lib/geminiApi";
 import { CAREER_PATHS, EXAM_CONNECTIONS, STREAM_VALUE_TO_PATH, type StreamPath } from "@/lib/careerCompass.paths";
+import { motion, type Variants } from "framer-motion";
 
 type Recommendation = Tables<"career_recommendations">;
 type Milestone = Tables<"roadmap_milestones">;
@@ -50,6 +53,11 @@ export const Route = createFileRoute("/_authenticated/dashboard")({
 function Dashboard() {
   const { user, isGuest } = useAuth();
   const navigate = useNavigate();
+  const prefersReduced = usePrefersReducedMotion();
+
+  const stagger = getStaggerContainer(prefersReduced);
+  const fadeUp = getFadeUp(prefersReduced);
+  const cardHover = getCardHover(prefersReduced);
 
   // --- Static "Explore by stream" state (existing) ---
   const [stream, setStream] = useState("science_pcm");
@@ -274,15 +282,22 @@ function Dashboard() {
 
           {/* Recommendations grid */}
           {status === "ready" && recommendations.length > 0 && (
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            <motion.div
+              variants={stagger}
+              initial="hidden"
+              animate="visible"
+              className="grid gap-6 md:grid-cols-2 lg:grid-cols-3"
+            >
               {recommendations.map((rec) => (
                 <RecommendationCard
                   key={rec.id}
                   rec={rec}
                   milestones={milestonesByRec.get(rec.id) ?? []}
+                  variants={fadeUp}
+                  cardHoverProps={cardHover}
                 />
               ))}
-            </div>
+            </motion.div>
           )}
 
           {status === "ready" && recommendations.length === 0 && (
@@ -379,80 +394,100 @@ function Dashboard() {
 }
 
 /* ─── Recommendation Card ─── */
-function RecommendationCard({ rec, milestones }: { rec: Recommendation; milestones: Milestone[] }) {
+const MotionCard = motion.create(Card);
+
+function RecommendationCard({
+  rec,
+  milestones,
+  variants,
+  cardHoverProps,
+}: {
+  rec: Recommendation;
+  milestones: Milestone[];
+  variants?: Variants;
+  cardHoverProps?: ReturnType<typeof getCardHover>;
+}) {
   const scoreColor =
     (rec.match_score ?? 0) >= 80 ? "text-emerald-500" :
     (rec.match_score ?? 0) >= 60 ? "text-amber-500" :
     "text-red-400";
 
   return (
-    <Card className="group border-border/60 bg-card/70 transition-shadow hover:shadow-lg hover:shadow-primary/5">
-      <CardHeader className="pb-3">
-        <div className="flex items-start justify-between gap-2">
-          <CardTitle className="text-base leading-snug">{rec.career_title}</CardTitle>
+    <MotionCard
+      variants={variants}
+      {...cardHoverProps}
+      className="group flex flex-col justify-between border-border/60 bg-card/70"
+    >
+      <div>
+        <CardHeader className="pb-3">
+          <div className="flex items-start justify-between gap-2">
+            <CardTitle className="text-base leading-snug">{rec.career_title}</CardTitle>
+            {rec.match_score != null && (
+              <Badge variant="secondary" className={`shrink-0 font-bold ${scoreColor}`}>
+                {rec.match_score}%
+              </Badge>
+            )}
+          </div>
           {rec.match_score != null && (
-            <Badge variant="secondary" className={`shrink-0 font-bold ${scoreColor}`}>
-              {rec.match_score}%
-            </Badge>
+            <Progress value={rec.match_score} className="mt-2 h-1.5" />
           )}
-        </div>
-        {rec.match_score != null && (
-          <Progress value={rec.match_score} className="mt-2 h-1.5" />
-        )}
-      </CardHeader>
-      <CardContent className="space-y-4">
-        {rec.description && (
-          <p className="text-sm leading-relaxed text-muted-foreground">{rec.description}</p>
-        )}
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {rec.description && (
+            <p className="text-sm leading-relaxed text-muted-foreground">{rec.description}</p>
+          )}
 
-        {/* Metadata badges */}
-        <div className="flex flex-wrap gap-2">
-          {rec.salary_range && (
-            <Badge variant="outline" className="gap-1 text-xs font-normal">
-              <DollarSign className="size-3" /> {rec.salary_range}
-            </Badge>
-          )}
-          {rec.growth_outlook && (
-            <Badge variant="outline" className="gap-1 text-xs font-normal">
-              <TrendingUp className="size-3" /> {rec.growth_outlook}
-            </Badge>
-          )}
-        </div>
+          {/* Metadata badges */}
+          <div className="flex flex-wrap gap-2">
+            {rec.salary_range && (
+              <Badge variant="outline" className="gap-1 text-xs font-normal">
+                <DollarSign className="size-3" /> {rec.salary_range}
+              </Badge>
+            )}
+            {rec.growth_outlook && (
+              <Badge variant="outline" className="gap-1 text-xs font-normal">
+                <TrendingUp className="size-3" /> {rec.growth_outlook}
+              </Badge>
+            )}
+          </div>
 
-        {/* Skills */}
-        {rec.required_skills.length > 0 && (
-          <div>
-            <p className="mb-2 flex items-center gap-1 text-xs font-semibold text-muted-foreground">
-              <Zap className="size-3" /> Required Skills
-            </p>
-            <div className="flex flex-wrap gap-1.5">
-              {rec.required_skills.map((skill) => (
-                <Badge key={skill} variant="secondary" className="text-[11px] font-normal">
-                  {skill}
-                </Badge>
-              ))}
+          {/* Skills */}
+          {rec.required_skills.length > 0 && (
+            <div>
+              <p className="mb-2 flex items-center gap-1 text-xs font-semibold text-muted-foreground">
+                <Zap className="size-3" /> Required Skills
+              </p>
+              <div className="flex flex-wrap gap-1.5">
+                {rec.required_skills.map((skill) => (
+                  <Badge key={skill} variant="secondary" className="text-[11px] font-normal">
+                    {skill}
+                  </Badge>
+                ))}
+              </div>
             </div>
-          </div>
-        )}
+          )}
 
-        {/* Milestones (collapsed preview) */}
-        {milestones.length > 0 && (
-          <div className="rounded-lg border border-border/40 bg-secondary/30 p-3">
-            <p className="mb-2 text-xs font-semibold text-muted-foreground">Roadmap milestones</p>
-            <ul className="space-y-1.5">
-              {milestones.slice(0, 3).map((m) => (
-                <li key={m.id} className="flex items-start gap-2 text-xs">
-                  <span className="mt-0.5 size-1.5 shrink-0 rounded-full bg-primary" />
-                  <span>{m.title}</span>
-                </li>
-              ))}
-              {milestones.length > 3 && (
-                <li className="text-xs text-muted-foreground">+{milestones.length - 3} more</li>
-              )}
-            </ul>
-          </div>
-        )}
+          {/* Milestones (collapsed preview) */}
+          {milestones.length > 0 && (
+            <div className="rounded-lg border border-border/40 bg-secondary/30 p-3">
+              <p className="mb-2 text-xs font-semibold text-muted-foreground">Roadmap milestones</p>
+              <ul className="space-y-1.5">
+                {milestones.slice(0, 3).map((m) => (
+                  <li key={m.id} className="flex items-start gap-2 text-xs">
+                    <span className="mt-0.5 size-1.5 shrink-0 rounded-full bg-primary" />
+                    <span>{m.title}</span>
+                  </li>
+                ))}
+                {milestones.length > 3 && (
+                  <li className="text-xs text-muted-foreground">+{milestones.length - 3} more</li>
+                )}
+              </ul>
+            </div>
+          )}
+        </CardContent>
+      </div>
 
+      <CardContent className="pt-0">
         {/* View Roadmap button */}
         <Button asChild variant="outline" size="sm" className="w-full gap-2">
           <Link to="/roadmap" search={{ rec: rec.id }}>
@@ -461,7 +496,7 @@ function RecommendationCard({ rec, milestones }: { rec: Recommendation; mileston
           </Link>
         </Button>
       </CardContent>
-    </Card>
+    </MotionCard>
   );
 }
 
@@ -476,9 +511,14 @@ function LoadingSkeleton() {
           <p className="mt-1 text-xs text-muted-foreground">This may take 15–30 seconds. We're analysing your profile with AI.</p>
         </div>
       </div>
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+      <motion.div
+        initial={{ opacity: 0.65 }}
+        animate={{ opacity: [0.65, 1, 0.65] }}
+        transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+        className="grid gap-6 md:grid-cols-2 lg:grid-cols-3"
+      >
         {Array.from({ length: 3 }).map((_, i) => (
-          <Card key={i} className="border-border/60 bg-card/70">
+          <Card key={i} className="border-border/60 bg-card/70 animate-pulse">
             <CardHeader className="pb-3">
               <Skeleton className="h-5 w-3/4" />
               <Skeleton className="mt-2 h-1.5 w-full" />
@@ -498,7 +538,7 @@ function LoadingSkeleton() {
             </CardContent>
           </Card>
         ))}
-      </div>
+      </motion.div>
     </div>
   );
 }

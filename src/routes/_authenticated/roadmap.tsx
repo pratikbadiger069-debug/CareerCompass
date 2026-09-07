@@ -25,6 +25,10 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { supabase } from "@/integrations/supabase/client";
 import type { Tables } from "@/integrations/supabase/types";
 import { useAuth } from "@/hooks/useAuth";
+import { usePrefersReducedMotion } from "@/hooks/use-reduced-motion";
+import { getCheckmarkPop } from "@/lib/motion";
+import { RevealOnScroll } from "@/components/motion/RevealOnScroll";
+import { motion, AnimatePresence } from "framer-motion";
 
 type Recommendation = Tables<"career_recommendations">;
 type Milestone = Tables<"roadmap_milestones">;
@@ -66,6 +70,8 @@ function RoadmapPage() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const { rec: selectedRecId } = Route.useSearch();
+  const prefersReduced = usePrefersReducedMotion();
+  const checkmarkPop = getCheckmarkPop(prefersReduced);
 
   const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
   const [milestones, setMilestones] = useState<Milestone[]>([]);
@@ -321,7 +327,11 @@ function RoadmapPage() {
               const isUpdating = milestone.id === updatingId;
 
               return (
-                <li key={milestone.id} className="relative flex gap-4 pb-8 last:pb-0">
+                <RevealOnScroll
+                  as="li"
+                  key={milestone.id}
+                  className="relative flex gap-4 pb-8 last:pb-0"
+                >
                   {/* Dot / icon on the timeline */}
                   <div
                     className={`
@@ -335,13 +345,39 @@ function RoadmapPage() {
                       }
                     `}
                   >
-                    {isCompleted ? (
-                      <CheckCircle2 className="size-5 text-emerald-400" />
-                    ) : isNext ? (
-                      <Sparkles className="size-4 text-primary" />
-                    ) : (
-                      <Circle className="size-4 text-muted-foreground/50" />
-                    )}
+                    <AnimatePresence mode="wait">
+                      {isCompleted ? (
+                        <motion.div
+                          key="completed"
+                          variants={checkmarkPop}
+                          initial="hidden"
+                          animate="visible"
+                          exit="exit"
+                        >
+                          <CheckCircle2 className="size-5 text-emerald-400" />
+                        </motion.div>
+                      ) : isNext ? (
+                        <motion.div
+                          key="next"
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          exit={{ opacity: 0 }}
+                          transition={{ duration: 0.15 }}
+                        >
+                          <Sparkles className="size-4 text-primary" />
+                        </motion.div>
+                      ) : (
+                        <motion.div
+                          key="pending"
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          exit={{ opacity: 0 }}
+                          transition={{ duration: 0.15 }}
+                        >
+                          <Circle className="size-4 text-muted-foreground/50" />
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
                   </div>
 
                   {/* Card */}
@@ -415,12 +451,20 @@ function RoadmapPage() {
                               {milestone.category}
                             </Badge>
 
-                            {isCompleted && (
-                              <span className="flex items-center gap-1 text-[11px] font-medium text-emerald-400">
-                                <Check className="size-3" />
-                                Completed
-                              </span>
-                            )}
+                            <AnimatePresence>
+                              {isCompleted && (
+                                <motion.span
+                                  variants={checkmarkPop}
+                                  initial="hidden"
+                                  animate="visible"
+                                  exit="exit"
+                                  className="flex items-center gap-1 text-[11px] font-medium text-emerald-400"
+                                >
+                                  <Check className="size-3" />
+                                  Completed
+                                </motion.span>
+                              )}
+                            </AnimatePresence>
 
                             {isNext && (
                               <span className="text-[11px] font-semibold text-primary">
@@ -436,7 +480,7 @@ function RoadmapPage() {
                       </div>
                     </CardContent>
                   </Card>
-                </li>
+                </RevealOnScroll>
               );
             })}
           </ol>
@@ -474,20 +518,27 @@ function TimelineSkeleton() {
       </div>
 
       {/* Timeline items skeleton */}
-      {Array.from({ length: 4 }).map((_, i) => (
-        <div key={i} className="flex gap-4">
-          <Skeleton className="size-10 shrink-0 rounded-full" />
-          <div className="flex-1 space-y-2 rounded-xl border border-border/40 bg-card/50 p-5">
-            <Skeleton className="h-5 w-3/4" />
-            <Skeleton className="h-4 w-full" />
-            <Skeleton className="h-4 w-5/6" />
-            <div className="flex gap-2 pt-1">
-              <Skeleton className="h-5 w-16 rounded-full" />
-              <Skeleton className="h-5 w-20 rounded-full" />
+      <motion.div
+        initial={{ opacity: 0.65 }}
+        animate={{ opacity: [0.65, 1, 0.65] }}
+        transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+        className="space-y-6"
+      >
+        {Array.from({ length: 4 }).map((_, i) => (
+          <div key={i} className="flex gap-4 animate-pulse">
+            <Skeleton className="size-10 shrink-0 rounded-full" />
+            <div className="flex-1 space-y-2 rounded-xl border border-border/40 bg-card/50 p-5">
+              <Skeleton className="h-5 w-3/4" />
+              <Skeleton className="h-4 w-full" />
+              <Skeleton className="h-4 w-5/6" />
+              <div className="flex gap-2 pt-1">
+                <Skeleton className="h-5 w-16 rounded-full" />
+                <Skeleton className="h-5 w-20 rounded-full" />
+              </div>
             </div>
           </div>
-        </div>
-      ))}
+        ))}
+      </motion.div>
     </div>
   );
 }

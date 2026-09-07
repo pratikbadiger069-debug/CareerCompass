@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { motion, AnimatePresence } from "framer-motion";
@@ -283,241 +284,241 @@ function Onboarding() {
             exit={prefersReduced ? { opacity: 0 } : { opacity: 0, x: -20 }}
             transition={{ duration: 0.2 }}
           >
-        {step === 1 && (
-          <div className="grid gap-3 sm:grid-cols-2">
-            {EDUCATION_STAGES.map((option) => {
-              const active = form.education_stage === option.value;
-              return (
-              <motion.button
-                key={option.value}
-                type="button"
-                onClick={() => set("education_stage", option.value)}
-                aria-pressed={active}
-                {...scale}
-                animate={active && !prefersReduced ? { scale: [1, 1.05, 1] } : {}}
-                transition={{ duration: 0.2 }}
-                className={cn(
-                  "rounded-xl border border-border/60 bg-card/60 p-4 text-left transition hover:border-primary/60",
-                  active &&
-                    "border-primary bg-primary/10 ring-1 ring-primary",
-                )}
-              >
-                <span className="block font-medium">{option.label}</span>
-                <span className="mt-1 block text-sm text-muted-foreground">{option.hint}</span>
-              </motion.button>
-              );
-            })}
-          </div>
-        )}
-
-        {step === 2 && (
-          <>
-            <div>
-              <Label className="mb-3 block">Stream</Label>
-              <div className="grid gap-3 sm:grid-cols-3">
-                {STREAMS.map((option) => {
-                  const active = form.stream === option.value;
+            {step === 1 && (
+              <div className="grid gap-3 sm:grid-cols-2">
+                {EDUCATION_STAGES.map((option) => {
+                  const active = form.education_stage === option.value;
                   return (
-                  <motion.button
-                    key={option.value}
-                    type="button"
-                    onClick={() => set("stream", option.value)}
-                    aria-pressed={active}
-                    {...scale}
-                    animate={active && !prefersReduced ? { scale: [1, 1.05, 1] } : {}}
-                    transition={{ duration: 0.2 }}
-                    className={cn(
-                      "rounded-xl border border-border/60 bg-card/60 p-4 text-sm font-medium transition hover:border-primary/60",
-                      active &&
+                    <motion.button
+                      key={option.value}
+                      type="button"
+                      onClick={() => set("education_stage", option.value)}
+                      aria-pressed={active}
+                      {...scale}
+                      animate={active && !prefersReduced ? { scale: [1, 1.05, 1] } : {}}
+                      transition={{ duration: 0.2 }}
+                      className={cn(
+                        "rounded-xl border border-border/60 bg-card/60 p-4 text-left transition hover:border-primary/60",
+                        active &&
                         "border-primary bg-primary/10 ring-1 ring-primary",
-                    )}
-                  >
-                    {option.label}
-                  </motion.button>
+                      )}
+                    >
+                      <span className="block font-medium">{option.label}</span>
+                      <span className="mt-1 block text-sm text-muted-foreground">{option.hint}</span>
+                    </motion.button>
                   );
                 })}
               </div>
-            </div>
-            <div className="grid gap-6 sm:grid-cols-2">
-              <div>
-                <Label htmlFor="marks">Current marks</Label>
-                <Select
-                  value={form.current_marks}
-                  onValueChange={(v) => set("current_marks", v)}
-                >
-                  <SelectTrigger id="marks" className="mt-2">
-                    <SelectValue placeholder="Select a range" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {MARKS.map((m) => (
-                      <SelectItem key={m} value={m}>
-                        {m}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div>
-                <Label htmlFor="institution">School / college name</Label>
-                <Input
-                  id="institution"
-                  className="mt-2"
-                  maxLength={120}
-                  placeholder="e.g. Delhi Public School"
-                  value={form.institution_name}
-                  onChange={(e) => set("institution_name", e.target.value)}
-                />
-              </div>
-            </div>
-          </>
-        )}
+            )}
 
-        {step === 3 && (
-          <>
-            <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-              {INTERESTS.map((item) => {
-                const active = form.interests.includes(item.label);
-                return (
-                  <motion.button
-                    key={item.label}
-                    type="button"
-                    onClick={() => toggleInterest(item.label)}
-                    aria-pressed={active}
-                    {...scale}
-                    animate={active && !prefersReduced ? { scale: [1, 1.05, 1] } : {}}
-                    transition={{ duration: 0.2 }}
-                    className={cn(
-                      "rounded-xl border border-border/60 bg-card/60 p-4 text-center transition hover:border-primary/60",
-                      active && "border-primary bg-primary/10 ring-1 ring-primary",
-                    )}
-                  >
-                    <span className="block text-2xl">{item.emoji}</span>
-                    <span className="mt-2 block text-sm font-medium">{item.label}</span>
-                  </motion.button>
-                );
-              })}
-            </div>
-            <div>
-              <Label htmlFor="skills">Current skills</Label>
-              <div className="mt-2 flex gap-2">
-                <Input
-                  id="skills"
-                  maxLength={40}
-                  placeholder="Type a skill and press Enter"
-                  value={skillDraft}
-                  onChange={(e) => setSkillDraft(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" || e.key === ",") {
-                      e.preventDefault();
-                      addSkill();
-                    }
-                  }}
-                />
-                <Button type="button" variant="outline" onClick={addSkill}>
-                  Add
-                </Button>
-              </div>
-              {form.current_skills.length > 0 && (
-                <ul className="mt-3 flex flex-wrap gap-2">
-                  {form.current_skills.map((skill) => (
-                    <li key={skill}>
-                      <button
+            {step === 2 && (
+              <>
+                <div>
+                  <Label className="mb-3 block">Stream</Label>
+                  <div className="grid gap-3 sm:grid-cols-3">
+                    {STREAMS.map((option) => {
+                      const active = form.stream === option.value;
+                      return (
+                        <motion.button
+                          key={option.value}
+                          type="button"
+                          onClick={() => set("stream", option.value)}
+                          aria-pressed={active}
+                          {...scale}
+                          animate={active && !prefersReduced ? { scale: [1, 1.05, 1] } : {}}
+                          transition={{ duration: 0.2 }}
+                          className={cn(
+                            "rounded-xl border border-border/60 bg-card/60 p-4 text-sm font-medium transition hover:border-primary/60",
+                            active &&
+                            "border-primary bg-primary/10 ring-1 ring-primary",
+                          )}
+                        >
+                          {option.label}
+                        </motion.button>
+                      );
+                    })}
+                  </div>
+                </div>
+                <div className="grid gap-6 sm:grid-cols-2">
+                  <div>
+                    <Label htmlFor="marks">Current marks</Label>
+                    <Select
+                      value={form.current_marks}
+                      onValueChange={(v) => set("current_marks", v)}
+                    >
+                      <SelectTrigger id="marks" className="mt-2">
+                        <SelectValue placeholder="Select a range" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {MARKS.map((m) => (
+                          <SelectItem key={m} value={m}>
+                            {m}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label htmlFor="institution">School / college name</Label>
+                    <Input
+                      id="institution"
+                      className="mt-2"
+                      maxLength={120}
+                      placeholder="e.g. Delhi Public School"
+                      value={form.institution_name}
+                      onChange={(e) => set("institution_name", e.target.value)}
+                    />
+                  </div>
+                </div>
+              </>
+            )}
+
+            {step === 3 && (
+              <>
+                <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+                  {INTERESTS.map((item) => {
+                    const active = form.interests.includes(item.label);
+                    return (
+                      <motion.button
+                        key={item.label}
                         type="button"
-                        onClick={() =>
-                          set(
-                            "current_skills",
-                            form.current_skills.filter((s) => s !== skill),
-                          )
-                        }
-                        className="rounded-full border border-border/60 bg-secondary px-3 py-1 text-sm text-secondary-foreground transition hover:border-destructive/60"
-                        aria-label={`Remove ${skill}`}
+                        onClick={() => toggleInterest(item.label)}
+                        aria-pressed={active}
+                        {...scale}
+                        animate={active && !prefersReduced ? { scale: [1, 1.05, 1] } : {}}
+                        transition={{ duration: 0.2 }}
+                        className={cn(
+                          "rounded-xl border border-border/60 bg-card/60 p-4 text-center transition hover:border-primary/60",
+                          active && "border-primary bg-primary/10 ring-1 ring-primary",
+                        )}
                       >
-                        {skill} <span aria-hidden>×</span>
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </div>
-          </>
-        )}
+                        <span className="block text-2xl">{item.emoji}</span>
+                        <span className="mt-2 block text-sm font-medium">{item.label}</span>
+                      </motion.button>
+                    );
+                  })}
+                </div>
+                <div>
+                  <Label htmlFor="skills">Current skills</Label>
+                  <div className="mt-2 flex gap-2">
+                    <Input
+                      id="skills"
+                      maxLength={40}
+                      placeholder="Type a skill and press Enter"
+                      value={skillDraft}
+                      onChange={(e) => setSkillDraft(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" || e.key === ",") {
+                          e.preventDefault();
+                          addSkill();
+                        }
+                      }}
+                    />
+                    <Button type="button" variant="outline" onClick={addSkill}>
+                      Add
+                    </Button>
+                  </div>
+                  {form.current_skills.length > 0 && (
+                    <ul className="mt-3 flex flex-wrap gap-2">
+                      {form.current_skills.map((skill) => (
+                        <li key={skill}>
+                          <button
+                            type="button"
+                            onClick={() =>
+                              set(
+                                "current_skills",
+                                form.current_skills.filter((s) => s !== skill),
+                              )
+                            }
+                            className="rounded-full border border-border/60 bg-secondary px-3 py-1 text-sm text-secondary-foreground transition hover:border-destructive/60"
+                            aria-label={`Remove ${skill}`}
+                          >
+                            {skill} <span aria-hidden>×</span>
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+              </>
+            )}
 
-        {step === 4 && (
-          <div className="grid gap-6">
-            <div>
-              <Label htmlFor="goal">Primary goal</Label>
-              <Select value={form.goal_type} onValueChange={(v) => set("goal_type", v)}>
-                <SelectTrigger id="goal" className="mt-2">
-                  <SelectValue placeholder="Select your goal" />
-                </SelectTrigger>
-                <SelectContent>
-                  {GOAL_TYPES.map((g) => (
-                    <SelectItem key={g} value={g}>
-                      {g}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div>
-              <Label htmlFor="budget">Budget range</Label>
-              <Select value={form.budget_range} onValueChange={(v) => set("budget_range", v)}>
-                <SelectTrigger id="budget" className="mt-2">
-                  <SelectValue placeholder="Select a budget" />
-                </SelectTrigger>
-                <SelectContent>
-                  {BUDGET_RANGES.map((b) => (
-                    <SelectItem key={b} value={b}>
-                      {b}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div>
-              <Label htmlFor="timeline">Timeline</Label>
-              <Select value={form.timeline} onValueChange={(v) => set("timeline", v)}>
-                <SelectTrigger id="timeline" className="mt-2">
-                  <SelectValue placeholder="Select a timeline" />
-                </SelectTrigger>
-                <SelectContent>
-                  {TIMELINES.map((t) => (
-                    <SelectItem key={t} value={t}>
-                      {t}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-        )}
+            {step === 4 && (
+              <div className="grid gap-6">
+                <div>
+                  <Label htmlFor="goal">Primary goal</Label>
+                  <Select value={form.goal_type} onValueChange={(v) => set("goal_type", v)}>
+                    <SelectTrigger id="goal" className="mt-2">
+                      <SelectValue placeholder="Select your goal" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {GOAL_TYPES.map((g) => (
+                        <SelectItem key={g} value={g}>
+                          {g}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label htmlFor="budget">Budget range</Label>
+                  <Select value={form.budget_range} onValueChange={(v) => set("budget_range", v)}>
+                    <SelectTrigger id="budget" className="mt-2">
+                      <SelectValue placeholder="Select a budget" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {BUDGET_RANGES.map((b) => (
+                        <SelectItem key={b} value={b}>
+                          {b}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label htmlFor="timeline">Timeline</Label>
+                  <Select value={form.timeline} onValueChange={(v) => set("timeline", v)}>
+                    <SelectTrigger id="timeline" className="mt-2">
+                      <SelectValue placeholder="Select a timeline" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {TIMELINES.map((t) => (
+                        <SelectItem key={t} value={t}>
+                          {t}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+            )}
 
-        {step === 5 && (
-          <div className="grid gap-6">
-            <div>
-              <Label htmlFor="career-goal">Your career goal</Label>
-              <Textarea
-                id="career-goal"
-                className="mt-2 min-h-32"
-                maxLength={1000}
-                placeholder="e.g. I want to become a data scientist at a product company within three years."
-                value={form.career_goal}
-                onChange={(e) => set("career_goal", e.target.value)}
-              />
-            </div>
-            <div>
-              <Label htmlFor="extra">Anything else we should know? (optional)</Label>
-              <Textarea
-                id="extra"
-                className="mt-2 min-h-24"
-                maxLength={1000}
-                placeholder="Constraints, family expectations, relocation preferences…"
-                value={form.extra_context}
-                onChange={(e) => set("extra_context", e.target.value)}
-              />
-            </div>
-          </div>
-        )}
+            {step === 5 && (
+              <div className="grid gap-6">
+                <div>
+                  <Label htmlFor="career-goal">Your career goal</Label>
+                  <Textarea
+                    id="career-goal"
+                    className="mt-2 min-h-32"
+                    maxLength={1000}
+                    placeholder="e.g. I want to become a data scientist at a product company within three years."
+                    value={form.career_goal}
+                    onChange={(e) => set("career_goal", e.target.value)}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="extra">Anything else we should know? (optional)</Label>
+                  <Textarea
+                    id="extra"
+                    className="mt-2 min-h-24"
+                    maxLength={1000}
+                    placeholder="Constraints, family expectations, relocation preferences…"
+                    value={form.extra_context}
+                    onChange={(e) => set("extra_context", e.target.value)}
+                  />
+                </div>
+              </div>
+            )}
           </motion.div>
         </AnimatePresence>
       </div>

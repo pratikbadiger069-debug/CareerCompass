@@ -92,6 +92,68 @@ export const cardHoverReduced = {
   } as TargetAndTransition,
 };
 
+/* ── checkmarkPop ─────────────────────────────────────────────────────────
+ * Scale + fade-in animation for completed checklist items / milestones.
+ */
+export const checkmarkPop: Variants = {
+  hidden: { scale: 0.4, opacity: 0 },
+  visible: {
+    scale: 1,
+    opacity: 1,
+    transition: { type: "spring", stiffness: 450, damping: 22 },
+  },
+  exit: {
+    scale: 0.4,
+    opacity: 0,
+    transition: { duration: 0.15, ease: "easeOut" },
+  },
+};
+
+/** Reduced-motion version: instant fade, no scale. */
+export const checkmarkPopReduced: Variants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: { duration: 0.05 },
+  },
+  exit: {
+    opacity: 0,
+    transition: { duration: 0.05 },
+  },
+};
+
+/* ── widgetScaleFade ──────────────────────────────────────────────────────
+ * Scale + fade animation for floating widgets, chatbot panels, or dialogs.
+ */
+export const widgetScaleFade: Variants = {
+  hidden: { opacity: 0, scale: 0.92, y: 12 },
+  visible: {
+    opacity: 1,
+    scale: 1,
+    y: 0,
+    transition: { type: "spring", stiffness: 360, damping: 26 },
+  },
+  exit: {
+    opacity: 0,
+    scale: 0.92,
+    y: 12,
+    transition: { duration: 0.18, ease: "easeOut" },
+  },
+};
+
+/** Reduced-motion version: quick fade only. */
+export const widgetScaleFadeReduced: Variants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: { duration: 0.05 },
+  },
+  exit: {
+    opacity: 0,
+    transition: { duration: 0.05 },
+  },
+};
+
 /* ── Helpers ──────────────────────────────────────────────────────────────
  * Pick the right variant based on the reduced-motion preference.
  */
@@ -114,4 +176,14 @@ export function getScaleOnHover(prefersReduced: boolean) {
 /** Returns `cardHover` props or its reduced counterpart. */
 export function getCardHover(prefersReduced: boolean) {
   return prefersReduced ? cardHoverReduced : cardHover;
+}
+
+/** Returns `checkmarkPop` or its reduced counterpart. */
+export function getCheckmarkPop(prefersReduced: boolean): Variants {
+  return prefersReduced ? checkmarkPopReduced : checkmarkPop;
+}
+
+/** Returns `widgetScaleFade` or its reduced counterpart. */
+export function getWidgetScaleFade(prefersReduced: boolean): Variants {
+  return prefersReduced ? widgetScaleFadeReduced : widgetScaleFade;
 }
