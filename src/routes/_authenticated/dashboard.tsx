@@ -309,6 +309,7 @@ function Dashboard() {
               {status === "loading" ? <Loader2 className="size-4 animate-spin" /> : <Sparkles className="size-4" />}
               Generate My Roadmap
             </Button>
+          </div>
 
           {/* Loading skeleton */}
           {status === "loading" && <LoadingSkeleton prefersReduced={prefersReduced} />}
