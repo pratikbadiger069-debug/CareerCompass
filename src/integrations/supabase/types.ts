@@ -17,46 +17,55 @@ export type Database = {
       career_recommendations: {
         Row: {
           career_title: string
+          colleges: Json
           created_at: string
           description: string | null
           growth_outlook: string | null
           id: string
           is_dismissed: boolean
+          is_public: boolean
           is_saved: boolean
           match_score: number | null
           related_fields: string[]
           required_skills: string[]
           salary_range: string | null
+          share_id: string | null
           updated_at: string
           user_id: string
         }
         Insert: {
           career_title: string
+          colleges?: Json
           created_at?: string
           description?: string | null
           growth_outlook?: string | null
           id?: string
           is_dismissed?: boolean
+          is_public?: boolean
           is_saved?: boolean
           match_score?: number | null
           related_fields?: string[]
           required_skills?: string[]
           salary_range?: string | null
+          share_id?: string | null
           updated_at?: string
           user_id?: string
         }
         Update: {
           career_title?: string
+          colleges?: Json
           created_at?: string
           description?: string | null
           growth_outlook?: string | null
           id?: string
           is_dismissed?: boolean
+          is_public?: boolean
           is_saved?: boolean
           match_score?: number | null
           related_fields?: string[]
           required_skills?: string[]
           salary_range?: string | null
+          share_id?: string | null
           updated_at?: string
           user_id?: string
         }
