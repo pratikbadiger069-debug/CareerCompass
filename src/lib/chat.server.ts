@@ -31,11 +31,7 @@ export async function sendMessage(
         .order("created_at", { ascending: false })
         .limit(1)
         .maybeSingle(),
-      supabase
-        .from("roadmap_milestones")
-        .select("title, status")
-        .eq("user_id", userId)
-        .limit(20),
+      supabase.from("roadmap_milestones").select("title, status").eq("user_id", userId).limit(20),
     ]);
 
     const userProfile = profileRes.data ?? null;

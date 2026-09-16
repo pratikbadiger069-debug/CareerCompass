@@ -13,6 +13,7 @@ Five tables, all owned by the signed-in user via a `user_id` column referencing 
 - **saved_colleges** — college name, country, city, program, tuition estimate, application deadline, website, notes, created timestamp.
 
 Security on every table:
+
 - Row Level Security enabled.
 - One policy set per table allowing select/insert/update/delete only where `user_id` equals the signed-in user.
 - No anonymous read access; privileges granted only to signed-in users and backend services.

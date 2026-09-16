@@ -32,9 +32,11 @@ export function ChatWidget() {
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // Visible on /dashboard and /roadmap only
+  // Visible on /dashboard and main /roadmap only (hidden on /demo and /roadmap/:shareId)
   const isVisible =
-    pathname.startsWith("/dashboard") || pathname.startsWith("/roadmap");
+    (pathname.startsWith("/dashboard") || pathname === "/roadmap") &&
+    !pathname.startsWith("/demo") &&
+    !pathname.includes("/roadmap/");
 
   // Load history from Supabase when panel is opened for the first time
   useEffect(() => {
@@ -205,9 +207,7 @@ export function ChatWidget() {
                     CareerCompass Advisor
                     <Sparkles className="h-3 w-3 text-amber-500" />
                   </h3>
-                  <p className="text-[11px] text-muted-foreground">
-                    Contextual AI Guidance
-                  </p>
+                  <p className="text-[11px] text-muted-foreground">Contextual AI Guidance</p>
                 </div>
               </div>
 
@@ -267,8 +267,8 @@ export function ChatWidget() {
                       msg.role === "user"
                         ? "bg-primary text-primary-foreground rounded-tr-none"
                         : msg.isError
-                        ? "bg-destructive/10 text-destructive border border-destructive/20 rounded-tl-none"
-                        : "bg-muted/70 text-foreground border border-border/50 rounded-tl-none"
+                          ? "bg-destructive/10 text-destructive border border-destructive/20 rounded-tl-none"
+                          : "bg-muted/70 text-foreground border border-border/50 rounded-tl-none"
                     }`}
                   >
                     {msg.isError ? (

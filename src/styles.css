@@ -145,7 +145,6 @@
 }
 
 @keyframes roadmap-pulse {
-
   0%,
   100% {
     box-shadow: 0 0 0 0 oklch(0.72 0.19 45 / 40%);

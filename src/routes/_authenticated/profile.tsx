@@ -55,14 +55,7 @@ const STREAMS = [
   { value: "other", label: "Other / Undecided" },
 ];
 
-const MARKS = [
-  "Above 90%",
-  "80-90%",
-  "70-80%",
-  "60-70%",
-  "Below 60%",
-  "Prefer not to say",
-];
+const MARKS = ["Above 90%", "80-90%", "70-80%", "60-70%", "Below 60%", "Prefer not to say"];
 
 const GOAL_TYPES = [
   "Get into a top college",
@@ -82,13 +75,7 @@ const BUDGET_RANGES = [
   "Scholarship / funding needed",
 ];
 
-const TIMELINES = [
-  "Within 6 months",
-  "6-12 months",
-  "1-2 years",
-  "2-4 years",
-  "Still exploring",
-];
+const TIMELINES = ["Within 6 months", "6-12 months", "1-2 years", "2-4 years", "Still exploring"];
 
 const AVAILABLE_INTERESTS = [
   "Technology",
@@ -111,7 +98,8 @@ export const Route = createFileRoute("/_authenticated/profile")({
       { title: "CareerCompass — Edit Profile & Regenerate Roadmap" },
       {
         name: "description",
-        content: "Edit your CareerCompass profile and explicitly regenerate your AI career roadmap.",
+        content:
+          "Edit your CareerCompass profile and explicitly regenerate your AI career roadmap.",
       },
     ],
   }),
@@ -184,7 +172,7 @@ function ProfilePage() {
     setInterests((prev) =>
       (prev ?? []).includes(interest)
         ? (prev ?? []).filter((i) => i !== interest)
-        : [...(prev ?? []), interest]
+        : [...(prev ?? []), interest],
     );
   };
 
@@ -250,7 +238,8 @@ function ProfilePage() {
         .from("user_profiles")
         .upsert(payload, { onConflict: "user_id" });
 
-      if (saveErr) throw new Error(`Failed to update profile before regeneration: ${saveErr.message}`);
+      if (saveErr)
+        throw new Error(`Failed to update profile before regeneration: ${saveErr.message}`);
 
       // 2. Delete existing milestones and recommendations
       const { error: milestonesDeleteError } = await supabase
@@ -266,7 +255,9 @@ function ProfilePage() {
         .delete()
         .eq("user_id", user.id);
       if (recommendationsDeleteError) {
-        throw new Error(`Failed to clear old recommendations: ${recommendationsDeleteError.message}`);
+        throw new Error(
+          `Failed to clear old recommendations: ${recommendationsDeleteError.message}`,
+        );
       }
 
       // 3. Call AI Gateway
@@ -378,7 +369,8 @@ function ProfilePage() {
           <div>
             <h1 className="text-2xl font-bold tracking-tight">Edit Student Profile</h1>
             <p className="text-xs text-muted-foreground mt-0.5">
-              Update your stream, skills, and goals. Separate button to trigger AI roadmap regeneration.
+              Update your stream, skills, and goals. Separate button to trigger AI roadmap
+              regeneration.
             </p>
           </div>
         </div>
@@ -622,7 +614,8 @@ function ProfilePage() {
             <div>
               <p className="text-sm font-semibold text-foreground">Save or Regenerate</p>
               <p className="text-xs text-muted-foreground mt-0.5">
-                Saving updates your profile silently. Regenerating wipes existing roadmap items and runs AI matching.
+                Saving updates your profile silently. Regenerating wipes existing roadmap items and
+                runs AI matching.
               </p>
             </div>
 
@@ -634,7 +627,11 @@ function ProfilePage() {
                 disabled={isSaving || isRegenerating}
                 className="flex-1 sm:flex-none gap-2 text-xs"
               >
-                {isSaving ? <Loader2 className="size-3.5 animate-spin" /> : <Save className="size-3.5" />}
+                {isSaving ? (
+                  <Loader2 className="size-3.5 animate-spin" />
+                ) : (
+                  <Save className="size-3.5" />
+                )}
                 Save Profile
               </Button>
 

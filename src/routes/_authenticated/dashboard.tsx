@@ -25,7 +25,13 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
@@ -35,7 +41,12 @@ import { usePrefersReducedMotion } from "@/hooks/use-reduced-motion";
 import { getStaggerContainer, getFadeUp, getCardHover } from "@/lib/motion";
 import { RevealOnScroll } from "@/components/motion/RevealOnScroll";
 import { generateCareerRoadmap } from "@/lib/geminiApi";
-import { CAREER_PATHS, EXAM_CONNECTIONS, STREAM_VALUE_TO_PATH, type StreamPath } from "@/lib/careerCompass.paths";
+import {
+  CAREER_PATHS,
+  EXAM_CONNECTIONS,
+  STREAM_VALUE_TO_PATH,
+  type StreamPath,
+} from "@/lib/careerCompass.paths";
 import { motion, type Variants } from "framer-motion";
 
 type Recommendation = Tables<"career_recommendations">;
@@ -47,9 +58,15 @@ export const Route = createFileRoute("/_authenticated/dashboard")({
   head: () => ({
     meta: [
       { title: "CareerCompass — Your Career Map" },
-      { name: "description", content: "Explore career options, backup paths, what-if scenarios and exam connections." },
+      {
+        name: "description",
+        content: "Explore career options, backup paths, what-if scenarios and exam connections.",
+      },
       { property: "og:title", content: "CareerCompass — Your Career Map" },
-      { property: "og:description", content: "Explore career options, backup paths, what-if scenarios and exam connections." },
+      {
+        property: "og:description",
+        content: "Explore career options, backup paths, what-if scenarios and exam connections.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
@@ -79,7 +96,6 @@ function Dashboard() {
   const [extraContext, setExtraContext] = useState("");
   const [error, setError] = useState<string | null>(null);
 
-
   const path = useMemo<StreamPath>(() => {
     const id = STREAM_VALUE_TO_PATH[stream] ?? "mpc";
     return CAREER_PATHS.find((item) => item.id === id) ?? CAREER_PATHS[0]!;
@@ -88,178 +104,186 @@ function Dashboard() {
   const scenario = path.whatIf[scenarioIndex] ?? path.whatIf[0];
 
   // --- Core fetch-or-generate logic ---
-  const loadRecommendations = useCallback(async (forceRegenerate = false) => {
-    if (!user || isGuest) return;
+  const loadRecommendations = useCallback(
+    async (forceRegenerate = false) => {
+      if (!user || isGuest) return;
 
-    setStatus("loading");
-    setError(null);
+      setStatus("loading");
+      setError(null);
 
-    try {
-      // Load the profile first so saved context is available on every visit.
-      const { data: profile, error: profileError } = await supabase
-        .from("user_profiles")
-        .select("*")
-        .eq("user_id", user.id)
-        .single();
-
-      if (profileError) throw new Error(`Could not load your profile: ${profileError.message}`);
-      setUserProfile(profile);
-      setExtraContext(profile.extra_context ?? "");
-
-      // Keep existing results unless this is an explicit manual regeneration.
-      const { data: existing, error: fetchError } = await supabase
-        .from("career_recommendations")
-        .select("*")
-        .eq("user_id", user.id);
-
-      if (fetchError) throw new Error(fetchError.message);
-
-      if (!forceRegenerate && existing && existing.length > 0) {
-        // Rows already exist — skip AI, load saved data.
-        setRecommendations(existing);
-        setSelectedRecId(existing[0]?.id ?? null);
-        const recIds = existing.map((r) => r.id);
-        const { data: savedMilestones } = await supabase
-          .from("roadmap_milestones")
-          .select("*")
-          .in("recommendation_id", recIds)
-          .order("order_index", { ascending: true });
-        setMilestones(savedMilestones ?? []);
-        setStatus("ready");
-        return;
-      }
-
-
-      const contextForRoadmap = forceRegenerate ? extraContext.trim() : (profile.extra_context ?? "");
-      const profileForRoadmap = { ...profile, extra_context: contextForRoadmap };
-
-      if (forceRegenerate) {
-        const { error: profileUpdateError } = await supabase
+      try {
+        // Load the profile first so saved context is available on every visit.
+        const { data: profile, error: profileError } = await supabase
           .from("user_profiles")
-          .update({ extra_context: contextForRoadmap || null })
-          .eq("user_id", user.id);
-        if (profileUpdateError) throw new Error(`Failed to save your context: ${profileUpdateError.message}`);
+          .select("*")
+          .eq("user_id", user.id)
+          .single();
 
-        // Delete dependent rows first, then remove the old recommendations.
-        const { error: milestonesDeleteError } = await supabase
-          .from("roadmap_milestones")
-          .delete()
-          .eq("user_id", user.id);
-        if (milestonesDeleteError) throw new Error(`Failed to clear the old roadmap: ${milestonesDeleteError.message}`);
+        if (profileError) throw new Error(`Could not load your profile: ${profileError.message}`);
+        setUserProfile(profile);
+        setExtraContext(profile.extra_context ?? "");
 
-        const { error: recommendationsDeleteError } = await supabase
+        // Keep existing results unless this is an explicit manual regeneration.
+        const { data: existing, error: fetchError } = await supabase
           .from("career_recommendations")
-          .delete()
+          .select("*")
           .eq("user_id", user.id);
-        if (recommendationsDeleteError) throw new Error(`Failed to clear old recommendations: ${recommendationsDeleteError.message}`);
-      }
 
-      const aiResult = await generateCareerRoadmap(profileForRoadmap as Record<string, unknown>);
+        if (fetchError) throw new Error(fetchError.message);
 
-      // 3a. Insert career_recommendations
-      const aiRecs = (aiResult as Record<string, unknown>)["recommendations"] as
-        | Array<{
-            title: string;
-            why: string;
-            match_score: number;
-            salary_range: string;
-            demand_outlook: string;
-            required_skills: string[];
-            colleges?: Array<{
-              name: string;
-              course: string;
-              city: string;
-              fees_total: string;
-              entrance: string;
+        if (!forceRegenerate && existing && existing.length > 0) {
+          // Rows already exist — skip AI, load saved data.
+          setRecommendations(existing);
+          setSelectedRecId(existing[0]?.id ?? null);
+          const recIds = existing.map((r) => r.id);
+          const { data: savedMilestones } = await supabase
+            .from("roadmap_milestones")
+            .select("*")
+            .in("recommendation_id", recIds)
+            .order("order_index", { ascending: true });
+          setMilestones(savedMilestones ?? []);
+          setStatus("ready");
+          return;
+        }
+
+        const contextForRoadmap = forceRegenerate
+          ? extraContext.trim()
+          : (profile.extra_context ?? "");
+        const profileForRoadmap = { ...profile, extra_context: contextForRoadmap };
+
+        if (forceRegenerate) {
+          const { error: profileUpdateError } = await supabase
+            .from("user_profiles")
+            .update({ extra_context: contextForRoadmap || null })
+            .eq("user_id", user.id);
+          if (profileUpdateError)
+            throw new Error(`Failed to save your context: ${profileUpdateError.message}`);
+
+          // Delete dependent rows first, then remove the old recommendations.
+          const { error: milestonesDeleteError } = await supabase
+            .from("roadmap_milestones")
+            .delete()
+            .eq("user_id", user.id);
+          if (milestonesDeleteError)
+            throw new Error(`Failed to clear the old roadmap: ${milestonesDeleteError.message}`);
+
+          const { error: recommendationsDeleteError } = await supabase
+            .from("career_recommendations")
+            .delete()
+            .eq("user_id", user.id);
+          if (recommendationsDeleteError)
+            throw new Error(
+              `Failed to clear old recommendations: ${recommendationsDeleteError.message}`,
+            );
+        }
+
+        const aiResult = await generateCareerRoadmap(profileForRoadmap as Record<string, unknown>);
+
+        // 3a. Insert career_recommendations
+        const aiRecs = (aiResult as Record<string, unknown>)["recommendations"] as
+          | Array<{
+              title: string;
               why: string;
-            }>;
-          }>
-        | undefined;
+              match_score: number;
+              salary_range: string;
+              demand_outlook: string;
+              required_skills: string[];
+              colleges?: Array<{
+                name: string;
+                course: string;
+                city: string;
+                fees_total: string;
+                entrance: string;
+                why: string;
+              }>;
+            }>
+          | undefined;
 
-      if (!aiRecs || aiRecs.length === 0) throw new Error("AI returned no recommendations.");
+        if (!aiRecs || aiRecs.length === 0) throw new Error("AI returned no recommendations.");
 
-      const recsToInsert = aiRecs.map((rec) => ({
-        user_id: user.id,
-        career_title: rec.title,
-        description: rec.why,
-        match_score: rec.match_score,
-        salary_range: rec.salary_range,
-        growth_outlook: rec.demand_outlook,
-        required_skills: rec.required_skills ?? [],
-        colleges: rec.colleges ?? [],
-      }));
+        const recsToInsert = aiRecs.map((rec) => ({
+          user_id: user.id,
+          career_title: rec.title,
+          description: rec.why,
+          match_score: rec.match_score,
+          salary_range: rec.salary_range,
+          growth_outlook: rec.demand_outlook,
+          required_skills: rec.required_skills ?? [],
+          colleges: rec.colleges ?? [],
+        }));
 
+        const { data: insertedRecs, error: insertError } = await supabase
+          .from("career_recommendations")
+          .insert(recsToInsert)
+          .select();
 
-      const { data: insertedRecs, error: insertError } = await supabase
-        .from("career_recommendations")
-        .insert(recsToInsert)
-        .select();
+        if (insertError) throw new Error(`Failed to save recommendations: ${insertError.message}`);
+        if (!insertedRecs) throw new Error("No recommendations returned after insert.");
 
-      if (insertError) throw new Error(`Failed to save recommendations: ${insertError.message}`);
-      if (!insertedRecs) throw new Error("No recommendations returned after insert.");
+        // 3b. Insert roadmap_milestones linked via recommendation_id
+        const aiRoadmap = (aiResult as Record<string, unknown>)["roadmap"] as
+          | Array<{
+              phase: string;
+              timeframe: string;
+              milestones: Array<{ title: string; description: string; resources?: string[] }>;
+            }>
+          | undefined;
 
-      // 3b. Insert roadmap_milestones linked via recommendation_id
-      const aiRoadmap = (aiResult as Record<string, unknown>)["roadmap"] as
-        | Array<{
-            phase: string;
-            timeframe: string;
-            milestones: Array<{ title: string; description: string; resources?: string[] }>;
-          }>
-        | undefined;
+        if (aiRoadmap && aiRoadmap.length > 0) {
+          const milestonesToInsert: Array<{
+            user_id: string;
+            recommendation_id: string;
+            title: string;
+            description: string;
+            order_index: number;
+            category: string;
+          }> = [];
 
-      if (aiRoadmap && aiRoadmap.length > 0) {
-        const milestonesToInsert: Array<{
-          user_id: string;
-          recommendation_id: string;
-          title: string;
-          description: string;
-          order_index: number;
-          category: string;
-        }> = [];
-
-        aiRoadmap.forEach((phase, phaseIndex) => {
-          // Map each phase to the recommendation at the same index, falling back to the last one
-          const linkedRec = insertedRecs[Math.min(phaseIndex, insertedRecs.length - 1)];
-          if (!linkedRec) return;
-          phase.milestones.forEach((milestone, milestoneIndex) => {
-            milestonesToInsert.push({
-              user_id: user.id,
-              recommendation_id: linkedRec.id,
-              title: milestone.title,
-              description: milestone.description ?? "",
-              order_index: phaseIndex * 100 + milestoneIndex,
-              category: phase.phase ?? "general",
+          aiRoadmap.forEach((phase, phaseIndex) => {
+            // Map each phase to the recommendation at the same index, falling back to the last one
+            const linkedRec = insertedRecs[Math.min(phaseIndex, insertedRecs.length - 1)];
+            if (!linkedRec) return;
+            phase.milestones.forEach((milestone, milestoneIndex) => {
+              milestonesToInsert.push({
+                user_id: user.id,
+                recommendation_id: linkedRec.id,
+                title: milestone.title,
+                description: milestone.description ?? "",
+                order_index: phaseIndex * 100 + milestoneIndex,
+                category: phase.phase ?? "general",
+              });
             });
           });
-        });
 
-        if (milestonesToInsert.length > 0) {
-          await supabase.from("roadmap_milestones").insert(milestonesToInsert);
+          if (milestonesToInsert.length > 0) {
+            await supabase.from("roadmap_milestones").insert(milestonesToInsert);
+          }
         }
+
+        // Re-fetch to get canonical data
+        const { data: finalRecs } = await supabase
+          .from("career_recommendations")
+          .select("*")
+          .eq("user_id", user.id);
+        setRecommendations(finalRecs ?? insertedRecs);
+
+        const finalRecIds = (finalRecs ?? insertedRecs).map((r) => r.id);
+        const { data: finalMilestones } = await supabase
+          .from("roadmap_milestones")
+          .select("*")
+          .in("recommendation_id", finalRecIds)
+          .order("order_index", { ascending: true });
+        setMilestones(finalMilestones ?? []);
+
+        setStatus("ready");
+      } catch (err) {
+        console.error("[Dashboard] loadRecommendations failed:", err);
+        setError(err instanceof Error ? err.message : "Something went wrong. Please try again.");
+        setStatus("error");
       }
-
-      // Re-fetch to get canonical data
-      const { data: finalRecs } = await supabase
-        .from("career_recommendations")
-        .select("*")
-        .eq("user_id", user.id);
-      setRecommendations(finalRecs ?? insertedRecs);
-
-      const finalRecIds = (finalRecs ?? insertedRecs).map((r) => r.id);
-      const { data: finalMilestones } = await supabase
-        .from("roadmap_milestones")
-        .select("*")
-        .in("recommendation_id", finalRecIds)
-        .order("order_index", { ascending: true });
-      setMilestones(finalMilestones ?? []);
-
-      setStatus("ready");
-    } catch (err) {
-      console.error("[Dashboard] loadRecommendations failed:", err);
-      setError(err instanceof Error ? err.message : "Something went wrong. Please try again.");
-      setStatus("error");
-    }
-  }, [user, isGuest]);
+    },
+    [user, isGuest],
+  );
 
   useEffect(() => {
     if (user && !isGuest && status === "idle") {
@@ -292,7 +316,9 @@ function Dashboard() {
           <p className="text-sm font-semibold text-primary">CareerCompass</p>
           <h1 className="mt-1 text-3xl font-bold">Your Career Map</h1>
           <p className="mt-2 text-sm text-muted-foreground">
-            {isGuest ? "Demo mode — explore the map freely." : `Welcome back, ${user?.email ?? "student"}.`}
+            {isGuest
+              ? "Demo mode — explore the map freely."
+              : `Welcome back, ${user?.email ?? "student"}.`}
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
@@ -311,7 +337,9 @@ function Dashboard() {
               <User className="size-4 text-primary" /> Profile
             </Button>
           </Link>
-          <Button variant="outline" size="sm" onClick={signOut}>Sign out</Button>
+          <Button variant="outline" size="sm" onClick={signOut}>
+            Sign out
+          </Button>
         </div>
       </header>
 
@@ -325,12 +353,20 @@ function Dashboard() {
             </div>
             <div className="flex items-center gap-2">
               <Link to="/compare">
-                <Button variant="ghost" size="sm" className="gap-1 text-xs text-primary hover:text-primary">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="gap-1 text-xs text-primary hover:text-primary"
+                >
                   <BarChart3 className="size-3.5" /> Compare All
                 </Button>
               </Link>
               <Link to="/colleges">
-                <Button variant="ghost" size="sm" className="gap-1 text-xs text-primary hover:text-primary">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="gap-1 text-xs text-primary hover:text-primary"
+                >
                   <GraduationCap className="size-3.5" /> View Colleges
                 </Button>
               </Link>
@@ -351,7 +387,9 @@ function Dashboard() {
                 placeholder="Anything else we should know? E.g. specific companies you admire, a subject you struggled with, family expectations, health/location constraints..."
                 className="min-h-24 resize-y"
               />
-              <p className="mt-1 text-right text-xs text-muted-foreground">{extraContext.length}/500</p>
+              <p className="mt-1 text-right text-xs text-muted-foreground">
+                {extraContext.length}/500
+              </p>
             </div>
             <Button
               type="button"
@@ -359,7 +397,11 @@ function Dashboard() {
               disabled={status === "loading"}
               className="shrink-0 gap-2"
             >
-              {status === "loading" ? <Loader2 className="size-4 animate-spin" /> : <Sparkles className="size-4" />}
+              {status === "loading" ? (
+                <Loader2 className="size-4 animate-spin" />
+              ) : (
+                <Sparkles className="size-4" />
+              )}
               Generate My Roadmap
             </Button>
           </div>
@@ -377,7 +419,9 @@ function Dashboard() {
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => { setStatus("idle"); }}
+                  onClick={() => {
+                    setStatus("idle");
+                  }}
                   className="shrink-0 gap-2"
                 >
                   <Loader2 className="size-4" />
@@ -432,13 +476,14 @@ function Dashboard() {
             </>
           )}
 
-
           {status === "ready" && recommendations.length === 0 && (
             <Card className="border-border/60 bg-card/70">
               <CardContent className="p-6 text-center text-muted-foreground">
                 <Sparkles className="mx-auto mb-3 size-8 text-primary/50" />
                 <p className="font-medium">No recommendations yet</p>
-                <p className="mt-1 text-sm">Complete your profile to get personalized career guidance.</p>
+                <p className="mt-1 text-sm">
+                  Complete your profile to get personalized career guidance.
+                </p>
               </CardContent>
             </Card>
           )}
@@ -454,8 +499,16 @@ function Dashboard() {
 
         <section className="grid gap-4 md:grid-cols-4">
           <MapStep icon={<Compass className="size-5" />} title="Where am I?" value={path.name} />
-          <MapStep icon={<RouteIcon className="size-5" />} title="My options" value={`${path.options.length} paths`} />
-          <MapStep icon={<ShieldCheck className="size-5" />} title="If it doesn't work" value={`${path.backups.length} backups`} />
+          <MapStep
+            icon={<RouteIcon className="size-5" />}
+            title="My options"
+            value={`${path.options.length} paths`}
+          />
+          <MapStep
+            icon={<ShieldCheck className="size-5" />}
+            title="If it doesn't work"
+            value={`${path.backups.length} backups`}
+          />
           <MapStep icon={<ArrowRight className="size-5" />} title="Next" value="Build & explore" />
         </section>
 
@@ -465,12 +518,24 @@ function Dashboard() {
               <p className="text-sm font-medium text-primary">Start with your current stream</p>
               <h2 className="mt-1 text-xl font-bold">Where are you right now?</h2>
             </div>
-            <Select value={stream} onValueChange={(value) => { setStream(value); setScenarioIndex(0); }}>
-              <SelectTrigger className="w-full sm:w-64"><SelectValue placeholder="Choose your stream" /></SelectTrigger>
+            <Select
+              value={stream}
+              onValueChange={(value) => {
+                setStream(value);
+                setScenarioIndex(0);
+              }}
+            >
+              <SelectTrigger className="w-full sm:w-64">
+                <SelectValue placeholder="Choose your stream" />
+              </SelectTrigger>
               <SelectContent>
                 {Object.entries(STREAM_VALUE_TO_PATH).map(([value, pathId]) => {
                   const item = CAREER_PATHS.find((candidate) => candidate.id === pathId);
-                  return <SelectItem key={value} value={value}>{item?.name ?? value}</SelectItem>;
+                  return (
+                    <SelectItem key={value} value={value}>
+                      {item?.name ?? value}
+                    </SelectItem>
+                  );
                 })}
               </SelectContent>
             </Select>
@@ -479,13 +544,22 @@ function Dashboard() {
 
         <section className="mt-8 grid gap-6 lg:grid-cols-2">
           <Card className="border-border/60 bg-card/70">
-            <CardHeader><CardTitle className="flex items-center gap-2"><GraduationCap className="size-5 text-primary" /> Options from here</CardTitle></CardHeader>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <GraduationCap className="size-5 text-primary" /> Options from here
+              </CardTitle>
+            </CardHeader>
             <CardContent className="space-y-3">
               {path.options.map((option) => (
                 <div key={option.title} className="rounded-xl border border-border/60 p-4">
                   <div className="flex items-start justify-between gap-3">
-                    <div><p className="font-semibold">{option.title}</p><p className="mt-1 text-sm text-muted-foreground">{option.description}</p></div>
-                    <span className="rounded-full bg-primary/10 px-2 py-1 text-xs text-primary">{option.kind}</span>
+                    <div>
+                      <p className="font-semibold">{option.title}</p>
+                      <p className="mt-1 text-sm text-muted-foreground">{option.description}</p>
+                    </div>
+                    <span className="rounded-full bg-primary/10 px-2 py-1 text-xs text-primary">
+                      {option.kind}
+                    </span>
                   </div>
                   <p className="mt-3 text-xs font-medium">Next: {option.nextSteps[0]}</p>
                 </div>
@@ -494,34 +568,96 @@ function Dashboard() {
           </Card>
 
           <Card className="border-border/60 bg-card/70">
-            <CardHeader><CardTitle className="flex items-center gap-2"><Lightbulb className="size-5 text-primary" /> What If?</CardTitle></CardHeader>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Lightbulb className="size-5 text-primary" /> What If?
+              </CardTitle>
+            </CardHeader>
             <CardContent>
-              <Select value={String(scenarioIndex)} onValueChange={(value) => setScenarioIndex(Number(value))}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
+              <Select
+                value={String(scenarioIndex)}
+                onValueChange={(value) => setScenarioIndex(Number(value))}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
                 <SelectContent>
-                  {path.whatIf.map((item, index) => <SelectItem key={item.question} value={String(index)}>{item.question}</SelectItem>)}
+                  {path.whatIf.map((item, index) => (
+                    <SelectItem key={item.question} value={String(index)}>
+                      {item.question}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
-              {scenario && <div className="mt-4 rounded-xl bg-secondary/50 p-4"><p className="text-sm leading-6">{scenario.answer}</p><p className="mt-4 text-sm font-semibold">Possible next paths</p><ul className="mt-2 space-y-2 text-sm text-muted-foreground">{scenario.alternatives.map((item) => <li key={item} className="flex gap-2"><ArrowRight className="mt-0.5 size-4 shrink-0 text-primary" />{item}</li>)}</ul></div>}
+              {scenario && (
+                <div className="mt-4 rounded-xl bg-secondary/50 p-4">
+                  <p className="text-sm leading-6">{scenario.answer}</p>
+                  <p className="mt-4 text-sm font-semibold">Possible next paths</p>
+                  <ul className="mt-2 space-y-2 text-sm text-muted-foreground">
+                    {scenario.alternatives.map((item) => (
+                      <li key={item} className="flex gap-2">
+                        <ArrowRight className="mt-0.5 size-4 shrink-0 text-primary" />
+                        {item}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
             </CardContent>
           </Card>
         </section>
 
         <section className="mt-8 grid gap-6 lg:grid-cols-2">
           <Card className="border-border/60 bg-card/70">
-            <CardHeader><CardTitle>Backup paths</CardTitle></CardHeader>
-            <CardContent className="space-y-3">{path.backups.map((backup) => <div key={backup.title} className="rounded-xl border border-border/60 p-4"><p className="font-semibold">{backup.title}</p><p className="mt-1 text-sm text-muted-foreground">{backup.description}</p><p className="mt-2 text-xs">Why it works: {backup.whyItWorks}</p></div>)}</CardContent>
+            <CardHeader>
+              <CardTitle>Backup paths</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              {path.backups.map((backup) => (
+                <div key={backup.title} className="rounded-xl border border-border/60 p-4">
+                  <p className="font-semibold">{backup.title}</p>
+                  <p className="mt-1 text-sm text-muted-foreground">{backup.description}</p>
+                  <p className="mt-2 text-xs">Why it works: {backup.whyItWorks}</p>
+                </div>
+              ))}
+            </CardContent>
           </Card>
 
           <Card className="border-border/60 bg-card/70">
-            <CardHeader><CardTitle className="flex items-center gap-2"><Link2 className="size-5 text-primary" /> Exam Connections</CardTitle></CardHeader>
-            <CardContent className="space-y-3">{EXAM_CONNECTIONS.map((connection) => <div key={connection.exam} className="rounded-xl border border-border/60 p-4"><p className="font-semibold">{connection.exam}</p><p className="mt-1 text-sm text-muted-foreground">Also explore: {connection.connectedExams.join(", ")}</p><p className="mt-2 text-xs">{connection.note}</p></div>)}</CardContent>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Link2 className="size-5 text-primary" /> Exam Connections
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              {EXAM_CONNECTIONS.map((connection) => (
+                <div key={connection.exam} className="rounded-xl border border-border/60 p-4">
+                  <p className="font-semibold">{connection.exam}</p>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    Also explore: {connection.connectedExams.join(", ")}
+                  </p>
+                  <p className="mt-2 text-xs">{connection.note}</p>
+                </div>
+              ))}
+            </CardContent>
           </Card>
         </section>
       </section>
 
       {/* ─── Summary ─── */}
-      <Card className="mt-8 border-primary/20 bg-primary/5"><CardContent className="p-5"><p className="text-sm font-semibold">Your current direction</p><p className="mt-1 text-sm text-muted-foreground">{path.summary}</p><div className="mt-4 flex flex-wrap gap-2">{path.careers.map((career) => <span key={career} className="rounded-full border border-border/60 px-3 py-1 text-xs">{career}</span>)}</div></CardContent></Card>
+      <Card className="mt-8 border-primary/20 bg-primary/5">
+        <CardContent className="p-5">
+          <p className="text-sm font-semibold">Your current direction</p>
+          <p className="mt-1 text-sm text-muted-foreground">{path.summary}</p>
+          <div className="mt-4 flex flex-wrap gap-2">
+            {path.careers.map((career) => (
+              <span key={career} className="rounded-full border border-border/60 px-3 py-1 text-xs">
+                {career}
+              </span>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
     </main>
   );
 }
@@ -541,9 +677,11 @@ function RecommendationCard({
   cardHoverProps?: ReturnType<typeof getCardHover>;
 }) {
   const scoreColor =
-    (rec.match_score ?? 0) >= 80 ? "text-emerald-500" :
-    (rec.match_score ?? 0) >= 60 ? "text-amber-500" :
-    "text-red-400";
+    (rec.match_score ?? 0) >= 80
+      ? "text-emerald-500"
+      : (rec.match_score ?? 0) >= 60
+        ? "text-amber-500"
+        : "text-red-400";
 
   return (
     <MotionCard
@@ -561,9 +699,7 @@ function RecommendationCard({
               </Badge>
             )}
           </div>
-          {rec.match_score != null && (
-            <Progress value={rec.match_score} className="mt-2 h-1.5" />
-          )}
+          {rec.match_score != null && <Progress value={rec.match_score} className="mt-2 h-1.5" />}
         </CardHeader>
         <CardContent className="space-y-4">
           {rec.description && (
@@ -641,7 +777,9 @@ function LoadingSkeleton({ prefersReduced }: { prefersReduced: boolean }) {
         <Loader2 className="size-5 animate-spin text-primary" />
         <div>
           <p className="text-sm font-semibold">Generating your personalised career roadmap…</p>
-          <p className="mt-1 text-xs text-muted-foreground">This may take 15–30 seconds. We're analysing your profile with AI.</p>
+          <p className="mt-1 text-xs text-muted-foreground">
+            This may take 15–30 seconds. We're analysing your profile with AI.
+          </p>
         </div>
       </div>
       {prefersReduced ? (
@@ -703,19 +841,11 @@ function LoadingSkeleton({ prefersReduced }: { prefersReduced: boolean }) {
 }
 
 /* ─── Skill Gap Tracker Component ─── */
-function SkillGapTracker({
-  rec,
-  userSkills = [],
-}: {
-  rec: Recommendation;
-  userSkills: string[];
-}) {
+function SkillGapTracker({ rec, userSkills = [] }: { rec: Recommendation; userSkills: string[] }) {
   const requiredSkills = rec.required_skills ?? [];
   if (requiredSkills.length === 0) return null;
 
-  const normalizedUserSkills = new Set(
-    (userSkills ?? []).map((s) => s.trim().toLowerCase())
-  );
+  const normalizedUserSkills = new Set((userSkills ?? []).map((s) => s.trim().toLowerCase()));
 
   const acquired: string[] = [];
   const missing: string[] = [];
@@ -731,9 +861,7 @@ function SkillGapTracker({
   const highPriorityMissing = missing.slice(0, 2);
   const remainingMissing = missing.slice(2);
 
-  const percentage = Math.round(
-    (acquired.length / requiredSkills.length) * 100
-  );
+  const percentage = Math.round((acquired.length / requiredSkills.length) * 100);
 
   return (
     <RevealOnScroll className="mt-8">
@@ -746,7 +874,9 @@ function SkillGapTracker({
                 Skill Gap Tracker: {rec.career_title}
               </CardTitle>
               <p className="mt-1 text-xs text-muted-foreground">
-                Targeting skills for <span className="font-semibold text-foreground">{rec.career_title}</span> against your profile skills
+                Targeting skills for{" "}
+                <span className="font-semibold text-foreground">{rec.career_title}</span> against
+                your profile skills
               </p>
             </div>
             <div className="text-right sm:text-right">
@@ -791,7 +921,8 @@ function SkillGapTracker({
             {/* High Priority Missing (Red) */}
             <div className="rounded-xl border border-rose-500/20 bg-rose-500/5 p-3">
               <p className="mb-2 flex items-center gap-1.5 text-xs font-semibold text-rose-600 dark:text-rose-400">
-                <AlertCircle className="size-3.5" /> High Priority / Missing ({(highPriorityMissing ?? []).length})
+                <AlertCircle className="size-3.5" /> High Priority / Missing (
+                {(highPriorityMissing ?? []).length})
               </p>
               <div className="flex flex-wrap gap-1.5">
                 {(highPriorityMissing ?? []).length > 0 ? (
@@ -804,7 +935,9 @@ function SkillGapTracker({
                     </Badge>
                   ))
                 ) : (
-                  <span className="text-xs text-muted-foreground italic">No high-priority gaps</span>
+                  <span className="text-xs text-muted-foreground italic">
+                    No high-priority gaps
+                  </span>
                 )}
               </div>
             </div>
@@ -836,8 +969,17 @@ function SkillGapTracker({
   );
 }
 
-
 /* ─── Map Step Card (existing) ─── */
 function MapStep({ icon, title, value }: { icon: ReactNode; title: string; value: string }) {
-  return <Card className="border-border/60 bg-card/70"><CardContent className="p-4"><div className="flex items-center gap-2 text-primary">{icon}<span className="text-xs font-semibold uppercase tracking-wide">{title}</span></div><p className="mt-2 text-sm font-semibold">{value}</p></CardContent></Card>;
+  return (
+    <Card className="border-border/60 bg-card/70">
+      <CardContent className="p-4">
+        <div className="flex items-center gap-2 text-primary">
+          {icon}
+          <span className="text-xs font-semibold uppercase tracking-wide">{title}</span>
+        </div>
+        <p className="mt-2 text-sm font-semibold">{value}</p>
+      </CardContent>
+    </Card>
+  );
 }

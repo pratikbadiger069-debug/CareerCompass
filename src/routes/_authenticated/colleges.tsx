@@ -89,7 +89,8 @@ export const Route = createFileRoute("/_authenticated/colleges")({
       { title: "CareerCompass — College Finder & Saved Colleges" },
       {
         name: "description",
-        content: "Explore AI-recommended colleges in India for your career path and manage your saved target institutions.",
+        content:
+          "Explore AI-recommended colleges in India for your career path and manage your saved target institutions.",
       },
       { property: "og:title", content: "CareerCompass — College Finder" },
     ],
@@ -227,7 +228,7 @@ function CollegesPage() {
 
   const isCollegeSaved = (name: string) => {
     return (savedColleges ?? []).some(
-      (s) => s.college_name.trim().toLowerCase() === name.trim().toLowerCase()
+      (s) => s.college_name.trim().toLowerCase() === name.trim().toLowerCase(),
     );
   };
 
@@ -277,7 +278,8 @@ function CollegesPage() {
                   <Building2 className="mx-auto size-8 text-muted-foreground/50" />
                   <p className="text-xs font-medium text-foreground">No saved colleges yet</p>
                   <p className="text-xs text-muted-foreground">
-                    Click "Save College" on any suggested institution below to build your target list.
+                    Click "Save College" on any suggested institution below to build your target
+                    list.
                   </p>
                 </CardContent>
               </Card>
@@ -351,7 +353,9 @@ function CollegesPage() {
           <section>
             <div className="mb-4 flex items-center gap-2">
               <Sparkles className="size-5 text-primary" />
-              <h2 className="text-lg font-bold">Recommended Institutions for Your Stream & Goals</h2>
+              <h2 className="text-lg font-bold">
+                Recommended Institutions for Your Stream & Goals
+              </h2>
             </div>
 
             <motion.div
@@ -372,7 +376,10 @@ function CollegesPage() {
                   >
                     <div>
                       {col.careerTitle && (
-                        <Badge variant="secondary" className="mb-2 text-[10px] uppercase tracking-wide">
+                        <Badge
+                          variant="secondary"
+                          className="mb-2 text-[10px] uppercase tracking-wide"
+                        >
                           {col.careerTitle}
                         </Badge>
                       )}

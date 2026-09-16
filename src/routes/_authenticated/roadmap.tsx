@@ -7,8 +7,10 @@ import {
   Circle,
   Loader2,
   Map,
+  Share2,
   Sparkles,
 } from "lucide-react";
+
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -43,14 +45,12 @@ export const Route = createFileRoute("/_authenticated/roadmap")({
       { title: "CareerCompass — Your Roadmap" },
       {
         name: "description",
-        content:
-          "Track your career milestones, mark them complete and visualise your progress.",
+        content: "Track your career milestones, mark them complete and visualise your progress.",
       },
       { property: "og:title", content: "CareerCompass — Your Roadmap" },
       {
         property: "og:description",
-        content:
-          "Track your career milestones, mark them complete and visualise your progress.",
+        content: "Track your career milestones, mark them complete and visualise your progress.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -77,6 +77,44 @@ function RoadmapPage() {
   const [milestones, setMilestones] = useState<Milestone[]>([]);
   const [loading, setLoading] = useState(true);
   const [updatingId, setUpdatingId] = useState<string | null>(null);
+  const [isSharing, setIsSharing] = useState(false);
+
+  const handleShareRoadmap = async () => {
+    if (!activeRec || !user?.id) return;
+    setIsSharing(true);
+
+    try {
+      let shareId = (activeRec as any).share_id;
+      if (!shareId || !(activeRec as any).is_public) {
+        shareId = Math.random().toString(36).substring(2, 10);
+        const { error } = await supabase
+          .from("career_recommendations")
+          .update({
+            is_public: true,
+            share_id: shareId,
+          })
+          .eq("id", activeRec.id)
+          .eq("user_id", user.id);
+
+        if (error) {
+          toast.error(`Failed to share: ${error.message}`);
+          setIsSharing(false);
+          return;
+        }
+      }
+
+      const shareUrl = `${window.location.origin}/roadmap/${shareId}`;
+      await navigator.clipboard.writeText(shareUrl);
+      toast.success("Share link copied to clipboard!", {
+        description: shareUrl,
+      });
+    } catch (err) {
+      console.error("[Roadmap] Share error:", err);
+      toast.error("Could not generate share link.");
+    } finally {
+      setIsSharing(false);
+    }
+  };
 
   /* ── Fetch recommendations ─────────────────────────────────────────── */
   const loadRecommendations = useCallback(async () => {
@@ -118,9 +156,7 @@ function RoadmapPage() {
 
       // Use selectedRecId from URL, or fall back to the top-scoring rec
       const targetId =
-        selectedRecId && recs.some((r) => r.id === selectedRecId)
-          ? selectedRecId
-          : recs[0]!.id;
+        selectedRecId && recs.some((r) => r.id === selectedRecId) ? selectedRecId : recs[0]!.id;
 
       // If we picked a default and there's no rec in the URL, update it
       if (!selectedRecId || !recs.some((r) => r.id === selectedRecId)) {
@@ -152,8 +188,7 @@ function RoadmapPage() {
 
   /* ── Toggle milestone completion ───────────────────────────────────── */
   async function toggleMilestone(milestone: Milestone) {
-    const newStatus =
-      milestone.status === "completed" ? "pending" : "completed";
+    const newStatus = milestone.status === "completed" ? "pending" : "completed";
     const previousMilestones = [...milestones];
 
     // Optimistic update
@@ -185,10 +220,7 @@ function RoadmapPage() {
 
   /* ── Derived state ─────────────────────────────────────────────────── */
   const activeRec = useMemo(
-    () =>
-      recommendations.find((r) => r.id === selectedRecId) ??
-      recommendations[0] ??
-      null,
+    () => recommendations.find((r) => r.id === selectedRecId) ?? recommendations[0] ?? null,
     [recommendations, selectedRecId],
   );
 
@@ -203,9 +235,7 @@ function RoadmapPage() {
   }, [milestones]);
 
   const progressPct =
-    milestones.length > 0
-      ? Math.round((completedCount / milestones.length) * 100)
-      : 0;
+    milestones.length > 0 ? Math.round((completedCount / milestones.length) * 100) : 0;
 
   /* ── Render ────────────────────────────────────────────────────────── */
   return (
@@ -226,18 +256,30 @@ function RoadmapPage() {
             <h1 className="text-2xl font-bold sm:text-3xl">Your Roadmap</h1>
           </div>
         </div>
+
+        {activeRec && (
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleShareRoadmap}
+            disabled={isSharing}
+            className="gap-2 text-xs self-start sm:self-auto"
+          >
+            {isSharing ? (
+              <Loader2 className="size-3.5 animate-spin" />
+            ) : (
+              <Share2 className="size-3.5 text-primary" />
+            )}
+            Share Roadmap
+          </Button>
+        )}
       </header>
 
       {/* Recommendation selector */}
       {recommendations.length > 1 && (
         <section className="mt-6 rounded-xl border border-primary/20 bg-primary/5 p-4">
-          <p className="mb-2 text-xs font-semibold text-primary">
-            Viewing roadmap for
-          </p>
-          <Select
-            value={activeRec?.id ?? ""}
-            onValueChange={onRecChange}
-          >
+          <p className="mb-2 text-xs font-semibold text-primary">Viewing roadmap for</p>
+          <Select value={activeRec?.id ?? ""} onValueChange={onRecChange}>
             <SelectTrigger id="rec-selector" className="w-full">
               <SelectValue placeholder="Select a career path" />
             </SelectTrigger>
@@ -256,9 +298,7 @@ function RoadmapPage() {
       {/* Single recommendation header */}
       {recommendations.length === 1 && activeRec && (
         <section className="mt-6 rounded-xl border border-primary/20 bg-primary/5 p-4">
-          <p className="text-xs font-semibold text-primary">
-            Roadmap for
-          </p>
+          <p className="text-xs font-semibold text-primary">Roadmap for</p>
           <p className="mt-1 text-lg font-bold">{activeRec.career_title}</p>
         </section>
       )}
@@ -290,8 +330,8 @@ function RoadmapPage() {
             <Sparkles className="mx-auto mb-4 size-10 text-primary/40" />
             <p className="text-lg font-semibold">No career roadmap yet</p>
             <p className="mt-2 text-sm text-muted-foreground">
-              Head to the dashboard and generate your AI-powered career
-              recommendations first — your roadmap milestones will appear here.
+              Head to the dashboard and generate your AI-powered career recommendations first — your
+              roadmap milestones will appear here.
             </p>
             <Button asChild className="mt-6">
               <Link to="/dashboard">Go to Dashboard</Link>
@@ -307,8 +347,8 @@ function RoadmapPage() {
             <Map className="mx-auto mb-4 size-10 text-primary/40" />
             <p className="text-lg font-semibold">No milestones yet</p>
             <p className="mt-2 text-sm text-muted-foreground">
-              This career path doesn't have any milestones. Try selecting a
-              different career or regenerate your recommendations.
+              This career path doesn't have any milestones. Try selecting a different career or
+              regenerate your recommendations.
             </p>
           </CardContent>
         </Card>
@@ -427,9 +467,7 @@ function RoadmapPage() {
                           {milestone.description && (
                             <p
                               className={`text-xs leading-relaxed sm:text-sm ${
-                                isCompleted
-                                  ? "text-muted-foreground/60"
-                                  : "text-muted-foreground"
+                                isCompleted ? "text-muted-foreground/60" : "text-muted-foreground"
                               }`}
                             >
                               {milestone.description}
@@ -489,12 +527,9 @@ function RoadmapPage() {
           {completedCount === milestones.length && milestones.length > 0 && (
             <div className="mt-8 flex flex-col items-center gap-2 rounded-2xl border border-emerald-500/30 bg-emerald-500/10 p-6 text-center">
               <CheckCircle2 className="size-10 text-emerald-400" />
-              <p className="text-lg font-bold text-emerald-400">
-                Roadmap Complete! 🎉
-              </p>
+              <p className="text-lg font-bold text-emerald-400">Roadmap Complete! 🎉</p>
               <p className="text-sm text-muted-foreground">
-                You've completed every milestone for this career path.
-                Outstanding work!
+                You've completed every milestone for this career path. Outstanding work!
               </p>
             </div>
           )}

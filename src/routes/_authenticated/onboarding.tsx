@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { motion, AnimatePresence } from "framer-motion";
@@ -67,14 +66,7 @@ const STREAMS = [
   { value: "other", label: "Other / Undecided" },
 ];
 
-const MARKS = [
-  "Above 90%",
-  "80-90%",
-  "70-80%",
-  "60-70%",
-  "Below 60%",
-  "Prefer not to say",
-];
+const MARKS = ["Above 90%", "80-90%", "70-80%", "60-70%", "Below 60%", "Prefer not to say"];
 
 const INTERESTS = [
   { emoji: "💻", label: "Technology" },
@@ -109,13 +101,7 @@ const BUDGET_RANGES = [
   "Scholarship / funding needed",
 ];
 
-const TIMELINES = [
-  "Within 6 months",
-  "6-12 months",
-  "1-2 years",
-  "2-4 years",
-  "Still exploring",
-];
+const TIMELINES = ["Within 6 months", "6-12 months", "1-2 years", "2-4 years", "Still exploring"];
 
 const TOTAL_STEPS = 5;
 
@@ -254,7 +240,9 @@ function Onboarding() {
     <main className="mx-auto min-h-screen w-full max-w-3xl px-6 py-12">
       <div className="sticky top-0 z-10 -mx-6 bg-background/85 px-6 pb-4 pt-2 backdrop-blur">
         <div className="flex items-baseline justify-between text-sm">
-          <span className="font-medium">Step {step} of {TOTAL_STEPS}</span>
+          <span className="font-medium">
+            Step {step} of {TOTAL_STEPS}
+          </span>
           <span className="text-muted-foreground">
             {Math.round((step / TOTAL_STEPS) * 100)}% complete
           </span>
@@ -317,12 +305,13 @@ function Onboarding() {
                       transition={{ duration: 0.2 }}
                       className={cn(
                         "rounded-xl border border-border/60 bg-card/60 p-4 text-left transition hover:border-primary/60",
-                        active &&
-                        "border-primary bg-primary/10 ring-1 ring-primary",
+                        active && "border-primary bg-primary/10 ring-1 ring-primary",
                       )}
                     >
                       <span className="block font-medium">{option.label}</span>
-                      <span className="mt-1 block text-sm text-muted-foreground">{option.hint}</span>
+                      <span className="mt-1 block text-sm text-muted-foreground">
+                        {option.hint}
+                      </span>
                     </motion.button>
                   );
                 })}
@@ -353,8 +342,7 @@ function Onboarding() {
                           transition={{ duration: 0.2 }}
                           className={cn(
                             "rounded-xl border border-border/60 bg-card/60 p-4 text-sm font-medium transition hover:border-primary/60",
-                            active &&
-                            "border-primary bg-primary/10 ring-1 ring-primary",
+                            active && "border-primary bg-primary/10 ring-1 ring-primary",
                           )}
                         >
                           {option.label}
@@ -456,7 +444,11 @@ function Onboarding() {
                             key={skill}
                             layout
                             initial={{ opacity: 0, scale: 0.75 }}
-                            animate={{ opacity: 1, scale: 1, transition: { type: "spring", stiffness: 400, damping: 20 } }}
+                            animate={{
+                              opacity: 1,
+                              scale: 1,
+                              transition: { type: "spring", stiffness: 400, damping: 20 },
+                            }}
                             exit={{ opacity: 0, scale: 0.75, transition: { duration: 0.15 } }}
                           >
                             <button

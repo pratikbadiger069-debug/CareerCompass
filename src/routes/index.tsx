@@ -15,12 +15,7 @@ import { RevealOnScroll } from "@/components/motion/RevealOnScroll";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { usePrefersReducedMotion } from "@/hooks/use-reduced-motion";
-import {
-  getFadeUp,
-  getStaggerContainer,
-  getScaleOnHover,
-  getCardHover,
-} from "@/lib/motion";
+import { getFadeUp, getStaggerContainer, getScaleOnHover, getCardHover } from "@/lib/motion";
 
 const DESCRIPTION =
   "CareerCompass matches you to careers you'll thrive in, builds a step-by-step roadmap, answers your questions and tracks the colleges you care about.";
@@ -191,10 +186,7 @@ function Landing() {
             </motion.div>
           </motion.div>
 
-          <motion.p
-            variants={fadeUp}
-            className="mt-4 text-xs text-muted-foreground"
-          >
+          <motion.p variants={fadeUp} className="mt-4 text-xs text-muted-foreground">
             Demo mode opens a guest workspace instantly — no email needed.
           </motion.p>
         </motion.div>

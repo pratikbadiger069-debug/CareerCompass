@@ -30,7 +30,8 @@ export const Route = createFileRoute("/_authenticated/compare")({
       { title: "CareerCompass — Compare Careers" },
       {
         name: "description",
-        content: "Compare your AI-recommended career paths side-by-side by match score, salary, growth, and required skills.",
+        content:
+          "Compare your AI-recommended career paths side-by-side by match score, salary, growth, and required skills.",
       },
       { property: "og:title", content: "CareerCompass — Compare Careers" },
       {
@@ -125,7 +126,8 @@ function ComparePage() {
             <Sparkles className="mx-auto size-10 text-primary/40" />
             <h3 className="text-base font-semibold">No career recommendations found</h3>
             <p className="text-xs text-muted-foreground max-w-md mx-auto">
-              Generate recommendations on your dashboard first to compare career options side-by-side.
+              Generate recommendations on your dashboard first to compare career options
+              side-by-side.
             </p>
             <Link to="/dashboard">
               <Button size="sm" className="mt-2 gap-2">
