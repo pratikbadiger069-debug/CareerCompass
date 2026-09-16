@@ -46,7 +46,7 @@ export const Route = createFileRoute("/demo")({
 
 function DemoPage() {
   const prefersReduced = usePrefersReducedMotion();
-  const [selectedRecId, setSelectedRecId] = useState(DEMO_RECOMMENDATIONS[0].id);
+  const [selectedRecId, setSelectedRecId] = useState(DEMO_RECOMMENDATIONS[0]!.id);
   const [demoMilestones, setDemoMilestones] = useState(DEMO_MILESTONES);
   const [activeTab, setActiveTab] = useState("dashboard");
 
@@ -55,7 +55,7 @@ function DemoPage() {
   const cardHover = getCardHover(prefersReduced);
 
   const selectedRec =
-    DEMO_RECOMMENDATIONS.find((r) => r.id === selectedRecId) ?? DEMO_RECOMMENDATIONS[0];
+    DEMO_RECOMMENDATIONS.find((r) => r.id === selectedRecId) ?? DEMO_RECOMMENDATIONS[0]!;
 
   const toggleMilestone = (id: string) => {
     setDemoMilestones((prev) =>
