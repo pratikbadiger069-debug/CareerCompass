@@ -229,7 +229,7 @@ function Landing() {
       </section>
 
       {/* ─── Features ─── */}
-      <section className="border-y border-border/50 bg-navy-deep/60">
+      <section className="border-y border-border/50 bg-charcoal-deep/60">
         <div className="mx-auto w-full max-w-6xl px-6 py-20">
           <RevealOnScroll>
             <h2 className="text-2xl font-bold sm:text-3xl">Everything in one place</h2>
