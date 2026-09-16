@@ -3,6 +3,9 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import {
   AlertCircle,
   ArrowRight,
+  BarChart3,
+  BookOpen,
+  CheckCircle,
   Compass,
   DollarSign,
   GraduationCap,
@@ -14,6 +17,7 @@ import {
   ShieldCheck,
   Sparkles,
   TrendingUp,
+  User,
   Zap,
 } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -29,12 +33,14 @@ import type { Tables } from "@/integrations/supabase/types";
 import { useAuth } from "@/hooks/useAuth";
 import { usePrefersReducedMotion } from "@/hooks/use-reduced-motion";
 import { getStaggerContainer, getFadeUp, getCardHover } from "@/lib/motion";
+import { RevealOnScroll } from "@/components/motion/RevealOnScroll";
 import { generateCareerRoadmap } from "@/lib/geminiApi";
 import { CAREER_PATHS, EXAM_CONNECTIONS, STREAM_VALUE_TO_PATH, type StreamPath } from "@/lib/careerCompass.paths";
 import { motion, type Variants } from "framer-motion";
 
 type Recommendation = Tables<"career_recommendations">;
 type Milestone = Tables<"roadmap_milestones">;
+type UserProfile = Tables<"user_profiles">;
 type Status = "idle" | "loading" | "ready" | "error";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
@@ -66,10 +72,13 @@ function Dashboard() {
 
   // --- AI recommendation state ---
   const [status, setStatus] = useState<Status>("idle");
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
+  const [selectedRecId, setSelectedRecId] = useState<string | null>(null);
   const [milestones, setMilestones] = useState<Milestone[]>([]);
   const [extraContext, setExtraContext] = useState("");
   const [error, setError] = useState<string | null>(null);
+
 
   const path = useMemo<StreamPath>(() => {
     const id = STREAM_VALUE_TO_PATH[stream] ?? "mpc";
@@ -94,6 +103,7 @@ function Dashboard() {
         .single();
 
       if (profileError) throw new Error(`Could not load your profile: ${profileError.message}`);
+      setUserProfile(profile);
       setExtraContext(profile.extra_context ?? "");
 
       // Keep existing results unless this is an explicit manual regeneration.
@@ -107,6 +117,7 @@ function Dashboard() {
       if (!forceRegenerate && existing && existing.length > 0) {
         // Rows already exist — skip AI, load saved data.
         setRecommendations(existing);
+        setSelectedRecId(existing[0]?.id ?? null);
         const recIds = existing.map((r) => r.id);
         const { data: savedMilestones } = await supabase
           .from("roadmap_milestones")
@@ -117,6 +128,7 @@ function Dashboard() {
         setStatus("ready");
         return;
       }
+
 
       const contextForRoadmap = forceRegenerate ? extraContext.trim() : (profile.extra_context ?? "");
       const profileForRoadmap = { ...profile, extra_context: contextForRoadmap };
@@ -153,6 +165,14 @@ function Dashboard() {
             salary_range: string;
             demand_outlook: string;
             required_skills: string[];
+            colleges?: Array<{
+              name: string;
+              course: string;
+              city: string;
+              fees_total: string;
+              entrance: string;
+              why: string;
+            }>;
           }>
         | undefined;
 
@@ -166,7 +186,9 @@ function Dashboard() {
         salary_range: rec.salary_range,
         growth_outlook: rec.demand_outlook,
         required_skills: rec.required_skills ?? [],
+        colleges: rec.colleges ?? [],
       }));
+
 
       const { data: insertedRecs, error: insertError } = await supabase
         .from("career_recommendations")
@@ -273,15 +295,46 @@ function Dashboard() {
             {isGuest ? "Demo mode — explore the map freely." : `Welcome back, ${user?.email ?? "student"}.`}
           </p>
         </div>
-        <Button variant="outline" onClick={signOut}>Sign out</Button>
+        <div className="flex flex-wrap items-center gap-2">
+          <Link to="/compare">
+            <Button variant="outline" size="sm" className="gap-1.5">
+              <BarChart3 className="size-4 text-primary" /> Compare
+            </Button>
+          </Link>
+          <Link to="/colleges">
+            <Button variant="outline" size="sm" className="gap-1.5">
+              <GraduationCap className="size-4 text-primary" /> Colleges
+            </Button>
+          </Link>
+          <Link to="/profile">
+            <Button variant="outline" size="sm" className="gap-1.5">
+              <User className="size-4 text-primary" /> Profile
+            </Button>
+          </Link>
+          <Button variant="outline" size="sm" onClick={signOut}>Sign out</Button>
+        </div>
       </header>
 
       {/* ─── AI-Powered Recommendations (authenticated, non-guest only) ─── */}
       {!isGuest && (
         <section className="mt-8">
-          <div className="mb-6 flex items-center gap-2">
-            <Sparkles className="size-5 text-primary" />
-            <h2 className="text-xl font-bold">Your AI-Powered Recommendations</h2>
+          <div className="mb-6 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Sparkles className="size-5 text-primary" />
+              <h2 className="text-xl font-bold">Your AI-Powered Recommendations</h2>
+            </div>
+            <div className="flex items-center gap-2">
+              <Link to="/compare">
+                <Button variant="ghost" size="sm" className="gap-1 text-xs text-primary hover:text-primary">
+                  <BarChart3 className="size-3.5" /> Compare All
+                </Button>
+              </Link>
+              <Link to="/colleges">
+                <Button variant="ghost" size="sm" className="gap-1 text-xs text-primary hover:text-primary">
+                  <GraduationCap className="size-3.5" /> View Colleges
+                </Button>
+              </Link>
+            </div>
           </div>
 
           <div className="mb-6 flex flex-col gap-4 rounded-xl border border-border/60 bg-card/50 p-4 sm:flex-row sm:items-end">
@@ -336,23 +389,49 @@ function Dashboard() {
 
           {/* Recommendations grid */}
           {status === "ready" && recommendations.length > 0 && (
-            <motion.div
-              variants={stagger}
-              initial="hidden"
-              animate="visible"
-              className="grid gap-6 md:grid-cols-2 lg:grid-cols-3"
-            >
-              {recommendations.map((rec) => (
-                <RecommendationCard
-                  key={rec.id}
-                  rec={rec}
-                  milestones={milestonesByRec.get(rec.id) ?? []}
-                  variants={fadeUp}
-                  cardHoverProps={cardHover}
-                />
-              ))}
-            </motion.div>
+            <>
+              <motion.div
+                variants={stagger}
+                initial="hidden"
+                animate="visible"
+                className="grid gap-6 md:grid-cols-2 lg:grid-cols-3"
+              >
+                {recommendations.map((rec) => (
+                  <div
+                    key={rec.id}
+                    onClick={() => setSelectedRecId(rec.id)}
+                    className={`cursor-pointer rounded-2xl transition-all ${
+                      (selectedRecId ?? recommendations[0]?.id) === rec.id
+                        ? "ring-2 ring-primary ring-offset-2 ring-offset-background"
+                        : ""
+                    }`}
+                  >
+                    <RecommendationCard
+                      rec={rec}
+                      milestones={milestonesByRec.get(rec.id) ?? []}
+                      variants={fadeUp}
+                      cardHoverProps={cardHover}
+                    />
+                  </div>
+                ))}
+              </motion.div>
+
+              {/* Skill Gap Tracker for selected recommendation */}
+              {(() => {
+                const selectedRec =
+                  recommendations.find((r) => r.id === (selectedRecId ?? recommendations[0]?.id)) ??
+                  recommendations[0];
+                if (!selectedRec) return null;
+                return (
+                  <SkillGapTracker
+                    rec={selectedRec}
+                    userSkills={userProfile?.current_skills ?? []}
+                  />
+                );
+              })()}
+            </>
           )}
+
 
           {status === "ready" && recommendations.length === 0 && (
             <Card className="border-border/60 bg-card/70">
@@ -622,6 +701,141 @@ function LoadingSkeleton({ prefersReduced }: { prefersReduced: boolean }) {
     </div>
   );
 }
+
+/* ─── Skill Gap Tracker Component ─── */
+function SkillGapTracker({
+  rec,
+  userSkills = [],
+}: {
+  rec: Recommendation;
+  userSkills: string[];
+}) {
+  const requiredSkills = rec.required_skills ?? [];
+  if (requiredSkills.length === 0) return null;
+
+  const normalizedUserSkills = new Set(
+    (userSkills ?? []).map((s) => s.trim().toLowerCase())
+  );
+
+  const acquired: string[] = [];
+  const missing: string[] = [];
+
+  requiredSkills.forEach((skill) => {
+    if (normalizedUserSkills.has(skill.trim().toLowerCase())) {
+      acquired.push(skill);
+    } else {
+      missing.push(skill);
+    }
+  });
+
+  const highPriorityMissing = missing.slice(0, 2);
+  const remainingMissing = missing.slice(2);
+
+  const percentage = Math.round(
+    (acquired.length / requiredSkills.length) * 100
+  );
+
+  return (
+    <RevealOnScroll className="mt-8">
+      <Card className="border-border/60 bg-card/70 shadow-sm">
+        <CardHeader className="pb-3">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <CardTitle className="flex items-center gap-2 text-lg">
+                <Zap className="size-5 text-amber-500" />
+                Skill Gap Tracker: {rec.career_title}
+              </CardTitle>
+              <p className="mt-1 text-xs text-muted-foreground">
+                Targeting skills for <span className="font-semibold text-foreground">{rec.career_title}</span> against your profile skills
+              </p>
+            </div>
+            <div className="text-right sm:text-right">
+              <span className="text-2xl font-bold text-primary">{percentage}%</span>
+              <p className="text-[11px] font-medium text-muted-foreground">Match Readiness</p>
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="space-y-1.5">
+            <div className="flex justify-between text-xs font-medium">
+              <span>Skill Match Progress</span>
+              <span>
+                {acquired.length} of {requiredSkills.length} Skills Acquired
+              </span>
+            </div>
+            <Progress value={percentage} className="h-2.5" />
+          </div>
+
+          <div className="grid gap-4 sm:grid-cols-3 pt-2">
+            {/* Acquired Skills (Green) */}
+            <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/5 p-3">
+              <p className="mb-2 flex items-center gap-1.5 text-xs font-semibold text-emerald-600 dark:text-emerald-400">
+                <CheckCircle className="size-3.5" /> Acquired Skills ({(acquired ?? []).length})
+              </p>
+              <div className="flex flex-wrap gap-1.5">
+                {(acquired ?? []).length > 0 ? (
+                  (acquired ?? []).map((skill) => (
+                    <Badge
+                      key={skill}
+                      className="bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border-emerald-500/30 hover:bg-emerald-500/20"
+                    >
+                      ✓ {skill}
+                    </Badge>
+                  ))
+                ) : (
+                  <span className="text-xs text-muted-foreground italic">None matched yet</span>
+                )}
+              </div>
+            </div>
+
+            {/* High Priority Missing (Red) */}
+            <div className="rounded-xl border border-rose-500/20 bg-rose-500/5 p-3">
+              <p className="mb-2 flex items-center gap-1.5 text-xs font-semibold text-rose-600 dark:text-rose-400">
+                <AlertCircle className="size-3.5" /> High Priority / Missing ({(highPriorityMissing ?? []).length})
+              </p>
+              <div className="flex flex-wrap gap-1.5">
+                {(highPriorityMissing ?? []).length > 0 ? (
+                  (highPriorityMissing ?? []).map((skill) => (
+                    <Badge
+                      key={skill}
+                      className="bg-rose-500/15 text-rose-700 dark:text-rose-300 border-rose-500/30 hover:bg-rose-500/20"
+                    >
+                      ! {skill}
+                    </Badge>
+                  ))
+                ) : (
+                  <span className="text-xs text-muted-foreground italic">No high-priority gaps</span>
+                )}
+              </div>
+            </div>
+
+            {/* Skills to Learn (Blue) */}
+            <div className="rounded-xl border border-blue-500/20 bg-blue-500/5 p-3">
+              <p className="mb-2 flex items-center gap-1.5 text-xs font-semibold text-blue-600 dark:text-blue-400">
+                <BookOpen className="size-3.5" /> Needs to Learn ({(remainingMissing ?? []).length})
+              </p>
+              <div className="flex flex-wrap gap-1.5">
+                {(remainingMissing ?? []).length > 0 ? (
+                  (remainingMissing ?? []).map((skill) => (
+                    <Badge
+                      key={skill}
+                      className="bg-blue-500/15 text-blue-700 dark:text-blue-300 border-blue-500/30 hover:bg-blue-500/20"
+                    >
+                      + {skill}
+                    </Badge>
+                  ))
+                ) : (
+                  <span className="text-xs text-muted-foreground italic">No secondary gaps</span>
+                )}
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    </RevealOnScroll>
+  );
+}
+
 
 /* ─── Map Step Card (existing) ─── */
 function MapStep({ icon, title, value }: { icon: ReactNode; title: string; value: string }) {

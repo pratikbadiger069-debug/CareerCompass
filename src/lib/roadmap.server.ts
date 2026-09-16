@@ -34,6 +34,22 @@ const CAREER_COMPASS_SCHEMA = {
             type: "array",
             items: { type: "string" },
           },
+          colleges: {
+            type: "array",
+            items: {
+              type: "object",
+              properties: {
+                name: { type: "string" },
+                course: { type: "string" },
+                city: { type: "string" },
+                fees_total: { type: "string" },
+                entrance: { type: "string" },
+                why: { type: "string" },
+              },
+              required: ["name", "course", "city", "fees_total", "entrance", "why"],
+              additionalProperties: false,
+            },
+          },
         },
         required: [
           "title",
@@ -42,10 +58,12 @@ const CAREER_COMPASS_SCHEMA = {
           "salary_range",
           "demand_outlook",
           "required_skills",
+          "colleges",
         ],
         additionalProperties: false,
       },
     },
+
     option_paths: {
       type: "array",
       items: {

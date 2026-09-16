@@ -22,7 +22,17 @@ Respond with ONLY valid JSON matching this shape:
       "why": string,
       "salary_range": string,
       "demand_outlook": string,
-      "required_skills": string[]
+      "required_skills": string[],
+      "colleges": [
+        {
+          "name": string,
+          "course": string,
+          "city": string,
+          "fees_total": string,
+          "entrance": string,
+          "why": string
+        }
+      ]
     }
   ],
   "option_paths": [

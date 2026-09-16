@@ -12,8 +12,11 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as AuthenticatedCollegesRouteImport } from './routes/_authenticated/colleges'
+import { Route as AuthenticatedCompareRouteImport } from './routes/_authenticated/compare'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedOnboardingRouteImport } from './routes/_authenticated/onboarding'
+import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticated/profile'
 import { Route as AuthenticatedRoadmapRouteImport } from './routes/_authenticated/roadmap'
 
 const IndexRoute = IndexRouteImport.update({
@@ -30,6 +33,16 @@ const AuthRoute = AuthRouteImport.update({
   path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedCollegesRoute = AuthenticatedCollegesRouteImport.update({
+  id: '/colleges',
+  path: '/colleges',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedCompareRoute = AuthenticatedCompareRouteImport.update({
+  id: '/compare',
+  path: '/compare',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
@@ -38,6 +51,11 @@ const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
 const AuthenticatedOnboardingRoute = AuthenticatedOnboardingRouteImport.update({
   id: '/onboarding',
   path: '/onboarding',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedProfileRoute = AuthenticatedProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedRoadmapRoute = AuthenticatedRoadmapRouteImport.update({
@@ -49,15 +67,21 @@ const AuthenticatedRoadmapRoute = AuthenticatedRoadmapRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/colleges': typeof AuthenticatedCollegesRoute
+  '/compare': typeof AuthenticatedCompareRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
+  '/profile': typeof AuthenticatedProfileRoute
   '/roadmap': typeof AuthenticatedRoadmapRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/colleges': typeof AuthenticatedCollegesRoute
+  '/compare': typeof AuthenticatedCompareRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
+  '/profile': typeof AuthenticatedProfileRoute
   '/roadmap': typeof AuthenticatedRoadmapRoute
 }
 export interface FileRoutesById {
@@ -65,22 +89,44 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
+  '/_authenticated/colleges': typeof AuthenticatedCollegesRoute
+  '/_authenticated/compare': typeof AuthenticatedCompareRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/onboarding': typeof AuthenticatedOnboardingRoute
+  '/_authenticated/profile': typeof AuthenticatedProfileRoute
   '/_authenticated/roadmap': typeof AuthenticatedRoadmapRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/auth' | '/dashboard' | '/onboarding' | '/roadmap'
+  fullPaths:
+    | '/'
+    | '/auth'
+    | '/colleges'
+    | '/compare'
+    | '/dashboard'
+    | '/onboarding'
+    | '/profile'
+    | '/roadmap'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/auth' | '/dashboard' | '/onboarding' | '/roadmap'
+  to:
+    | '/'
+    | '/auth'
+    | '/colleges'
+    | '/compare'
+    | '/dashboard'
+    | '/onboarding'
+    | '/profile'
+    | '/roadmap'
   id:
     | '__root__'
     | '/'
     | '/_authenticated'
     | '/auth'
+    | '/_authenticated/colleges'
+    | '/_authenticated/compare'
     | '/_authenticated/dashboard'
     | '/_authenticated/onboarding'
+    | '/_authenticated/profile'
     | '/_authenticated/roadmap'
   fileRoutesById: FileRoutesById
 }
@@ -113,6 +159,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/colleges': {
+      id: '/_authenticated/colleges'
+      path: '/colleges'
+      fullPath: '/colleges'
+      preLoaderRoute: typeof AuthenticatedCollegesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/compare': {
+      id: '/_authenticated/compare'
+      path: '/compare'
+      fullPath: '/compare'
+      preLoaderRoute: typeof AuthenticatedCompareRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/dashboard': {
       id: '/_authenticated/dashboard'
       path: '/dashboard'
@@ -127,6 +187,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedOnboardingRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/profile': {
+      id: '/_authenticated/profile'
+      path: '/profile'
+      fullPath: '/profile'
+      preLoaderRoute: typeof AuthenticatedProfileRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/roadmap': {
       id: '/_authenticated/roadmap'
       path: '/roadmap'
@@ -138,14 +205,20 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthenticatedRouteRouteChildren {
+  AuthenticatedCollegesRoute: typeof AuthenticatedCollegesRoute
+  AuthenticatedCompareRoute: typeof AuthenticatedCompareRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedOnboardingRoute: typeof AuthenticatedOnboardingRoute
+  AuthenticatedProfileRoute: typeof AuthenticatedProfileRoute
   AuthenticatedRoadmapRoute: typeof AuthenticatedRoadmapRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedCollegesRoute: AuthenticatedCollegesRoute,
+  AuthenticatedCompareRoute: AuthenticatedCompareRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedOnboardingRoute: AuthenticatedOnboardingRoute,
+  AuthenticatedProfileRoute: AuthenticatedProfileRoute,
   AuthenticatedRoadmapRoute: AuthenticatedRoadmapRoute,
 }
 
