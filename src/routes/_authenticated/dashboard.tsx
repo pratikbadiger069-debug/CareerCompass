@@ -34,6 +34,7 @@ import {
 } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import type { Tables } from "@/integrations/supabase/types";
@@ -291,7 +292,11 @@ function Dashboard() {
           user_id: user.id,
           career_title: rec.title,
           description: rec.why,
-          match_score: rec.match_score,
+          // The database stores match_score as an integer, while the model may
+          // return a decimal such as 9.5. Normalize it before inserting.
+          match_score: Number.isFinite(rec.match_score)
+            ? Math.round(Math.max(0, Math.min(100, rec.match_score)))
+            : null,
           salary_range: rec.salary_range,
           growth_outlook: rec.demand_outlook,
           required_skills: rec.required_skills ?? [],
@@ -436,7 +441,179 @@ function Dashboard() {
           </div>
         </section>
 
-        {/* ─── Aligned Feature Hub Cards ─── */}
+        {/* ─── 1. AI-Powered Recommendations (FIRST SECTION BELOW WELCOME BANNER) ─── */}
+        <section className="mb-10 rounded-2xl border border-primary/20 bg-card/80 p-6 shadow-sm">
+          <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex items-center gap-2.5">
+              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/20 text-primary">
+                <Sparkles className="size-5" />
+              </div>
+              <div>
+                <h2 className="text-xl font-bold tracking-tight">AI-Powered Career Recommendations</h2>
+                <p className="text-xs text-muted-foreground">
+                  Personalized career paths generated based on your profile, marks, and interests.
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <Link to="/roadmap" search={{ rec: undefined }}>
+                <Button variant="outline" size="sm" className="gap-1.5 text-xs border-primary/30 hover:bg-primary/10">
+                  <MapIcon className="size-3.5 text-primary" /> Generate / View Full Roadmap
+                </Button>
+              </Link>
+            </div>
+          </div>
+
+          {!isGuest ? (
+            <>
+              {/* Extra context prompt & Generate/Regenerate AI Roadmap button */}
+              <div className="mb-6 flex flex-col gap-4 rounded-xl border border-border/60 bg-secondary/30 p-4 sm:flex-row sm:items-end">
+                <div className="min-w-0 flex-1">
+                  <label htmlFor="extra-context" className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                    Provide Additional Context or Interests
+                  </label>
+                  <Textarea
+                    id="extra-context"
+                    value={extraContext}
+                    onChange={(event) => setExtraContext(event.target.value)}
+                    maxLength={500}
+                    disabled={status === "loading"}
+                    placeholder="E.g. I prefer software engineering over hardware, want remote work options, or prefer colleges in Mumbai/Bengaluru..."
+                    className="min-h-20 resize-y text-xs bg-background/80"
+                  />
+                  <p className="mt-1 text-right text-[11px] text-muted-foreground">
+                    {extraContext.length}/500
+                  </p>
+                </div>
+                <Button
+                  type="button"
+                  onClick={() => void loadRecommendations(true)}
+                  disabled={status === "loading"}
+                  className="shrink-0 gap-2 font-semibold shadow-md"
+                >
+                  {status === "loading" ? (
+                    <Loader2 className="size-4 animate-spin" />
+                  ) : (
+                    <Sparkles className="size-4 text-amber-300" />
+                  )}
+                  {recommendations.length > 0 ? "Regenerate AI Roadmap" : "Generate AI Roadmap"}
+                </Button>
+              </div>
+
+              {/* Loading skeleton */}
+              {status === "loading" && <LoadingSkeleton prefersReduced={prefersReduced} />}
+
+              {/* Error state */}
+              {status === "error" && (
+                <Alert variant="destructive" className="mb-6">
+                  <AlertCircle className="size-4" />
+                  <AlertTitle>Failed to load recommendations</AlertTitle>
+                  <AlertDescription className="mt-2 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                    <span>{error}</span>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        setStatus("idle");
+                      }}
+                      className="shrink-0 gap-2"
+                    >
+                      <Loader2 className="size-4" />
+                      Retry
+                    </Button>
+                  </AlertDescription>
+                </Alert>
+              )}
+
+              {/* Recommendations grid */}
+              {status === "ready" && recommendations.length > 0 && (
+                <>
+                  <motion.div
+                    variants={stagger}
+                    initial="hidden"
+                    animate="visible"
+                    className="grid gap-6 md:grid-cols-2 lg:grid-cols-3"
+                  >
+                    {recommendations.map((rec) => (
+                      <div
+                        key={rec.id}
+                        onClick={() => {
+                          setSelectedRecId(rec.id);
+                          setSelectedDetailRec(rec);
+                          setDetailModalOpen(true);
+                        }}
+                        className={`cursor-pointer rounded-2xl transition-all ${
+                          (selectedRecId ?? recommendations[0]?.id) === rec.id
+                            ? "ring-2 ring-primary ring-offset-2 ring-offset-background"
+                            : ""
+                        }`}
+                      >
+                        <RecommendationCard
+                          rec={rec}
+                          milestones={milestonesByRec.get(rec.id) ?? []}
+                          variants={fadeUp}
+                          cardHoverProps={cardHover}
+                        />
+                      </div>
+                    ))}
+                  </motion.div>
+
+                  {/* Path Detail Modal */}
+                  <PathDetailModal
+                    rec={selectedDetailRec}
+                    optionPaths={aiOptionPaths}
+                    backupPaths={aiBackupPaths}
+                    open={detailModalOpen}
+                    onOpenChange={setDetailModalOpen}
+                  />
+
+                  {/* Skill Gap Tracker for selected recommendation */}
+                  {(() => {
+                    const selectedRec =
+                      recommendations.find((r) => r.id === (selectedRecId ?? recommendations[0]?.id)) ??
+                      recommendations[0];
+                    if (!selectedRec) return null;
+                    return (
+                      <SkillGapTracker
+                        rec={selectedRec}
+                        userSkills={userProfile?.current_skills ?? []}
+                      />
+                    );
+                  })()}
+                </>
+              )}
+
+              {status === "ready" && recommendations.length === 0 && (
+                <Card className="border-border/60 bg-card/70">
+                  <CardContent className="p-6 text-center text-muted-foreground">
+                    <Sparkles className="mx-auto mb-3 size-8 text-primary/50" />
+                    <p className="font-medium text-foreground">No recommendations generated yet</p>
+                    <p className="mt-1 text-xs">
+                      Click <span className="font-semibold text-primary">"Generate AI Roadmap"</span> above to create your personalized recommendations.
+                    </p>
+                  </CardContent>
+                </Card>
+              )}
+            </>
+          ) : (
+            <div className="rounded-xl border border-dashed border-primary/30 bg-primary/5 p-6 text-center">
+              <Sparkles className="mx-auto mb-3 size-8 text-primary" />
+              <h3 className="font-bold text-base">Sign In to Unlock Personalized AI Recommendations</h3>
+              <p className="mt-1 text-xs text-muted-foreground max-w-md mx-auto">
+                Create an account or sign in to get tailored career recommendations, custom skill gap tracking, and college matching.
+              </p>
+              <div className="mt-4 flex justify-center gap-3">
+                <Link to="/auth">
+                  <Button size="sm" className="gap-2">
+                    <User className="size-4" /> Sign In / Create Account
+                  </Button>
+                </Link>
+              </div>
+            </div>
+          )}
+        </section>
+
+        {/* ─── 2. Aligned Feature Hub Cards (4 Quick Action Cards) ─── */}
         <section className="mb-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <Link to="/roadmap" search={{ rec: undefined }}>
             <Card className="group h-full border-border/60 bg-card/70 transition-all hover:border-primary/50 hover:bg-card hover:shadow-md">
@@ -507,321 +684,263 @@ function Dashboard() {
           </Link>
         </section>
 
-      {/* ─── AI-Powered Recommendations (authenticated, non-guest only) ─── */}
-      {!isGuest && (
-        <section className="mt-8">
-          <div className="mb-6 flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Sparkles className="size-5 text-primary" />
-              <h2 className="text-xl font-bold">Your AI-Powered Recommendations</h2>
-            </div>
-            <div className="flex items-center gap-2">
-              <Link to="/compare">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="gap-1 text-xs text-primary hover:text-primary"
-                >
-                  <BarChart3 className="size-3.5" /> Compare All
-                </Button>
-              </Link>
-              <Link to="/colleges">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="gap-1 text-xs text-primary hover:text-primary"
-                >
-                  <GraduationCap className="size-3.5" /> View Colleges
-                </Button>
-              </Link>
-            </div>
-          </div>
-
-          <div className="mb-6 flex flex-col gap-4 rounded-xl border border-border/60 bg-card/50 p-4 sm:flex-row sm:items-end">
-            <div className="min-w-0 flex-1">
-              <label htmlFor="extra-context" className="mb-2 block text-sm font-semibold">
-                Tell us more
-              </label>
-              <Textarea
-                id="extra-context"
-                value={extraContext}
-                onChange={(event) => setExtraContext(event.target.value)}
-                maxLength={500}
-                disabled={status === "loading"}
-                placeholder="Anything else we should know? E.g. specific companies you admire, a subject you struggled with, family expectations, health/location constraints..."
-                className="min-h-24 resize-y"
-              />
-              <p className="mt-1 text-right text-xs text-muted-foreground">
-                {extraContext.length}/500
+        {/* ─── 3. Backup & Fallback Options (WITH "CHECK BACKUP ROADMAP" BUTTON) ─── */}
+        <section className="mb-10">
+          <Card className="border-border/60 bg-card/70 shadow-sm">
+            <CardHeader className="pb-4">
+              <div className="flex items-center justify-between">
+                <CardTitle className="flex items-center gap-2 text-lg font-bold">
+                  <ShieldCheck className="size-5 text-emerald-500" />
+                  Backup & Fallback Career Plans
+                </CardTitle>
+                <Badge variant="outline" className="bg-emerald-500/10 text-emerald-500 border-emerald-500/20 text-xs font-semibold">
+                  Risk Mitigation
+                </Badge>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Secondary pathways to ensure long-term career security if primary entrance exams or goals change.
               </p>
-            </div>
-            <Button
-              type="button"
-              onClick={() => void loadRecommendations(true)}
-              disabled={status === "loading"}
-              className="shrink-0 gap-2"
-            >
-              {status === "loading" ? (
-                <Loader2 className="size-4 animate-spin" />
-              ) : (
-                <Sparkles className="size-4" />
-              )}
-              Generate My Roadmap
-            </Button>
-          </div>
-
-          {/* Loading skeleton */}
-          {status === "loading" && <LoadingSkeleton prefersReduced={prefersReduced} />}
-
-          {/* Error state */}
-          {status === "error" && (
-            <Alert variant="destructive" className="mb-6">
-              <AlertCircle className="size-4" />
-              <AlertTitle>Failed to load recommendations</AlertTitle>
-              <AlertDescription className="mt-2 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                <span>{error}</span>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => {
-                    setStatus("idle");
-                  }}
-                  className="shrink-0 gap-2"
-                >
-                  <Loader2 className="size-4" />
-                  Retry
-                </Button>
-              </AlertDescription>
-            </Alert>
-          )}
-
-          {/* Recommendations grid */}
-          {status === "ready" && recommendations.length > 0 && (
-            <>
-              <motion.div
-                variants={stagger}
-                initial="hidden"
-                animate="visible"
-                className="grid gap-6 md:grid-cols-2 lg:grid-cols-3"
-              >
-                {recommendations.map((rec) => (
-                  <div
-                    key={rec.id}
-                    onClick={() => setSelectedRecId(rec.id)}
-                    className={`cursor-pointer rounded-2xl transition-all ${
-                      (selectedRecId ?? recommendations[0]?.id) === rec.id
-                        ? "ring-2 ring-primary ring-offset-2 ring-offset-background"
-                        : ""
-                    }`}
-                  >
-                    <RecommendationCard
-                      rec={rec}
-                      milestones={milestonesByRec.get(rec.id) ?? []}
-                      variants={fadeUp}
-                      cardHoverProps={cardHover}
-                    />
-                  </div>
-                ))}
-              </motion.div>
-
-              {/* Skill Gap Tracker for selected recommendation */}
-              {(() => {
-                const selectedRec =
-                  recommendations.find((r) => r.id === (selectedRecId ?? recommendations[0]?.id)) ??
-                  recommendations[0];
-                if (!selectedRec) return null;
-                return (
-                  <SkillGapTracker
-                    rec={selectedRec}
-                    userSkills={userProfile?.current_skills ?? []}
-                  />
-                );
-              })()}
-            </>
-          )}
-
-          {status === "ready" && recommendations.length === 0 && (
-            <Card className="border-border/60 bg-card/70">
-              <CardContent className="p-6 text-center text-muted-foreground">
-                <Sparkles className="mx-auto mb-3 size-8 text-primary/50" />
-                <p className="font-medium">No recommendations yet</p>
-                <p className="mt-1 text-sm">
-                  Complete your profile to get personalized career guidance.
-                </p>
-              </CardContent>
-            </Card>
-          )}
-        </section>
-      )}
-
-      {/* ─── Explore by Stream (existing static UI) ─── */}
-      <section className="mt-12">
-        <div className="mb-6 flex items-center gap-2">
-          <Compass className="size-5 text-primary" />
-          <h2 className="text-xl font-bold">Explore by Stream</h2>
-        </div>
-
-        <section className="grid gap-4 md:grid-cols-4">
-          <MapStep icon={<Compass className="size-5" />} title="Where am I?" value={path.name} />
-          <MapStep
-            icon={<RouteIcon className="size-5" />}
-            title="My options"
-            value={`${path.options.length} paths`}
-          />
-          <MapStep
-            icon={<ShieldCheck className="size-5" />}
-            title="If it doesn't work"
-            value={`${path.backups.length} backups`}
-          />
-          <MapStep icon={<ArrowRight className="size-5" />} title="Next" value="Build & explore" />
-        </section>
-
-        <section className="mt-8 rounded-2xl border border-primary/20 bg-primary/5 p-5">
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <p className="text-sm font-medium text-primary">Start with your current stream</p>
-              <h2 className="mt-1 text-xl font-bold">Where are you right now?</h2>
-            </div>
-            <Select
-              value={stream}
-              onValueChange={(value) => {
-                setStream(value);
-                setScenarioIndex(0);
-              }}
-            >
-              <SelectTrigger className="w-full sm:w-64">
-                <SelectValue placeholder="Choose your stream" />
-              </SelectTrigger>
-              <SelectContent>
-                {Object.entries(STREAM_VALUE_TO_PATH).map(([value, pathId]) => {
-                  const item = CAREER_PATHS.find((candidate) => candidate.id === pathId);
-                  return (
-                    <SelectItem key={value} value={value}>
-                      {item?.name ?? value}
-                    </SelectItem>
-                  );
-                })}
-              </SelectContent>
-            </Select>
-          </div>
-        </section>
-
-        <section className="mt-8 grid gap-6 lg:grid-cols-2">
-          <Card className="border-border/60 bg-card/70">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <GraduationCap className="size-5 text-primary" /> Options from here
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              {path.options.map((option) => (
-                <div key={option.title} className="rounded-xl border border-border/60 p-4">
-                  <div className="flex items-start justify-between gap-3">
-                    <div>
-                      <p className="font-semibold">{option.title}</p>
-                      <p className="mt-1 text-sm text-muted-foreground">{option.description}</p>
-                    </div>
-                    <span className="rounded-full bg-primary/10 px-2 py-1 text-xs text-primary">
-                      {option.kind}
-                    </span>
-                  </div>
-                  <p className="mt-3 text-xs font-medium">Next: {option.nextSteps[0]}</p>
-                </div>
-              ))}
-            </CardContent>
-          </Card>
-
-          <Card className="border-border/60 bg-card/70">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Lightbulb className="size-5 text-primary" /> What If?
-              </CardTitle>
             </CardHeader>
             <CardContent>
-              <Select
-                value={String(scenarioIndex)}
-                onValueChange={(value) => setScenarioIndex(Number(value))}
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {path.whatIf.map((item, index) => (
-                    <SelectItem key={item.question} value={String(index)}>
-                      {item.question}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              {scenario && (
-                <div className="mt-4 rounded-xl bg-secondary/50 p-4">
-                  <p className="text-sm leading-6">{scenario.answer}</p>
-                  <p className="mt-4 text-sm font-semibold">Possible next paths</p>
-                  <ul className="mt-2 space-y-2 text-sm text-muted-foreground">
-                    {scenario.alternatives.map((item) => (
-                      <li key={item} className="flex gap-2">
-                        <ArrowRight className="mt-0.5 size-4 shrink-0 text-primary" />
-                        {item}
-                      </li>
-                    ))}
-                  </ul>
+              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                {(aiBackupPaths.length > 0
+                  ? aiBackupPaths
+                  : path.backups.map(b => ({ title: b.title, description: b.description, why_it_works: b.whyItWorks }))
+                ).map((backup, idx) => (
+                  <div key={idx} className="flex flex-col justify-between rounded-xl border border-border/60 bg-card/60 p-4 text-xs hover:border-primary/40 transition-colors">
+                    <div>
+                      <div className="flex items-center justify-between gap-2 mb-2">
+                        <p className="font-bold text-sm text-foreground">{backup.title}</p>
+                        <Badge variant="secondary" className="text-[10px] bg-primary/10 text-primary border-primary/20 shrink-0">
+                          Backup Path
+                        </Badge>
+                      </div>
+                      <p className="text-muted-foreground leading-relaxed">{backup.description}</p>
+                      <p className="mt-2 text-primary font-medium">Why it works: {backup.why_it_works}</p>
+                    </div>
+
+                    <div className="mt-4 flex items-center gap-2 pt-3 border-t border-border/40">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="w-full text-xs gap-1.5 h-8 border-primary/30 hover:bg-primary/10 hover:text-primary font-medium"
+                        onClick={() => {
+                          const backupRec: PathDetailRec = {
+                            career_title: backup.title,
+                            description: backup.description,
+                            why_it_works: backup.why_it_works,
+                            match_score: 80,
+                            salary_range: "Flexible / High Demand",
+                            growth_outlook: "Stable Backup Option",
+                            required_skills: ["Transferable Skills", "Core Fundamentals"],
+                            honest_challenges: "May require complementary certifications or entrance exam pivot.",
+                            day_in_life: "Focuses on high-impact domain responsibilities with flexible entry points."
+                          };
+                          setSelectedDetailRec(backupRec);
+                          setDetailModalOpen(true);
+                        }}
+                      >
+                        <MapIcon className="size-3.5 text-primary" />
+                        Check Backup Roadmap
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        </section>
+
+        {/* ─── 4. Stream Pathways & Dynamic What-If Scenarios ─── */}
+        <section className="mb-10">
+          <div className="mb-6 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Compass className="size-5 text-primary" />
+              <h2 className="text-xl font-bold">
+                {userProfile?.stream ? `Stream Pathways for ${userProfile.stream}` : "Stream Pathways & Alternatives"}
+              </h2>
+            </div>
+            <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20 text-xs">
+              {userProfile?.education_stage ? userProfile.education_stage.replace("_", " ").toUpperCase() : "Active Stream"}
+            </Badge>
+          </div>
+
+          {/* 2-Column Grid: AI Option Paths & Dynamic What-If Scenarios */}
+          <div className="grid gap-6 lg:grid-cols-2">
+            {/* AI Option Paths */}
+            <Card className="border-border/60 bg-card/70">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-base font-bold">
+                  <GraduationCap className="size-5 text-primary" />
+                  {userProfile?.education_stage === "class_10" || userProfile?.education_stage === "class_12"
+                    ? "Stream & Junior College Pathways"
+                    : "Target Academic & Skill Pathways"}
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                {(aiOptionPaths.length > 0 ? aiOptionPaths : path.options).map((option, idx) => (
+                  <div key={idx} className="rounded-xl border border-border/60 bg-card/60 p-4">
+                    <div className="flex items-start justify-between gap-3">
+                      <div>
+                        <p className="font-bold text-xs text-foreground">{option.title}</p>
+                        <p className="mt-1 text-xs text-muted-foreground leading-relaxed">{option.description}</p>
+                      </div>
+                      <Badge variant="secondary" className="shrink-0 text-[10px] uppercase font-semibold">
+                        {option.kind}
+                      </Badge>
+                    </div>
+                    {((option as any).next_steps || (option as any).nextSteps) && (
+                      <p className="mt-3 text-xs font-semibold text-primary">
+                        Next step: {((option as any).next_steps || (option as any).nextSteps)[0]}
+                      </p>
+                    )}
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+
+            {/* Dynamic What-If Scenarios & Ask Custom Question */}
+            <Card className="border-border/60 bg-card/70">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-base font-bold">
+                  <Lightbulb className="size-5 text-primary" />
+                  Dynamic What-If Scenarios
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {whatIfScenarios.length > 0 ? (
+                  <div className="space-y-3">
+                    <Select
+                      value={String(scenarioIndex)}
+                      onValueChange={(value) => setScenarioIndex(Number(value))}
+                    >
+                      <SelectTrigger className="text-xs">
+                        <SelectValue placeholder="Select a scenario" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {whatIfScenarios.map((item, index) => (
+                          <SelectItem key={index} value={String(index)} className="text-xs">
+                            {item.question}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+
+                    {(() => {
+                      const currentWhatIf = whatIfScenarios[scenarioIndex] ?? whatIfScenarios[0];
+                      if (!currentWhatIf) return null;
+                      return (
+                        <div className="rounded-xl bg-secondary/50 p-4 text-xs">
+                          <p className="font-bold text-foreground mb-1">{currentWhatIf.question}</p>
+                          <p className="leading-relaxed text-muted-foreground">{currentWhatIf.answer}</p>
+                          {currentWhatIf.alternatives && currentWhatIf.alternatives.length > 0 && (
+                            <div className="mt-3 pt-3 border-t border-border/40">
+                              <p className="font-semibold text-foreground mb-1">Alternative Next Paths:</p>
+                              <ul className="space-y-1 text-muted-foreground">
+                                {currentWhatIf.alternatives.map((alt, i) => (
+                                  <li key={i} className="flex items-center gap-1.5">
+                                    <ArrowRight className="size-3 text-primary shrink-0" />
+                                    <span>{alt}</span>
+                                  </li>
+                                ))}
+                              </ul>
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })()}
+                  </div>
+                ) : (
+                  <div className="rounded-xl bg-secondary/50 p-4 text-xs text-muted-foreground">
+                    No What-If scenarios generated yet. Ask your question below!
+                  </div>
+                )}
+
+                {/* Custom What-If Question Input */}
+                <div className="border-t border-border/50 pt-4">
+                  <label className="mb-2 block text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                    Ask Your Own What-If Question
+                  </label>
+                  <form onSubmit={handleAskCustomQuestion} className="flex gap-2">
+                    <Input
+                      placeholder="e.g. What if I want to switch to Data Science in year 2?"
+                      value={customQuestion}
+                      onChange={(e) => setCustomQuestion(e.target.value)}
+                      disabled={askingQuestion}
+                      className="text-xs"
+                    />
+                    <Button
+                      type="submit"
+                      size="sm"
+                      disabled={askingQuestion || !customQuestion.trim()}
+                      className="gap-1.5 shrink-0 text-xs font-medium"
+                    >
+                      {askingQuestion ? (
+                        <Loader2 className="size-3.5 animate-spin" />
+                      ) : (
+                        <Sparkles className="size-3.5 text-amber-300" />
+                      )}
+                      Ask
+                    </Button>
+                  </form>
                 </div>
+              </CardContent>
+            </Card>
+          </div>
+        </section>
+
+        {/* ─── 5. Stream Entrance Exam Connections & Actionable Next Steps ─── */}
+        <section className="mb-10 grid gap-6 lg:grid-cols-2">
+          {/* Stream-Specific Exam Connections */}
+          <Card className="border-border/60 bg-card/70">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-base font-bold">
+                <Link2 className="size-5 text-primary" />
+                Stream Entrance Exam Connections
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              {(examConnections.length > 0
+                ? examConnections
+                : EXAM_CONNECTIONS.map(c => ({ exam: c.exam, connected_exams: c.connectedExams, note: c.note }))
+              ).map((connection, idx) => (
+                <div key={idx} className="rounded-xl border border-border/60 bg-card/60 p-4 text-xs">
+                  <p className="font-bold text-foreground">{connection.exam}</p>
+                  <p className="mt-1 text-muted-foreground">
+                    Connected exams: {Array.isArray(connection.connected_exams) ? connection.connected_exams.join(", ") : connection.connected_exams}
+                  </p>
+                  <p className="mt-2 text-primary font-medium">{connection.note}</p>
+                </div>
+              ))}
+            </CardContent>
+          </Card>
+
+          {/* Actionable Next Steps */}
+          <Card className="border-primary/20 bg-primary/5">
+            <CardHeader className="pb-3">
+              <CardTitle className="flex items-center gap-2 text-base font-bold">
+                <Sparkles className="size-5 text-primary" />
+                Actionable Immediate Next Steps
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-6 pt-0">
+              {nextSteps.length > 0 ? (
+                <ul className="space-y-2.5">
+                  {nextSteps.map((stepItem, idx) => (
+                    <li key={idx} className="flex items-start gap-3 rounded-xl border border-primary/20 bg-background/80 p-3 text-xs">
+                      <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary/20 text-[11px] font-bold text-primary">
+                        {idx + 1}
+                      </span>
+                      <span className="mt-0.5 font-medium text-foreground">{stepItem}</span>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="text-xs text-muted-foreground leading-relaxed">{path.summary}</p>
               )}
             </CardContent>
           </Card>
         </section>
-
-        <section className="mt-8 grid gap-6 lg:grid-cols-2">
-          <Card className="border-border/60 bg-card/70">
-            <CardHeader>
-              <CardTitle>Backup paths</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              {path.backups.map((backup) => (
-                <div key={backup.title} className="rounded-xl border border-border/60 p-4">
-                  <p className="font-semibold">{backup.title}</p>
-                  <p className="mt-1 text-sm text-muted-foreground">{backup.description}</p>
-                  <p className="mt-2 text-xs">Why it works: {backup.whyItWorks}</p>
-                </div>
-              ))}
-            </CardContent>
-          </Card>
-
-          <Card className="border-border/60 bg-card/70">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Link2 className="size-5 text-primary" /> Exam Connections
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              {EXAM_CONNECTIONS.map((connection) => (
-                <div key={connection.exam} className="rounded-xl border border-border/60 p-4">
-                  <p className="font-semibold">{connection.exam}</p>
-                  <p className="mt-1 text-sm text-muted-foreground">
-                    Also explore: {connection.connectedExams.join(", ")}
-                  </p>
-                  <p className="mt-2 text-xs">{connection.note}</p>
-                </div>
-              ))}
-            </CardContent>
-          </Card>
-        </section>
-      </section>
-
-      {/* ─── Summary ─── */}
-      <Card className="mt-8 border-primary/20 bg-primary/5">
-        <CardContent className="p-5">
-          <p className="text-sm font-semibold">Your current direction</p>
-          <p className="mt-1 text-sm text-muted-foreground">{path.summary}</p>
-          <div className="mt-4 flex flex-wrap gap-2">
-            {path.careers.map((career) => (
-              <span key={career} className="rounded-full border border-border/60 px-3 py-1 text-xs">
-                {career}
-              </span>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
     </main>
     </div>
   );

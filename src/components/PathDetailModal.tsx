@@ -40,6 +40,7 @@ export type PathDetailRec = {
   career_title: string;
   description?: string | null;
   why?: string | null;
+  why_it_works?: string | null;
   match_score?: number | null;
   salary_range?: string | null;
   growth_outlook?: string | null;
@@ -100,7 +101,9 @@ export function PathDetailModal({
             {rec.career_title}
           </DialogTitle>
           <DialogDescription className="text-sm leading-relaxed text-muted-foreground">
-            {rec.why || rec.description || "Detailed analysis for this career recommendation."}
+            {rec.why_it_works
+              ? `Why it works: ${rec.why_it_works} — ${rec.description || ""}`
+              : rec.why || rec.description || "Detailed analysis for this career recommendation."}
           </DialogDescription>
         </DialogHeader>
 

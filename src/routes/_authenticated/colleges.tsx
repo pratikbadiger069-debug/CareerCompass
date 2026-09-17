@@ -20,6 +20,7 @@ import type { Tables } from "@/integrations/supabase/types";
 import { useAuth } from "@/hooks/useAuth";
 import { usePrefersReducedMotion } from "@/hooks/use-reduced-motion";
 import { getStaggerContainer, getFadeUp, getCardHover } from "@/lib/motion";
+import { HeaderNav } from "@/components/HeaderNav";
 import { motion } from "framer-motion";
 
 type SavedCollege = Tables<"saved_colleges">;
@@ -104,6 +105,7 @@ function CollegesPage() {
 
   const [savedColleges, setSavedColleges] = useState<SavedCollege[]>([]);
   const [suggestedColleges, setSuggestedColleges] = useState<CollegeSuggestion[]>([]);
+  const [userStage, setUserStage] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [savingId, setSavingId] = useState<string | null>(null);
 
@@ -119,6 +121,14 @@ function CollegesPage() {
     }
 
     try {
+      // 0. Fetch user profile for education stage
+      const { data: profile } = await supabase
+        .from("user_profiles")
+        .select("education_stage")
+        .eq("user_id", user.id)
+        .maybeSingle();
+      if (profile) setUserStage(profile.education_stage);
+
       // 1. Fetch saved colleges
       const { data: savedData, error: savedErr } = await supabase
         .from("saved_colleges")
@@ -127,7 +137,6 @@ function CollegesPage() {
         .order("created_at", { ascending: false });
 
       if (savedErr) console.error("[Colleges] Error loading saved colleges:", savedErr);
-      // Rule 3: Use ?? [] fallback
       setSavedColleges(savedData ?? []);
 
       // 2. Fetch career recommendations to extract colleges
@@ -233,8 +242,10 @@ function CollegesPage() {
   };
 
   return (
-    <main className="mx-auto min-h-screen w-full max-w-6xl px-6 py-10">
-      {/* Header */}
+    <div className="min-h-screen bg-background text-foreground">
+      <HeaderNav />
+      <main className="mx-auto w-full max-w-6xl px-6 py-8">
+        {/* Header */}
       <header className="mb-8 border-b border-border/50 pb-6">
         <Link to="/dashboard">
           <Button variant="ghost" size="sm" className="mb-4 gap-2 text-xs">
@@ -353,9 +364,18 @@ function CollegesPage() {
           <section>
             <div className="mb-4 flex items-center gap-2">
               <Sparkles className="size-5 text-primary" />
-              <h2 className="text-lg font-bold">
-                Recommended Institutions for Your Stream & Goals
-              </h2>
+              <div>
+                <h2 className="text-lg font-bold">
+                  {userStage === "class_10" || userStage === "class_12"
+                    ? "Recommended Streams, Junior Colleges & Entrance Prep Pathways"
+                    : "Recommended Universities & Degree Colleges"}
+                </h2>
+                <p className="text-xs text-muted-foreground">
+                  {userStage === "class_10" || userStage === "class_12"
+                    ? "Age-appropriate stream pathways, preparatory institutes, and junior college options."
+                    : "Top target degree institutions matched to your career path."}
+                </p>
+              </div>
             </div>
 
             <motion.div
@@ -435,5 +455,6 @@ function CollegesPage() {
         </div>
       )}
     </main>
+    </div>
   );
 }

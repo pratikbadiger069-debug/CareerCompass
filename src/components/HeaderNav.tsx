@@ -68,7 +68,7 @@ export function HeaderNav() {
             const Icon = link.icon;
             const isActive = pathname === link.to;
             return (
-              <Link key={link.to} to={link.to} search={link.search}>
+              <Link key={link.to} to={link.to} {...(link.search ? { search: link.search } : {})}>
                 <Button
                   variant={isActive ? "secondary" : "ghost"}
                   size="sm"
