@@ -205,7 +205,11 @@ function Dashboard() {
           user_id: user.id,
           career_title: rec.title,
           description: rec.why,
-          match_score: rec.match_score,
+          // The database stores match_score as an integer, while the model may
+          // return a decimal such as 9.5. Normalize it before inserting.
+          match_score: Number.isFinite(rec.match_score)
+            ? Math.round(Math.max(0, Math.min(100, rec.match_score)))
+            : null,
           salary_range: rec.salary_range,
           growth_outlook: rec.demand_outlook,
           required_skills: rec.required_skills ?? [],
@@ -282,7 +286,7 @@ function Dashboard() {
         setStatus("error");
       }
     },
-    [user, isGuest],
+    [user, isGuest, extraContext],
   );
 
   useEffect(() => {
