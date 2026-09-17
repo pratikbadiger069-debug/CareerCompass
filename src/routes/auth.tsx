@@ -62,26 +62,45 @@ function GoogleMark() {
 function AuthPage() {
   const { mode } = Route.useSearch();
   const navigate = useNavigate();
-  const { isAuthenticated, loading } = useAuth();
+  const { user, isAuthenticated, loading } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
   const [busy, setBusy] = useState(false);
 
+  const checkOnboardingAndRedirect = async (userId: string) => {
+    const { data: profile } = await supabase
+      .from("user_profiles")
+      .select("onboarding_completed")
+      .eq("user_id", userId)
+      .maybeSingle();
+
+    if (profile?.onboarding_completed) {
+      navigate({ to: "/dashboard", replace: true });
+    } else {
+      navigate({ to: "/onboarding", replace: true });
+    }
+  };
+
   useEffect(() => {
-    if (!loading && isAuthenticated) navigate({ to: "/dashboard", replace: true });
-  }, [loading, isAuthenticated, navigate]);
+    if (!loading && isAuthenticated && user) {
+      checkOnboardingAndRedirect(user.id);
+    }
+  }, [loading, isAuthenticated, user]);
 
   async function signIn(e: React.FormEvent): Promise<void> {
     e.preventDefault();
     setBusy(true);
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
     setBusy(false);
     if (error) {
       toast.error(error.message);
       return;
     }
-    navigate({ to: "/dashboard", replace: true });
+    if (data.user) {
+      toast.success("Successfully signed in!");
+      await checkOnboardingAndRedirect(data.user.id);
+    }
   }
 
   async function signUp(e: React.FormEvent): Promise<void> {
@@ -104,7 +123,10 @@ function AuthPage() {
       toast.success("Check your email to confirm your account, then sign in.");
       return;
     }
-    navigate({ to: "/dashboard", replace: true });
+    if (data.user) {
+      toast.success("Account created successfully!");
+      await checkOnboardingAndRedirect(data.user.id);
+    }
   }
 
   async function signInWithGoogle(): Promise<void> {
@@ -118,7 +140,11 @@ function AuthPage() {
       return;
     }
     if (result.redirected) return;
-    navigate({ to: "/dashboard", replace: true });
+    if (user) {
+      await checkOnboardingAndRedirect(user.id);
+    } else {
+      navigate({ to: "/onboarding", replace: true });
+    }
   }
 
   return (

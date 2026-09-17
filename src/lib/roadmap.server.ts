@@ -34,6 +34,8 @@ const CAREER_COMPASS_SCHEMA = {
             type: "array",
             items: { type: "string" },
           },
+          honest_challenges: { type: "string" },
+          day_in_life: { type: "string" },
           colleges: {
             type: "array",
             items: {
@@ -58,6 +60,8 @@ const CAREER_COMPASS_SCHEMA = {
           "salary_range",
           "demand_outlook",
           "required_skills",
+          "honest_challenges",
+          "day_in_life",
           "colleges",
         ],
         additionalProperties: false,
@@ -159,6 +163,7 @@ const CAREER_COMPASS_SCHEMA = {
     },
     next_steps: {
       type: "array",
+      minItems: 4,
       items: { type: "string" },
     },
   },

@@ -33,11 +33,20 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
+import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import type { Tables } from "@/integrations/supabase/types";
 import { useAuth } from "@/hooks/useAuth";
 import { usePrefersReducedMotion } from "@/hooks/use-reduced-motion";
+import { HeaderNav } from "@/components/HeaderNav";
+import {
+  PathDetailModal,
+  type OptionPath,
+  type BackupPath,
+  type PathDetailRec,
+} from "@/components/PathDetailModal";
+import { sendChatMessage } from "@/lib/chat.functions";
 import { getStaggerContainer, getFadeUp, getCardHover } from "@/lib/motion";
 import { RevealOnScroll } from "@/components/motion/RevealOnScroll";
 import { generateCareerRoadmap } from "@/lib/geminiApi";
@@ -90,11 +99,24 @@ function Dashboard() {
   // --- AI recommendation state ---
   const [status, setStatus] = useState<Status>("idle");
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
-  const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
+  const [recommendations, setRecommendations] = useState<any[]>([]);
   const [selectedRecId, setSelectedRecId] = useState<string | null>(null);
   const [milestones, setMilestones] = useState<Milestone[]>([]);
   const [extraContext, setExtraContext] = useState("");
   const [error, setError] = useState<string | null>(null);
+
+  // Detail Modal & Dynamic AI Sections State
+  const [selectedDetailRec, setSelectedDetailRec] = useState<PathDetailRec | null>(null);
+  const [detailModalOpen, setDetailModalOpen] = useState(false);
+
+  const [aiOptionPaths, setAiOptionPaths] = useState<OptionPath[]>([]);
+  const [aiBackupPaths, setAiBackupPaths] = useState<BackupPath[]>([]);
+  const [whatIfScenarios, setWhatIfScenarios] = useState<Array<{ question: string; answer: string; alternatives: string[] }>>([]);
+  const [examConnections, setExamConnections] = useState<Array<{ exam: string; connected_exams: string[]; note: string }>>([]);
+  const [nextSteps, setNextSteps] = useState<string[]>([]);
+
+  const [customQuestion, setCustomQuestion] = useState("");
+  const [askingQuestion, setAskingQuestion] = useState(false);
 
   const path = useMemo<StreamPath>(() => {
     const id = STREAM_VALUE_TO_PATH[stream] ?? "mpc";
@@ -102,6 +124,41 @@ function Dashboard() {
   }, [stream]);
 
   const scenario = path.whatIf[scenarioIndex] ?? path.whatIf[0];
+
+  const applyAiPayload = useCallback((payload: any) => {
+    if (!payload) return;
+    if (Array.isArray(payload.option_paths)) setAiOptionPaths(payload.option_paths);
+    if (Array.isArray(payload.backup_paths)) setAiBackupPaths(payload.backup_paths);
+    if (Array.isArray(payload.what_if)) setWhatIfScenarios(payload.what_if);
+    if (Array.isArray(payload.exam_connections)) setExamConnections(payload.exam_connections);
+    if (Array.isArray(payload.next_steps)) setNextSteps(payload.next_steps);
+  }, []);
+
+  const handleAskCustomQuestion = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!customQuestion.trim() || askingQuestion) return;
+    const q = customQuestion.trim();
+    setAskingQuestion(true);
+    setCustomQuestion("");
+
+    try {
+      const res = await sendChatMessage({
+        data: { message: `What-If Scenario Question: ${q}` },
+      });
+      const newScenario = {
+        question: q,
+        answer: res.reply || "No response received.",
+        alternatives: [],
+      };
+      setWhatIfScenarios((prev) => [...prev, newScenario]);
+      toast.success("What-If answer generated!");
+    } catch (err) {
+      console.error("Error asking custom question:", err);
+      toast.error("Failed to answer question. Please try again.");
+    } finally {
+      setAskingQuestion(false);
+    }
+  };
 
   // --- Core fetch-or-generate logic ---
   const loadRecommendations = useCallback(
@@ -131,9 +188,33 @@ function Dashboard() {
 
         if (fetchError) throw new Error(fetchError.message);
 
+        const cacheKey = `career_compass_full_${user.id}`;
+
         if (!forceRegenerate && existing && existing.length > 0) {
-          // Rows already exist — skip AI, load saved data.
-          setRecommendations(existing);
+          const cachedStr = typeof window !== "undefined" ? localStorage.getItem(cacheKey) : null;
+          if (cachedStr) {
+            try {
+              const cachedPayload = JSON.parse(cachedStr);
+              applyAiPayload(cachedPayload);
+              const cachedRecs = cachedPayload.recommendations as any[] | undefined;
+              if (cachedRecs && cachedRecs.length > 0) {
+                const merged = existing.map((r, i) => ({
+                  ...r,
+                  honest_challenges: cachedRecs[i]?.honest_challenges ?? null,
+                  day_in_life: cachedRecs[i]?.day_in_life ?? null,
+                  colleges: cachedRecs[i]?.colleges ?? [],
+                }));
+                setRecommendations(merged);
+              } else {
+                setRecommendations(existing);
+              }
+            } catch {
+              setRecommendations(existing);
+            }
+          } else {
+            setRecommendations(existing);
+          }
+
           setSelectedRecId(existing[0]?.id ?? null);
           const recIds = existing.map((r) => r.id);
           const { data: savedMilestones } = await supabase
@@ -159,7 +240,6 @@ function Dashboard() {
           if (profileUpdateError)
             throw new Error(`Failed to save your context: ${profileUpdateError.message}`);
 
-          // Delete dependent rows first, then remove the old recommendations.
           const { error: milestonesDeleteError } = await supabase
             .from("roadmap_milestones")
             .delete()
@@ -179,7 +259,11 @@ function Dashboard() {
 
         const aiResult = await generateCareerRoadmap(profileForRoadmap as Record<string, unknown>);
 
-        // 3a. Insert career_recommendations
+        applyAiPayload(aiResult);
+        if (typeof window !== "undefined") {
+          localStorage.setItem(cacheKey, JSON.stringify(aiResult));
+        }
+
         const aiRecs = (aiResult as Record<string, unknown>)["recommendations"] as
           | Array<{
               title: string;
@@ -188,6 +272,8 @@ function Dashboard() {
               salary_range: string;
               demand_outlook: string;
               required_skills: string[];
+              honest_challenges?: string;
+              day_in_life?: string;
               colleges?: Array<{
                 name: string;
                 course: string;
@@ -209,7 +295,6 @@ function Dashboard() {
           salary_range: rec.salary_range,
           growth_outlook: rec.demand_outlook,
           required_skills: rec.required_skills ?? [],
-          colleges: rec.colleges ?? [],
         }));
 
         const { data: insertedRecs, error: insertError } = await supabase
@@ -220,7 +305,6 @@ function Dashboard() {
         if (insertError) throw new Error(`Failed to save recommendations: ${insertError.message}`);
         if (!insertedRecs) throw new Error("No recommendations returned after insert.");
 
-        // 3b. Insert roadmap_milestones linked via recommendation_id
         const aiRoadmap = (aiResult as Record<string, unknown>)["roadmap"] as
           | Array<{
               phase: string;
@@ -240,7 +324,6 @@ function Dashboard() {
           }> = [];
 
           aiRoadmap.forEach((phase, phaseIndex) => {
-            // Map each phase to the recommendation at the same index, falling back to the last one
             const linkedRec = insertedRecs[Math.min(phaseIndex, insertedRecs.length - 1)];
             if (!linkedRec) return;
             phase.milestones.forEach((milestone, milestoneIndex) => {
@@ -260,14 +343,21 @@ function Dashboard() {
           }
         }
 
-        // Re-fetch to get canonical data
         const { data: finalRecs } = await supabase
           .from("career_recommendations")
           .select("*")
           .eq("user_id", user.id);
-        setRecommendations(finalRecs ?? insertedRecs);
 
-        const finalRecIds = (finalRecs ?? insertedRecs).map((r) => r.id);
+        const recsToUse = finalRecs ?? insertedRecs;
+        const mergedFinalRecs = recsToUse.map((r, i) => ({
+          ...r,
+          honest_challenges: aiRecs[i]?.honest_challenges ?? null,
+          day_in_life: aiRecs[i]?.day_in_life ?? null,
+          colleges: aiRecs[i]?.colleges ?? [],
+        }));
+        setRecommendations(mergedFinalRecs);
+
+        const finalRecIds = recsToUse.map((r) => r.id);
         const { data: finalMilestones } = await supabase
           .from("roadmap_milestones")
           .select("*")
@@ -282,7 +372,7 @@ function Dashboard() {
         setStatus("error");
       }
     },
-    [user, isGuest],
+    [user, isGuest, applyAiPayload],
   );
 
   useEffect(() => {
@@ -309,39 +399,113 @@ function Dashboard() {
   }, [milestones]);
 
   return (
-    <main className="mx-auto min-h-screen w-full max-w-6xl px-6 py-10">
-      {/* ─── Header ─── */}
-      <header className="flex flex-col gap-4 border-b border-border/50 pb-6 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <p className="text-sm font-semibold text-primary">CareerCompass</p>
-          <h1 className="mt-1 text-3xl font-bold">Your Career Map</h1>
-          <p className="mt-2 text-sm text-muted-foreground">
-            {isGuest
-              ? "Demo mode — explore the map freely."
-              : `Welcome back, ${user?.email ?? "student"}.`}
-          </p>
-        </div>
-        <div className="flex flex-wrap items-center gap-2">
-          <Link to="/compare">
-            <Button variant="outline" size="sm" className="gap-1.5">
-              <BarChart3 className="size-4 text-primary" /> Compare
-            </Button>
+    <div className="min-h-screen bg-background text-foreground">
+      <HeaderNav />
+
+      <main className="mx-auto w-full max-w-6xl px-6 py-8">
+        {/* ─── Profile Status & Welcome Banner ─── */}
+        <section className="mb-8 overflow-hidden rounded-2xl border border-primary/20 bg-gradient-to-r from-primary/10 via-primary/5 to-background p-6 shadow-sm">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex items-start gap-4">
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-primary/20 text-primary font-bold">
+                <User className="size-6" />
+              </div>
+              <div>
+                <div className="flex items-center gap-2">
+                  <h1 className="text-2xl font-bold tracking-tight">
+                    {isGuest ? "Welcome to CareerCompass" : `Welcome back, ${userProfile?.full_name || user?.email?.split("@")[0] || "Student"}!`}
+                  </h1>
+                  <Badge variant="secondary" className="bg-primary/15 text-primary text-xs font-semibold">
+                    {userProfile?.education_stage ? userProfile.education_stage.replace("_", " ").toUpperCase() : "Onboarded"}
+                  </Badge>
+                </div>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  {userProfile?.stream ? `Stream: ${userProfile.stream} • Goal: ${userProfile.goal_type || userProfile.career_goal || "Explore"}` : "AI guidance and career options tailored to your profile."}
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2 self-start sm:self-center">
+              <Link to="/profile">
+                <Button size="sm" className="gap-2 shadow-sm">
+                  <User className="size-4" />
+                  Profile Details & Settings
+                </Button>
+              </Link>
+            </div>
+          </div>
+        </section>
+
+        {/* ─── Aligned Feature Hub Cards ─── */}
+        <section className="mb-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <Link to="/roadmap" search={{ rec: undefined }}>
+            <Card className="group h-full border-border/60 bg-card/70 transition-all hover:border-primary/50 hover:bg-card hover:shadow-md">
+              <CardContent className="flex flex-col justify-between p-5 h-full">
+                <div>
+                  <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-blue-500/10 text-blue-500">
+                    <MapIcon className="size-5" />
+                  </div>
+                  <h3 className="font-bold text-base group-hover:text-primary transition-colors">AI Roadmap</h3>
+                  <p className="mt-1 text-xs text-muted-foreground leading-relaxed">Step-by-step milestones tailored to your career goal.</p>
+                </div>
+                <div className="mt-4 flex items-center gap-1 text-xs font-semibold text-primary">
+                  View Roadmap <ArrowRight className="size-3.5 transition-transform group-hover:translate-x-1" />
+                </div>
+              </CardContent>
+            </Card>
           </Link>
+
           <Link to="/colleges">
-            <Button variant="outline" size="sm" className="gap-1.5">
-              <GraduationCap className="size-4 text-primary" /> Colleges
-            </Button>
+            <Card className="group h-full border-border/60 bg-card/70 transition-all hover:border-primary/50 hover:bg-card hover:shadow-md">
+              <CardContent className="flex flex-col justify-between p-5 h-full">
+                <div>
+                  <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-purple-500/10 text-purple-500">
+                    <GraduationCap className="size-5" />
+                  </div>
+                  <h3 className="font-bold text-base group-hover:text-primary transition-colors">College Explorer</h3>
+                  <p className="mt-1 text-xs text-muted-foreground leading-relaxed">Match top universities based on marks, stream & budget.</p>
+                </div>
+                <div className="mt-4 flex items-center gap-1 text-xs font-semibold text-primary">
+                  Explore Colleges <ArrowRight className="size-3.5 transition-transform group-hover:translate-x-1" />
+                </div>
+              </CardContent>
+            </Card>
           </Link>
+
+          <Link to="/compare">
+            <Card className="group h-full border-border/60 bg-card/70 transition-all hover:border-primary/50 hover:bg-card hover:shadow-md">
+              <CardContent className="flex flex-col justify-between p-5 h-full">
+                <div>
+                  <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-500">
+                    <BarChart3 className="size-5" />
+                  </div>
+                  <h3 className="font-bold text-base group-hover:text-primary transition-colors">College Comparer</h3>
+                  <p className="mt-1 text-xs text-muted-foreground leading-relaxed">Compare fees, entrance exams and ratings side by side.</p>
+                </div>
+                <div className="mt-4 flex items-center gap-1 text-xs font-semibold text-primary">
+                  Compare Now <ArrowRight className="size-3.5 transition-transform group-hover:translate-x-1" />
+                </div>
+              </CardContent>
+            </Card>
+          </Link>
+
           <Link to="/profile">
-            <Button variant="outline" size="sm" className="gap-1.5">
-              <User className="size-4 text-primary" /> Profile
-            </Button>
+            <Card className="group h-full border-border/60 bg-card/70 transition-all hover:border-primary/50 hover:bg-card hover:shadow-md">
+              <CardContent className="flex flex-col justify-between p-5 h-full">
+                <div>
+                  <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-amber-500/10 text-amber-500">
+                    <User className="size-5" />
+                  </div>
+                  <h3 className="font-bold text-base group-hover:text-primary transition-colors">My Profile & Skills</h3>
+                  <p className="mt-1 text-xs text-muted-foreground leading-relaxed">Edit your 5 onboarding details & acquired skills.</p>
+                </div>
+                <div className="mt-4 flex items-center gap-1 text-xs font-semibold text-primary">
+                  Edit Profile <ArrowRight className="size-3.5 transition-transform group-hover:translate-x-1" />
+                </div>
+              </CardContent>
+            </Card>
           </Link>
-          <Button variant="outline" size="sm" onClick={signOut}>
-            Sign out
-          </Button>
-        </div>
-      </header>
+        </section>
 
       {/* ─── AI-Powered Recommendations (authenticated, non-guest only) ─── */}
       {!isGuest && (
@@ -659,6 +823,7 @@ function Dashboard() {
         </CardContent>
       </Card>
     </main>
+    </div>
   );
 }
 

@@ -31,6 +31,7 @@ import { supabase } from "@/integrations/supabase/client";
 import type { Tables } from "@/integrations/supabase/types";
 import { useAuth } from "@/hooks/useAuth";
 import { generateCareerRoadmap } from "@/lib/geminiApi";
+import { HeaderNav } from "@/components/HeaderNav";
 
 const EDUCATION_STAGES = [
   { value: "class_10", label: "Class 10" },
@@ -293,7 +294,6 @@ function ProfilePage() {
         salary_range: rec.salary_range,
         growth_outlook: rec.demand_outlook,
         required_skills: rec.required_skills ?? [],
-        colleges: rec.colleges ?? [],
       }));
 
       const { data: insertedRecs, error: insertError } = await supabase
@@ -354,8 +354,10 @@ function ProfilePage() {
   };
 
   return (
-    <main className="mx-auto min-h-screen w-full max-w-4xl px-6 py-10">
-      {/* Header */}
+    <div className="min-h-screen bg-background text-foreground">
+      <HeaderNav />
+      <main className="mx-auto w-full max-w-4xl px-6 py-8">
+        {/* Header */}
       <header className="mb-8 border-b border-border/50 pb-6">
         <Link to="/dashboard">
           <Button variant="ghost" size="sm" className="mb-4 gap-2 text-xs">
@@ -653,5 +655,6 @@ function ProfilePage() {
         </div>
       )}
     </main>
+    </div>
   );
 }
