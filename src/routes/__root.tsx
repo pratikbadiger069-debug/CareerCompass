@@ -4,18 +4,15 @@ import {
   Link,
   createRootRouteWithContext,
   useRouter,
-  useRouterState,
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
 import { useEffect, type ReactNode } from "react";
-import { AnimatePresence, motion } from "framer-motion";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { Toaster } from "@/components/ui/sonner";
 import { supabase } from "@/integrations/supabase/client";
-import { usePrefersReducedMotion } from "@/hooks/use-reduced-motion";
 import { ChatWidget } from "@/components/ChatWidget";
 
 function NotFoundComponent() {
@@ -135,8 +132,6 @@ function RootShell({ children }: { children: ReactNode }) {
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   const router = useRouter();
-  const pathname = useRouterState({ select: (s) => s.location.pathname });
-  const prefersReduced = usePrefersReducedMotion();
 
   useEffect(() => {
     const { data: sub } = supabase.auth.onAuthStateChange((event) => {
@@ -149,24 +144,8 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      {/*
-       * AnimatePresence + motion.div provide a subtle opacity fade between
-       * routes. When prefers-reduced-motion is set, duration is 0 so the
-       * transition is imperceptibly instant — a true no-animation swap.
-       */}
-      <AnimatePresence mode="wait" initial={false}>
-        <motion.div
-          key={pathname}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: prefersReduced ? 0 : 0.18, ease: "easeOut" }}
-          style={{ minHeight: "100vh" }}
-        >
-          {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-          <Outlet />
-        </motion.div>
-      </AnimatePresence>
+      {/* Keep route matches mounted directly so transitions cannot race router commits. */}
+      <Outlet />
       <ChatWidget />
       <Toaster />
     </QueryClientProvider>
