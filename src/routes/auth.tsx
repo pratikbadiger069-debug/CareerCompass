@@ -1,11 +1,13 @@
 import { useEffect, useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import {
+  AlertTriangle,
   ArrowLeft,
   Check,
   Compass,
   Eye,
   EyeOff,
+  HelpCircle,
   KeyRound,
   Loader2,
   Lock,
@@ -92,6 +94,47 @@ function isValidEmail(email: string): boolean {
   return emailRegex.test(email);
 }
 
+function parseOAuthError(raw: unknown): { title: string; message: string; isConfigError: boolean } {
+  let errorText = "";
+  if (typeof raw === "string") {
+    errorText = raw;
+  } else if (raw && typeof raw === "object") {
+    if ("message" in raw && typeof (raw as any).message === "string") {
+      errorText = (raw as any).message;
+    } else if ("msg" in raw && typeof (raw as any).msg === "string") {
+      errorText = (raw as any).msg;
+    } else if ("error_description" in raw && typeof (raw as any).error_description === "string") {
+      errorText = (raw as any).error_description;
+    } else {
+      try {
+        errorText = JSON.stringify(raw);
+      } catch {
+        errorText = String(raw);
+      }
+    }
+  }
+
+  const isMissingSecret =
+    errorText.includes("missing OAuth secret") ||
+    errorText.includes("Unsupported provider") ||
+    errorText.includes("validation_failed");
+
+  if (isMissingSecret) {
+    return {
+      title: "Google OAuth Secret Missing",
+      message:
+        "Google sign-in is not configured with client credentials in Supabase yet. Please sign in using Email & Password or explore via Guest Demo Mode below.",
+      isConfigError: true,
+    };
+  }
+
+  return {
+    title: "Authentication Failed",
+    message: errorText.replace(/\+/g, " ") || "Google sign-in could not be completed. Please try again.",
+    isConfigError: false,
+  };
+}
+
 function AuthPage() {
   const { mode, error: searchError, error_description: searchErrorDesc } = Route.useSearch();
   const navigate = useNavigate();
@@ -107,6 +150,8 @@ function AuthPage() {
   const [busy, setBusy] = useState(false);
   const [googleBusy, setGoogleBusy] = useState(false);
   const [demoBusy, setDemoBusy] = useState(false);
+  const [oauthConfigError, setOauthConfigError] = useState<string | null>(null);
+  const [showOauthGuide, setShowOauthGuide] = useState(false);
   const [activeTab, setActiveTab] = useState<"signin" | "signup">(
     mode === "signup" ? "signup" : "signin",
   );
@@ -126,9 +171,18 @@ function AuthPage() {
 
   // Catch search and hash errors from OAuth redirects
   useEffect(() => {
-    const errorMsg = searchErrorDesc || searchError;
-    if (errorMsg) {
-      toast.error(`Authentication error: ${errorMsg.replace(/\+/g, " ")}`);
+    const rawError = searchErrorDesc || searchError;
+    if (rawError) {
+      const parsed = parseOAuthError(rawError);
+      if (parsed.isConfigError) {
+        setOauthConfigError(parsed.message);
+        toast.error(parsed.title, {
+          description: parsed.message,
+          duration: 6000,
+        });
+      } else {
+        toast.error(`Authentication error: ${parsed.message}`);
+      }
     }
 
     if (typeof window !== "undefined" && window.location.hash) {
@@ -136,7 +190,16 @@ function AuthPage() {
       const params = new URLSearchParams(hash);
       const hashError = params.get("error_description") || params.get("error");
       if (hashError) {
-        toast.error(`Authentication error: ${hashError.replace(/\+/g, " ")}`);
+        const parsed = parseOAuthError(hashError);
+        if (parsed.isConfigError) {
+          setOauthConfigError(parsed.message);
+          toast.error(parsed.title, {
+            description: parsed.message,
+            duration: 6000,
+          });
+        } else {
+          toast.error(`Authentication error: ${parsed.message}`);
+        }
       }
     }
   }, [searchError, searchErrorDesc]);
@@ -332,9 +395,18 @@ function AuthPage() {
       if (data?.url) {
         window.location.href = data.url;
       }
-    } catch (err) {
+    } catch (err: unknown) {
       console.error("Google sign-in error:", err);
-      toast.error(err instanceof Error ? err.message : "Google sign-in failed. Please try again.");
+      const parsed = parseOAuthError(err);
+      if (parsed.isConfigError) {
+        setOauthConfigError(parsed.message);
+        toast.error(parsed.title, {
+          description: parsed.message,
+          duration: 6000,
+        });
+      } else {
+        toast.error(err instanceof Error ? err.message : parsed.message);
+      }
       setGoogleBusy(false);
     }
   }
@@ -414,6 +486,110 @@ function AuthPage() {
                 </>
               )}
             </Button>
+
+            {/* OAuth Configuration Notice */}
+            {oauthConfigError && (
+              <div className="rounded-xl border border-amber-500/30 bg-amber-500/10 p-3.5 text-xs text-amber-200">
+                <div className="flex items-start gap-2.5">
+                  <AlertTriangle className="size-4 text-amber-400 shrink-0 mt-0.5" />
+                  <div className="space-y-1.5 flex-1">
+                    <div className="flex items-center justify-between">
+                      <p className="font-semibold text-amber-300">Google OAuth Not Configured</p>
+                      <button
+                        type="button"
+                        onClick={() => setOauthConfigError(null)}
+                        className="text-amber-400/70 hover:text-amber-200"
+                        aria-label="Dismiss notice"
+                      >
+                        <X className="size-3.5" />
+                      </button>
+                    </div>
+                    <p className="text-amber-200/80 leading-relaxed text-[11px]">
+                      Supabase is missing the Google OAuth Client Secret. You can sign in immediately using <strong>Email &amp; Password</strong> or <strong>Guest Demo Mode</strong>.
+                    </p>
+                    <div className="pt-0.5">
+                      <button
+                        type="button"
+                        onClick={() => setShowOauthGuide(true)}
+                        className="inline-flex items-center gap-1 text-[11px] font-semibold text-amber-300 hover:text-amber-100 underline underline-offset-2"
+                      >
+                        <HelpCircle className="size-3" />
+                        How to configure Google OAuth in Supabase →
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* OAuth Setup Guide Modal */}
+            <Dialog open={showOauthGuide} onOpenChange={setShowOauthGuide}>
+              <DialogContent className="sm:max-w-lg border-white/10 bg-charcoal-mid/95 text-foreground backdrop-blur-xl">
+                <DialogHeader>
+                  <DialogTitle className="flex items-center gap-2 text-base font-bold">
+                    <ShieldCheck className="size-5 text-primary" />
+                    How to Fix: Google OAuth in Supabase
+                  </DialogTitle>
+                  <DialogDescription className="text-xs text-muted-foreground">
+                    Supabase returned <code>Unsupported provider: missing OAuth secret</code> because the Google OAuth Client ID and Secret are not yet configured in your Supabase project.
+                  </DialogDescription>
+                </DialogHeader>
+
+                <div className="space-y-3 text-xs text-muted-foreground mt-2">
+                  <div className="rounded-lg border border-white/10 bg-black/40 p-3 space-y-1.5">
+                    <p className="font-semibold text-foreground text-xs">Step 1: Google Cloud Console</p>
+                    <ol className="list-decimal pl-4 space-y-1 leading-relaxed">
+                      <li>
+                        Go to{" "}
+                        <a
+                          href="https://console.cloud.google.com/apis/credentials"
+                          target="_blank"
+                          rel="noreferrer"
+                          className="text-primary underline"
+                        >
+                          Google Cloud Console → Credentials
+                        </a>.
+                      </li>
+                      <li>Create or select an <strong>OAuth 2.0 Client ID</strong> (Web application).</li>
+                      <li>
+                        In <strong>Authorized redirect URIs</strong>, add your Supabase Auth callback URL:
+                        <br />
+                        <code className="mt-1 inline-block text-[11px] text-primary select-all break-all bg-white/5 px-1.5 py-0.5 rounded font-mono">
+                          https://&lt;your-supabase-project&gt;.supabase.co/auth/v1/callback
+                        </code>
+                      </li>
+                      <li>Copy your generated <strong>Client ID</strong> and <strong>Client Secret</strong>.</li>
+                    </ol>
+                  </div>
+
+                  <div className="rounded-lg border border-white/10 bg-black/40 p-3 space-y-1.5">
+                    <p className="font-semibold text-foreground text-xs">Step 2: Supabase Dashboard</p>
+                    <ol className="list-decimal pl-4 space-y-1 leading-relaxed">
+                      <li>
+                        Open your project at{" "}
+                        <a
+                          href="https://supabase.com/dashboard"
+                          target="_blank"
+                          rel="noreferrer"
+                          className="text-primary underline"
+                        >
+                          supabase.com/dashboard
+                        </a>.
+                      </li>
+                      <li>Go to <strong>Authentication</strong> → <strong>Providers</strong> → <strong>Google</strong>.</li>
+                      <li>Toggle Google on, paste your <strong>Client ID</strong> and <strong>Client Secret</strong>, and click <strong>Save</strong>.</li>
+                    </ol>
+                  </div>
+
+                  <div className="rounded-lg border border-primary/20 bg-primary/10 p-3 text-foreground">
+                    <p className="font-semibold text-primary text-xs">Immediate Sign In Options</p>
+                    <p className="text-[11px] text-muted-foreground mt-0.5">
+                      You do not need to configure Google right now — you can register/login with <strong>Email &amp; Password</strong> or click <strong>Try Demo Mode as Guest</strong> below.
+                    </p>
+                  </div>
+                </div>
+              </DialogContent>
+            </Dialog>
 
             {/* Divider */}
             <div className="relative flex items-center justify-center">
