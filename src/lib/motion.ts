@@ -83,7 +83,7 @@ export const scaleOnHoverReduced: ScaleOnHoverProps = {
 export const cardHover = {
   whileHover: {
     y: -4,
-    boxShadow: "0 12px 28px -6px oklch(0.802 0.137 76.5 / 15%)",
+    boxShadow: "0 12px 28px -6px rgba(214, 253, 112, 0.15)",
     transition: { type: "spring", stiffness: 300, damping: 20 },
   } as TargetAndTransition,
 };
@@ -91,7 +91,7 @@ export const cardHover = {
 /** Reduced-motion version: subtle shadow only, no translateY. */
 export const cardHoverReduced = {
   whileHover: {
-    boxShadow: "0 4px 12px -2px oklch(0.802 0.137 76.5 / 10%)",
+    boxShadow: "0 4px 12px -2px rgba(214, 253, 112, 0.10)",
     transition: { duration: 0.01 },
   } as TargetAndTransition,
 };

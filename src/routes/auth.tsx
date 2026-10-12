@@ -358,7 +358,7 @@ function AuthPage() {
       {/* Glow orbs */}
       <div
         className="pointer-events-none absolute -top-40 left-1/2 -translate-x-1/2 h-[500px] w-[500px] rounded-full opacity-20"
-        style={{ background: "radial-gradient(circle, oklch(0.72 0.19 45 / 35%) 0%, transparent 70%)" }}
+        style={{ background: "radial-gradient(circle, rgba(214, 253, 112, 0.25) 0%, transparent 70%)" }}
       />
       <div className="relative z-10 w-full max-w-md">
         {/* Top Header Bar */}
@@ -378,7 +378,7 @@ function AuthPage() {
         </div>
 
         {/* Auth Card — Aeline glass style */}
-        <Card className="card-glow-top border-border/40 bg-charcoal-mid/80 backdrop-blur-xl shadow-[0_32px_64px_oklch(0_0_0/40%)]">
+        <Card className="card-glow-top border-white/10 bg-charcoal-mid/80 backdrop-blur-xl shadow-[0_32px_64px_rgba(0,0,0,0.6)]">
           <CardHeader className="text-center pb-5">
             <div className="mx-auto mb-3 flex size-12 items-center justify-center rounded-2xl bg-primary/10 text-primary ring-1 ring-primary/20">
               <ShieldCheck className="size-6" />

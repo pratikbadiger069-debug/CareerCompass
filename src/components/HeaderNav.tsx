@@ -91,7 +91,7 @@ export function HeaderNav() {
                   type="button"
                   className={`group flex items-center gap-1.5 rounded-lg px-3.5 py-2 text-xs font-medium transition-all duration-200 ${
                     isActive
-                      ? "bg-primary/12 text-primary shadow-[inset_0_0_0_1px_oklch(0.72_0.19_45/25%)]"
+                      ? "bg-primary/12 text-primary shadow-[inset_0_0_0_1px_rgba(214,253,112,0.25)]"
                       : "text-muted-foreground hover:bg-border/40 hover:text-foreground"
                   }`}
                 >

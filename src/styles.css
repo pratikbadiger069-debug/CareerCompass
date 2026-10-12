@@ -57,62 +57,65 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
-  /* Custom CareerCompass tokens */
+  /* Custom Aeline tokens */
   --color-charcoal: var(--charcoal);
   --color-charcoal-deep: var(--charcoal-deep);
   --color-charcoal-mid: var(--charcoal-mid);
   --color-surface: var(--surface);
-  --color-green-accent: var(--green-accent);
+  --color-lime: var(--aeline-lime);
+  --color-green-accent: var(--aeline-lime);
 }
 
-/* ─── CareerCompass colour palette (Aeline-inspired dark + orange brand) ─── */
+/* ─── Authentic Aeline Color Palette (https://aeline.webflow.io) ─────────── */
 :root,
 .dark {
   --radius: 0.75rem;
 
-  /* Aeline-like surface layers */
-  --charcoal-deep: oklch(0.12 0.008 260);   /* deepest bg */
-  --charcoal:      oklch(0.17 0.010 260);   /* page bg */
-  --charcoal-mid:  oklch(0.22 0.012 260);   /* card bg */
-  --surface:       oklch(0.27 0.015 260);   /* elevated surface */
-  --green-accent:  oklch(0.72 0.19 145);    /* Aeline green (we keep orange primary) */
+  /* Aeline exact surface layers */
+  --charcoal-deep: #050508;   /* deepest dark bg */
+  --charcoal:      #08080c;   /* standard page bg */
+  --charcoal-mid:  #111218;   /* card background */
+  --surface:       #181924;   /* elevated surface / interactive */
 
-  /* Brand orange */
-  --orange: oklch(0.72 0.19 45);
+  /* Aeline signature Volt Lime primary (#d6fd70) & secondary accents */
+  --aeline-lime:   #d6fd70;
+  --aeline-indigo: #4f46e5;
+  --aeline-violet: #7c3aed;
+  --aeline-cyan:   #06b6d4;
 
   /* Semantic tokens */
   --background:              var(--charcoal);
-  --foreground:              oklch(0.97 0.005 90);
+  --foreground:              #ffffff;
   --card:                    var(--charcoal-mid);
-  --card-foreground:         oklch(0.97 0.005 90);
+  --card-foreground:         #ffffff;
   --popover:                 var(--charcoal-mid);
-  --popover-foreground:      oklch(0.97 0.005 90);
-  --primary:                 oklch(0.72 0.19 45);
-  --primary-foreground:      oklch(0.12 0.008 260);
+  --popover-foreground:      #ffffff;
+  --primary:                 var(--aeline-lime);
+  --primary-foreground:      #08080c;
   --secondary:               var(--surface);
-  --secondary-foreground:    oklch(0.97 0.005 90);
-  --muted:                   var(--charcoal-mid);
-  --muted-foreground:        oklch(0.68 0.018 90);
+  --secondary-foreground:    #ffffff;
+  --muted:                   #161720;
+  --muted-foreground:        #a1a1aa;
   --accent:                  var(--surface);
-  --accent-foreground:       oklch(0.72 0.19 45);
-  --destructive:             oklch(0.62 0.21 25);
-  --destructive-foreground:  oklch(0.98 0.005 250);
-  --border:                  oklch(0.98 0.01 90 / 10%);
-  --input:                   oklch(0.98 0.01 90 / 14%);
-  --ring:                    oklch(0.72 0.19 45);
-  --chart-1:                 oklch(0.72 0.19 45);
-  --chart-2:                 oklch(0.70 0.11 210);
-  --chart-3:                 oklch(0.65 0.13 160);
-  --chart-4:                 oklch(0.60 0.15 300);
-  --chart-5:                 oklch(0.68 0.16 30);
+  --accent-foreground:       var(--aeline-lime);
+  --destructive:             #ef4444;
+  --destructive-foreground:  #ffffff;
+  --border:                  rgba(255, 255, 255, 0.08);
+  --input:                   rgba(255, 255, 255, 0.12);
+  --ring:                    var(--aeline-lime);
+  --chart-1:                 #d6fd70;
+  --chart-2:                 #06b6d4;
+  --chart-3:                 #4f46e5;
+  --chart-4:                 #7c3aed;
+  --chart-5:                 #38c6f6;
   --sidebar:                 var(--charcoal-deep);
-  --sidebar-foreground:      oklch(0.97 0.005 90);
-  --sidebar-primary:         oklch(0.72 0.19 45);
-  --sidebar-primary-foreground: oklch(0.12 0.008 260);
+  --sidebar-foreground:      #ffffff;
+  --sidebar-primary:         var(--aeline-lime);
+  --sidebar-primary-foreground: #08080c;
   --sidebar-accent:          var(--surface);
-  --sidebar-accent-foreground: oklch(0.97 0.005 90);
-  --sidebar-border:          oklch(0.98 0.01 90 / 10%);
-  --sidebar-ring:            oklch(0.72 0.19 45);
+  --sidebar-accent-foreground: #ffffff;
+  --sidebar-border:          rgba(255, 255, 255, 0.08);
+  --sidebar-ring:            var(--aeline-lime);
 }
 
 /* ─── Base styles ─────────────────────────────────────────────────────────── */
@@ -143,14 +146,14 @@
   }
 
   ::selection {
-    background: oklch(0.72 0.19 45 / 30%);
-    color: oklch(0.97 0.005 90);
+    background: rgba(214, 253, 112, 0.3);
+    color: #ffffff;
   }
 }
 
 /* ─── Tailwind utilities ──────────────────────────────────────────────────── */
-@utility text-orange {
-  color: var(--orange);
+@utility text-lime {
+  color: var(--aeline-lime);
 }
 
 @utility bg-charcoal {
@@ -169,51 +172,58 @@
   background-color: var(--surface);
 }
 
-/* ─── Hero glow (Aeline radial bg style) ─────────────────────────────────── */
+/* ─── Hero glow (Aeline radial bg style: Volt Lime + Indigo/Cyan) ────────── */
 @utility hero-glow {
   background:
-    radial-gradient(70% 60% at 15% -5%, oklch(0.72 0.19 45 / 16%) 0%, transparent 60%),
-    radial-gradient(50% 45% at 88% 10%, oklch(0.27 0.015 260 / 80%) 0%, transparent 65%),
-    radial-gradient(40% 40% at 50% 100%, oklch(0.72 0.19 45 / 6%) 0%, transparent 70%);
+    radial-gradient(65% 50% at 50% -8%, rgba(214, 253, 112, 0.12) 0%, transparent 60%),
+    radial-gradient(50% 45% at 85% 12%, rgba(79, 70, 229, 0.15) 0%, transparent 65%),
+    radial-gradient(45% 45% at 15% 35%, rgba(124, 58, 237, 0.10) 0%, transparent 70%);
 }
 
 /* ─── Glass card (Aeline glassmorphism) ──────────────────────────────────── */
 @utility glass-card {
-  background: oklch(0.22 0.012 260 / 60%);
+  background: rgba(17, 18, 24, 0.70);
   backdrop-filter: blur(16px) saturate(1.2);
   -webkit-backdrop-filter: blur(16px) saturate(1.2);
-  border: 1px solid oklch(0.98 0.01 90 / 12%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
-/* ─── Section tag / badge (Aeline dot-square tag) ────────────────────────── */
+/* ─── Section tag / badge (Aeline dot-square tag with Volt Lime) ─────────── */
 @utility section-tag {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
   padding: 0.375rem 0.875rem;
-  border-radius: 999px;
-  border: 1px solid oklch(0.72 0.19 45 / 35%);
-  background: oklch(0.72 0.19 45 / 10%);
+  border-radius: 9999px;
+  border: 1px solid rgba(214, 253, 112, 0.35);
+  background: rgba(214, 253, 112, 0.08);
   font-size: 0.75rem;
   font-weight: 600;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: oklch(0.72 0.19 45);
+  color: #d6fd70;
 }
 
-/* ─── Aeline-style arrow button ──────────────────────────────────────────── */
+/* ─── Aeline-style arrow button (Volt Lime pill with black arrow circle) ─── */
 @utility btn-arrow {
   position: relative;
   display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0.625rem 1.125rem;
-  border-radius: 999px;
+  gap: 0.625rem;
+  padding: 0.5rem 0.5rem 0.5rem 1.25rem;
+  border-radius: 9999px;
   font-weight: 600;
   font-size: 0.875rem;
+  background-color: #d6fd70;
+  color: #08080c;
   overflow: hidden;
   cursor: pointer;
-  transition: color 0.25s ease;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.btn-arrow:hover {
+  transform: scale(0.98);
+  box-shadow: 0 0 24px rgba(214, 253, 112, 0.35);
 }
 
 /* ─── Overflow clip for word-reveal animation ─────────────────────────────── */
@@ -224,11 +234,11 @@
 
 /* ─── Navbar scroll state ─────────────────────────────────────────────────── */
 .nav-scrolled {
-  background: oklch(0.12 0.008 260 / 90%) !important;
+  background: rgba(8, 8, 12, 0.90) !important;
   backdrop-filter: blur(20px) !important;
   -webkit-backdrop-filter: blur(20px) !important;
-  border-color: oklch(0.98 0.01 90 / 15%) !important;
-  box-shadow: 0 1px 0 oklch(0.98 0.01 90 / 8%), 0 8px 32px oklch(0 0 0 / 40%) !important;
+  border-color: rgba(255, 255, 255, 0.12) !important;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.06), 0 8px 32px rgba(0, 0, 0, 0.6) !important;
 }
 
 /* ─── Marquee / logo loop ─────────────────────────────────────────────────── */
@@ -247,10 +257,10 @@
   animation-play-state: paused;
 }
 
-/* ─── Roadmap pulse ───────────────────────────────────────────────────────── */
+/* ─── Roadmap pulse (Aeline Volt Lime pulse) ─────────────────────────────── */
 @keyframes roadmap-pulse {
-  0%, 100% { box-shadow: 0 0 0 0 oklch(0.72 0.19 45 / 40%); }
-  50%       { box-shadow: 0 0 16px 4px oklch(0.72 0.19 45 / 25%); }
+  0%, 100% { box-shadow: 0 0 0 0 rgba(214, 253, 112, 0.45); }
+  50%       { box-shadow: 0 0 16px 4px rgba(214, 253, 112, 0.25); }
 }
 
 @utility roadmap-pulse {
@@ -277,20 +287,19 @@
   color: var(--color-foreground);
 }
 
-/* ─── Gradient text ───────────────────────────────────────────────────────── */
+/* ─── Gradient text (White to Volt Lime) ─────────────────────────────────── */
 @utility gradient-text {
   background: linear-gradient(
     135deg,
-    oklch(0.97 0.005 90) 0%,
-    oklch(0.72 0.19 45) 60%,
-    oklch(0.65 0.22 35) 100%
+    #ffffff 20%,
+    #d6fd70 85%
   );
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
-/* ─── Subtle top border glow on cards ─────────────────────────────────────── */
+/* ─── Subtle top border glow on cards (Aeline Lime glow line) ────────────── */
 @utility card-glow-top {
   position: relative;
 }
@@ -305,13 +314,14 @@
   background: linear-gradient(
     90deg,
     transparent 0%,
-    oklch(0.72 0.19 45 / 60%) 50%,
+    rgba(214, 253, 112, 0.55) 50%,
     transparent 100%
   );
   border-radius: inherit;
+  z-index: 1;
 }
 
-/* ─── Step number ring ─────────────────────────────────────────────────────── */
+/* ─── Step number ring (Aeline Volt Lime ring) ────────────────────────────── */
 @utility step-number {
   display: flex;
   align-items: center;
@@ -319,12 +329,12 @@
   width: 2.5rem;
   height: 2.5rem;
   border-radius: 50%;
-  border: 1.5px solid oklch(0.72 0.19 45 / 40%);
-  background: oklch(0.72 0.19 45 / 10%);
+  border: 1.5px solid rgba(214, 253, 112, 0.45);
+  background: rgba(214, 253, 112, 0.1);
   font-family: var(--font-display);
   font-weight: 700;
   font-size: 0.875rem;
-  color: oklch(0.72 0.19 45);
+  color: #d6fd70;
   flex-shrink: 0;
 }
 

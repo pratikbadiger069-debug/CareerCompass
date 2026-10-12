@@ -345,7 +345,7 @@ export function ChatWidget() {
       <Button
         onClick={() => setIsOpen((prev) => !prev)}
         size="icon"
-        className="group relative h-13 w-13 rounded-full bg-primary text-primary-foreground shadow-[0_4px_24px_oklch(0.72_0.19_45/35%)] ring-2 ring-primary/40 hover:scale-105 active:scale-95 transition-all duration-300"
+        className="group relative h-13 w-13 rounded-full bg-primary text-primary-foreground shadow-[0_4px_24px_rgba(214,253,112,0.35)] ring-2 ring-primary/40 hover:scale-105 active:scale-95 transition-all duration-300"
         aria-label={isOpen ? "Close Advisor Chat" : "Open Advisor Chat"}
       >
         <span className="absolute -inset-1 rounded-full bg-primary/20 blur-sm -z-10 group-hover:bg-primary/35 transition-colors" />

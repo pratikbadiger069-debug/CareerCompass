@@ -44,25 +44,25 @@ const FEATURES = [
     icon: Target,
     title: "Career matches",
     body: "Ranked career paths with match scores, skills to build, salary ranges and growth outlook.",
-    color: "oklch(0.72 0.19 145)",
+    color: "#d6fd70",
   },
   {
     icon: RouteIcon,
     title: "Personal roadmap",
     body: "Exams, courses, skills and experience broken into dated milestones you can tick off.",
-    color: "oklch(0.72 0.19 45)",
+    color: "#06b6d4",
   },
   {
     icon: MessageSquare,
     title: "AI advisor chat",
     body: "Ask anything about streams, majors, entrance tests or switching fields — any time.",
-    color: "oklch(0.70 0.11 210)",
+    color: "#4f46e5",
   },
   {
     icon: GraduationCap,
     title: "Saved colleges",
     body: "Shortlist programs with tuition, deadlines and notes so nothing slips past you.",
-    color: "oklch(0.60 0.15 300)",
+    color: "#7c3aed",
   },
 ];
 
@@ -307,7 +307,7 @@ function Landing() {
             {!loading && isAuthenticated ? (
               <Link
                 to="/dashboard"
-                className="inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2 text-sm font-semibold text-primary-foreground transition-all hover:bg-primary/90 hover:shadow-[0_0_24px_oklch(0.72_0.19_45/40%)]"
+                className="inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2 text-sm font-semibold text-primary-foreground transition-all hover:bg-primary/90 hover:shadow-[0_0_24px_rgba(214,253,112,0.4)]"
               >
                 Dashboard <ArrowUpRight className="size-3.5" />
               </Link>
@@ -323,7 +323,7 @@ function Landing() {
                 <Link
                   to="/auth"
                   search={{ mode: "signup" }}
-                  className="inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2 text-sm font-semibold text-primary-foreground transition-all hover:bg-primary/90 hover:shadow-[0_0_24px_oklch(0.72_0.19_45/40%)]"
+                  className="inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2 text-sm font-semibold text-primary-foreground transition-all hover:bg-primary/90 hover:shadow-[0_0_24px_rgba(214,253,112,0.4)]"
                 >
                   Get started <ArrowUpRight className="size-3.5" />
                 </Link>
@@ -342,11 +342,11 @@ function Landing() {
         {/* Background glow orbs */}
         <div
           className="pointer-events-none absolute -top-32 left-1/2 -translate-x-1/2 h-[600px] w-[600px] rounded-full opacity-25"
-          style={{ background: "radial-gradient(circle, oklch(0.72 0.19 45 / 35%) 0%, transparent 70%)" }}
+          style={{ background: "radial-gradient(circle, rgba(214, 253, 112, 0.25) 0%, transparent 70%)" }}
         />
         <div
-          className="pointer-events-none absolute bottom-0 right-0 h-[400px] w-[400px] opacity-15"
-          style={{ background: "radial-gradient(circle, oklch(0.27 0.015 260 / 80%) 0%, transparent 70%)" }}
+          className="pointer-events-none absolute bottom-0 right-0 h-[400px] w-[400px] opacity-20"
+          style={{ background: "radial-gradient(circle, rgba(79, 70, 229, 0.25) 0%, transparent 70%)" }}
         />
 
         <div className="relative z-10 mx-auto w-full max-w-4xl text-center">
@@ -372,7 +372,7 @@ function Landing() {
             <Link
               to="/auth"
               search={{ mode: "signup" }}
-              className="group inline-flex items-center gap-2.5 rounded-full bg-primary px-7 py-3.5 text-sm font-bold text-primary-foreground shadow-[0_0_32px_oklch(0.72_0.19_45/30%)] transition-all hover:bg-primary/90 hover:shadow-[0_0_48px_oklch(0.72_0.19_45/45%)] hover:-translate-y-0.5"
+              className="group inline-flex items-center gap-2.5 rounded-full bg-primary px-7 py-3.5 text-sm font-bold text-primary-foreground shadow-[0_0_32px_rgba(214,253,112,0.3)] transition-all hover:bg-primary/90 hover:shadow-[0_0_48px_rgba(214,253,112,0.45)] hover:-translate-y-0.5"
             >
               Start for free
               <ArrowUpRight className="size-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
@@ -397,7 +397,7 @@ function Landing() {
             <div
               className="relative h-[260px] sm:h-[320px] overflow-hidden rounded-2xl border border-border/40 glass-card"
               style={{
-                background: "linear-gradient(135deg, oklch(0.22 0.012 260 / 70%) 0%, oklch(0.16 0.01 260 / 90%) 100%)",
+                background: "linear-gradient(135deg, rgba(17, 18, 24, 0.85) 0%, rgba(8, 8, 12, 0.95) 100%)",
               }}
             >
               {/* Top reflection line */}
@@ -512,10 +512,10 @@ function Landing() {
         {/* About cards grid */}
         <div className="mt-16 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {[
-            { icon: Brain, label: "AI-powered matching", desc: "Deep profile analysis gives you career matches ranked by genuine fit.", color: "oklch(0.72 0.19 45)" },
-            { icon: TrendingUp, label: "Growth outlook", desc: "Real salary data and 5-year demand forecasts for every recommended path.", color: "oklch(0.72 0.19 145)" },
-            { icon: Users, label: "Student community", desc: "4,900+ students on the platform sharing milestones and wins.", color: "oklch(0.70 0.11 210)" },
-            { icon: Zap, label: "Instant clarity", desc: "Most users have their roadmap ready in under 48 hours from signup.", color: "oklch(0.60 0.15 300)" },
+            { icon: Brain, label: "AI-powered matching", desc: "Deep profile analysis gives you career matches ranked by genuine fit.", color: "#d6fd70" },
+            { icon: TrendingUp, label: "Growth outlook", desc: "Real salary data and 5-year demand forecasts for every recommended path.", color: "#06b6d4" },
+            { icon: Users, label: "Student community", desc: "4,900+ students on the platform sharing milestones and wins.", color: "#4f46e5" },
+            { icon: Zap, label: "Instant clarity", desc: "Most users have their roadmap ready in under 48 hours from signup.", color: "#7c3aed" },
           ].map(({ icon: Icon, label, desc, color }) => (
             <div
               key={label}
@@ -652,13 +652,13 @@ function Landing() {
         <div
           className="relative overflow-hidden rounded-3xl border border-primary/20 p-12 sm:p-16"
           style={{
-            background: "linear-gradient(135deg, oklch(0.22 0.012 260 / 80%) 0%, oklch(0.16 0.01 260 / 95%) 100%)",
+            background: "linear-gradient(135deg, rgba(17, 18, 24, 0.85) 0%, rgba(8, 8, 12, 0.95) 100%)",
           }}
         >
           {/* Glow */}
           <div
             className="pointer-events-none absolute inset-0 rounded-3xl opacity-30"
-            style={{ background: "radial-gradient(ellipse 80% 60% at 50% -10%, oklch(0.72 0.19 45 / 30%), transparent)" }}
+            style={{ background: "radial-gradient(ellipse 80% 60% at 50% -10%, rgba(214, 253, 112, 0.25), transparent)" }}
           />
           <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/50 to-transparent" />
 
@@ -674,7 +674,7 @@ function Landing() {
               <Link
                 to="/auth"
                 search={{ mode: "signup" }}
-                className="group inline-flex items-center gap-2.5 rounded-full bg-primary px-8 py-3.5 text-sm font-bold text-primary-foreground shadow-[0_0_32px_oklch(0.72_0.19_45/30%)] transition-all hover:bg-primary/90 hover:shadow-[0_0_48px_oklch(0.72_0.19_45/45%)] hover:-translate-y-0.5"
+                className="group inline-flex items-center gap-2.5 rounded-full bg-primary px-8 py-3.5 text-sm font-bold text-primary-foreground shadow-[0_0_32px_rgba(214,253,112,0.3)] transition-all hover:bg-primary/90 hover:shadow-[0_0_48px_rgba(214,253,112,0.45)] hover:-translate-y-0.5"
               >
                 Sign up — it's free
                 <ArrowUpRight className="size-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
