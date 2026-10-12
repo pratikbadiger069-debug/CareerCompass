@@ -1,67 +1,80 @@
-import { motion } from "framer-motion";
-import type { ReactNode } from "react";
-import { getFadeUp } from "@/lib/motion";
-import { usePrefersReducedMotion } from "@/hooks/use-reduced-motion";
+/**
+ * RevealOnScroll — Aeline-style scroll reveal using GSAP + ScrollTrigger.
+ *
+ * Falls back to immediate render when `prefers-reduced-motion` is active.
+ */
+import { useEffect, useRef, type ReactNode } from "react";
 
 interface RevealOnScrollProps {
   children: ReactNode;
-  /** Extra CSS class names for the wrapper element. */
   className?: string;
-  /**
-   * Fraction of the element that must be visible before the animation
-   * triggers. Defaults to `0.15` (15 %).
-   */
-  amount?: number;
-  /**
-   * HTML element to render. Defaults to `"div"`.
-   */
+  /** Delay before animation starts (seconds). Default 0. */
+  delay?: number;
+  /** Direction of slide-in. Default "up". */
+  direction?: "up" | "right" | "left" | "none";
+  /** Stagger if direct children should stagger in. Default false. */
+  stagger?: boolean;
   as?: "div" | "li" | "section" | "article";
 }
 
-/**
- * Wraps its children in a `<motion.div>` (or custom semantic tag like `<motion.li>`)
- * that fades-up into view the first time it enters the viewport.
- *
- * - Uses `whileInView` + `viewport={{ once: true }}` so the
- *   animation only plays once per page visit.
- * - Respects `prefers-reduced-motion`: when enabled the content
- *   appears instantly with no transition — not just a faster one.
- *   The component renders a plain HTML element so there is no
- *   Framer Motion overhead and zero risk of a content flash.
- *
- * ```tsx
- * <RevealOnScroll>
- *   <Card>…</Card>
- * </RevealOnScroll>
- * ```
- */
 export function RevealOnScroll({
   children,
   className,
-  amount = 0.15,
-  as = "div",
+  delay = 0,
+  direction = "up",
+  stagger = false,
+  as: Tag = "div",
 }: RevealOnScrollProps) {
-  const prefersReduced = usePrefersReducedMotion();
+  const ref = useRef<HTMLElement>(null);
 
-  // When the user prefers reduced motion, skip Framer Motion entirely so
-  // content is always immediately visible — no flash, no JS animation dep.
-  if (prefersReduced) {
-    const Tag = as;
-    return <Tag className={className}>{children}</Tag>;
-  }
+  useEffect(() => {
+    // Respect prefers-reduced-motion
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
-  const variants = getFadeUp(false);
-  const Component = motion[as];
+    let ctx: ReturnType<typeof import("gsap").gsap.context> | undefined;
+
+    Promise.all([import("gsap"), import("gsap/ScrollTrigger")]).then(([{ gsap }, { ScrollTrigger }]) => {
+      gsap.registerPlugin(ScrollTrigger);
+
+      if (!ref.current) return;
+
+      const fromVars: { opacity: number; y?: number; x?: number } = { opacity: 0 };
+      if (direction === "up") fromVars.y = 30;
+      if (direction === "right") fromVars.x = -30;
+      if (direction === "left") fromVars.x = 30;
+
+      const toVars: Record<string, unknown> = {
+        opacity: 1,
+        y: 0,
+        x: 0,
+        duration: 0.75,
+        delay,
+        ease: "power3.out",
+        scrollTrigger: {
+          trigger: ref.current,
+          start: "top 88%",
+          toggleActions: "play none none none",
+        },
+      };
+
+      ctx = gsap.context(() => {
+        if (stagger) {
+          const kids = Array.from(ref.current!.children) as Element[];
+          gsap.fromTo(kids, fromVars, { ...toVars, stagger: 0.1 });
+        } else {
+          gsap.fromTo(ref.current!, fromVars, toVars);
+        }
+      });
+    });
+
+    return () => {
+      ctx?.revert();
+    };
+  }, [delay, direction, stagger]);
 
   return (
-    <Component
-      variants={variants}
-      initial="hidden"
-      whileInView="visible"
-      viewport={{ once: true, amount }}
-      className={className}
-    >
+    <Tag ref={ref as never} className={className}>
       {children}
-    </Component>
+    </Tag>
   );
 }

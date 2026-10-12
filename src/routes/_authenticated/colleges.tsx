@@ -242,11 +242,11 @@ function CollegesPage() {
   };
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className="min-h-screen bg-charcoal-deep hero-glow dot-grid-bg text-foreground">
       <HeaderNav />
       <main className="mx-auto w-full max-w-6xl px-6 py-8">
         {/* Header */}
-      <header className="mb-8 border-b border-border/50 pb-6">
+      <header className="mb-8 border-b border-white/8 pb-6">
         <Link to="/dashboard">
           <Button variant="ghost" size="sm" className="mb-4 gap-2 text-xs">
             <ArrowLeft className="size-4" /> Back to Dashboard

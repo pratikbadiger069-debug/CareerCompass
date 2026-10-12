@@ -7,20 +7,16 @@
 /*
  * Design system definition.
  *
- * The @theme inline block maps CSS custom properties to Tailwind utility
- * classes (e.g. --color-primary -> bg-primary, text-primary).
- *
- * The :root and .dark blocks define the actual color values using oklch.
- * All colors MUST use oklch format.
- *
- * To add a new semantic color:
- * 1. Add the variable to :root (light value) and .dark (dark value)
- * 2. Register it in @theme inline as --color-<name>: var(--<name>)
+ * CareerCompass — Aeline-inspired dark theme.
+ * Primary accent: vivid orange (kept from original brand).
+ * Typography: Inter (Aeline primary) + Plus Jakarta Sans display.
+ * Dark surface: near-black charcoal with subtle blue-gray tint.
  */
 
 @theme inline {
-  --font-display: "Sora", ui-sans-serif, system-ui, sans-serif;
-  --font-sans: "Manrope", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Plus Jakarta Sans", "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "Geist Mono", "JetBrains Mono", ui-monospace, monospace;
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
@@ -61,71 +57,98 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
+  /* Custom CareerCompass tokens */
+  --color-charcoal: var(--charcoal);
+  --color-charcoal-deep: var(--charcoal-deep);
+  --color-charcoal-mid: var(--charcoal-mid);
+  --color-surface: var(--surface);
+  --color-green-accent: var(--green-accent);
 }
 
-/* CareerCompass theme: dark charcoal with vivid orange accents. */
+/* ─── CareerCompass colour palette (Aeline-inspired dark + orange brand) ─── */
 :root,
 .dark {
   --radius: 0.75rem;
-  --charcoal: oklch(0.21 0.012 260);
-  --charcoal-deep: oklch(0.16 0.01 260);
+
+  /* Aeline-like surface layers */
+  --charcoal-deep: oklch(0.12 0.008 260);   /* deepest bg */
+  --charcoal:      oklch(0.17 0.010 260);   /* page bg */
+  --charcoal-mid:  oklch(0.22 0.012 260);   /* card bg */
+  --surface:       oklch(0.27 0.015 260);   /* elevated surface */
+  --green-accent:  oklch(0.72 0.19 145);    /* Aeline green (we keep orange primary) */
+
+  /* Brand orange */
   --orange: oklch(0.72 0.19 45);
 
-  --background: oklch(0.16 0.01 260);
-  --foreground: oklch(0.97 0.005 90);
-  --card: oklch(0.21 0.012 260);
-  --card-foreground: oklch(0.97 0.005 90);
-  --popover: oklch(0.21 0.012 260);
-  --popover-foreground: oklch(0.97 0.005 90);
-  --primary: oklch(0.72 0.19 45);
-  --primary-foreground: oklch(0.15 0.01 260);
-  --secondary: oklch(0.26 0.015 260);
-  --secondary-foreground: oklch(0.97 0.005 90);
-  --muted: oklch(0.24 0.012 260);
-  --muted-foreground: oklch(0.72 0.02 90);
-  --accent: oklch(0.26 0.015 260);
-  --accent-foreground: oklch(0.72 0.19 45);
-  --destructive: oklch(0.62 0.21 25);
-  --destructive-foreground: oklch(0.98 0.005 250);
-  --border: oklch(0.98 0.01 90 / 12%);
-  --input: oklch(0.98 0.01 90 / 16%);
-  --ring: oklch(0.72 0.19 45);
-  --chart-1: oklch(0.72 0.19 45);
-  --chart-2: oklch(0.7 0.11 210);
-  --chart-3: oklch(0.65 0.13 160);
-  --chart-4: oklch(0.6 0.15 300);
-  --chart-5: oklch(0.68 0.16 30);
-  --sidebar: oklch(0.16 0.01 260);
-  --sidebar-foreground: oklch(0.97 0.005 90);
-  --sidebar-primary: oklch(0.72 0.19 45);
-  --sidebar-primary-foreground: oklch(0.15 0.01 260);
-  --sidebar-accent: oklch(0.26 0.015 260);
+  /* Semantic tokens */
+  --background:              var(--charcoal);
+  --foreground:              oklch(0.97 0.005 90);
+  --card:                    var(--charcoal-mid);
+  --card-foreground:         oklch(0.97 0.005 90);
+  --popover:                 var(--charcoal-mid);
+  --popover-foreground:      oklch(0.97 0.005 90);
+  --primary:                 oklch(0.72 0.19 45);
+  --primary-foreground:      oklch(0.12 0.008 260);
+  --secondary:               var(--surface);
+  --secondary-foreground:    oklch(0.97 0.005 90);
+  --muted:                   var(--charcoal-mid);
+  --muted-foreground:        oklch(0.68 0.018 90);
+  --accent:                  var(--surface);
+  --accent-foreground:       oklch(0.72 0.19 45);
+  --destructive:             oklch(0.62 0.21 25);
+  --destructive-foreground:  oklch(0.98 0.005 250);
+  --border:                  oklch(0.98 0.01 90 / 10%);
+  --input:                   oklch(0.98 0.01 90 / 14%);
+  --ring:                    oklch(0.72 0.19 45);
+  --chart-1:                 oklch(0.72 0.19 45);
+  --chart-2:                 oklch(0.70 0.11 210);
+  --chart-3:                 oklch(0.65 0.13 160);
+  --chart-4:                 oklch(0.60 0.15 300);
+  --chart-5:                 oklch(0.68 0.16 30);
+  --sidebar:                 var(--charcoal-deep);
+  --sidebar-foreground:      oklch(0.97 0.005 90);
+  --sidebar-primary:         oklch(0.72 0.19 45);
+  --sidebar-primary-foreground: oklch(0.12 0.008 260);
+  --sidebar-accent:          var(--surface);
   --sidebar-accent-foreground: oklch(0.97 0.005 90);
-  --sidebar-border: oklch(0.98 0.01 90 / 12%);
-  --sidebar-ring: oklch(0.72 0.19 45);
+  --sidebar-border:          oklch(0.98 0.01 90 / 10%);
+  --sidebar-ring:            oklch(0.72 0.19 45);
 }
 
+/* ─── Base styles ─────────────────────────────────────────────────────────── */
 @layer base {
   * {
     border-color: var(--color-border);
+    box-sizing: border-box;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 
   body {
     background-color: var(--color-background);
     color: var(--color-foreground);
     font-family: var(--font-sans);
-    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
   }
 
-  h1,
-  h2,
-  h3,
-  h4 {
+  h1, h2, h3, h4 {
     font-family: var(--font-display);
-    letter-spacing: -0.02em;
+    letter-spacing: -0.025em;
+    line-height: 1.1;
+  }
+
+  ::selection {
+    background: oklch(0.72 0.19 45 / 30%);
+    color: oklch(0.97 0.005 90);
   }
 }
 
+/* ─── Tailwind utilities ──────────────────────────────────────────────────── */
 @utility text-orange {
   color: var(--orange);
 }
@@ -138,23 +161,191 @@
   background-color: var(--charcoal-deep);
 }
 
-@utility hero-glow {
-  background:
-    radial-gradient(60% 55% at 20% 0%, oklch(0.72 0.19 45 / 18%) 0%, transparent 60%),
-    radial-gradient(55% 50% at 85% 15%, oklch(0.26 0.015 260 / 75%) 0%, transparent 65%);
+@utility bg-charcoal-mid {
+  background-color: var(--charcoal-mid);
 }
 
-@keyframes roadmap-pulse {
-  0%,
-  100% {
-    box-shadow: 0 0 0 0 oklch(0.72 0.19 45 / 40%);
-  }
+@utility bg-surface {
+  background-color: var(--surface);
+}
 
-  50% {
-    box-shadow: 0 0 16px 4px oklch(0.72 0.19 45 / 25%);
-  }
+/* ─── Hero glow (Aeline radial bg style) ─────────────────────────────────── */
+@utility hero-glow {
+  background:
+    radial-gradient(70% 60% at 15% -5%, oklch(0.72 0.19 45 / 16%) 0%, transparent 60%),
+    radial-gradient(50% 45% at 88% 10%, oklch(0.27 0.015 260 / 80%) 0%, transparent 65%),
+    radial-gradient(40% 40% at 50% 100%, oklch(0.72 0.19 45 / 6%) 0%, transparent 70%);
+}
+
+/* ─── Glass card (Aeline glassmorphism) ──────────────────────────────────── */
+@utility glass-card {
+  background: oklch(0.22 0.012 260 / 60%);
+  backdrop-filter: blur(16px) saturate(1.2);
+  -webkit-backdrop-filter: blur(16px) saturate(1.2);
+  border: 1px solid oklch(0.98 0.01 90 / 12%);
+}
+
+/* ─── Section tag / badge (Aeline dot-square tag) ────────────────────────── */
+@utility section-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.375rem 0.875rem;
+  border-radius: 999px;
+  border: 1px solid oklch(0.72 0.19 45 / 35%);
+  background: oklch(0.72 0.19 45 / 10%);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: oklch(0.72 0.19 45);
+}
+
+/* ─── Aeline-style arrow button ──────────────────────────────────────────── */
+@utility btn-arrow {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.625rem 1.125rem;
+  border-radius: 999px;
+  font-weight: 600;
+  font-size: 0.875rem;
+  overflow: hidden;
+  cursor: pointer;
+  transition: color 0.25s ease;
+}
+
+/* ─── Overflow clip for word-reveal animation ─────────────────────────────── */
+@utility overflow-clip-y {
+  overflow: hidden;
+  display: inline-block;
+}
+
+/* ─── Navbar scroll state ─────────────────────────────────────────────────── */
+.nav-scrolled {
+  background: oklch(0.12 0.008 260 / 90%) !important;
+  backdrop-filter: blur(20px) !important;
+  -webkit-backdrop-filter: blur(20px) !important;
+  border-color: oklch(0.98 0.01 90 / 15%) !important;
+  box-shadow: 0 1px 0 oklch(0.98 0.01 90 / 8%), 0 8px 32px oklch(0 0 0 / 40%) !important;
+}
+
+/* ─── Marquee / logo loop ─────────────────────────────────────────────────── */
+@keyframes marquee-left {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+
+.marquee-track {
+  display: flex;
+  width: max-content;
+  animation: marquee-left 28s linear infinite;
+}
+
+.marquee-track:hover {
+  animation-play-state: paused;
+}
+
+/* ─── Roadmap pulse ───────────────────────────────────────────────────────── */
+@keyframes roadmap-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 oklch(0.72 0.19 45 / 40%); }
+  50%       { box-shadow: 0 0 16px 4px oklch(0.72 0.19 45 / 25%); }
 }
 
 @utility roadmap-pulse {
   animation: roadmap-pulse 2s ease-in-out infinite;
+}
+
+/* ─── Floating 3D card animation (Aeline hero visual) ─────────────────────── */
+@keyframes float-cards {
+  0%, 100% { transform: translateY(0px) rotateX(12deg) rotateY(-8deg); }
+  50%      { transform: translateY(-12px) rotateX(12deg) rotateY(-8deg); }
+}
+
+@utility float-cards {
+  animation: float-cards 6s ease-in-out infinite;
+}
+
+/* ─── Counter number style ────────────────────────────────────────────────── */
+@utility stat-number {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: clamp(2.5rem, 5vw, 4rem);
+  letter-spacing: -0.04em;
+  line-height: 1;
+  color: var(--color-foreground);
+}
+
+/* ─── Gradient text ───────────────────────────────────────────────────────── */
+@utility gradient-text {
+  background: linear-gradient(
+    135deg,
+    oklch(0.97 0.005 90) 0%,
+    oklch(0.72 0.19 45) 60%,
+    oklch(0.65 0.22 35) 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* ─── Subtle top border glow on cards ─────────────────────────────────────── */
+@utility card-glow-top {
+  position: relative;
+}
+
+.card-glow-top::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    oklch(0.72 0.19 45 / 60%) 50%,
+    transparent 100%
+  );
+  border-radius: inherit;
+}
+
+/* ─── Step number ring ─────────────────────────────────────────────────────── */
+@utility step-number {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  border: 1.5px solid oklch(0.72 0.19 45 / 40%);
+  background: oklch(0.72 0.19 45 / 10%);
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 0.875rem;
+  color: oklch(0.72 0.19 45);
+  flex-shrink: 0;
+}
+
+/* ─── Dot grid background pattern (subtle Aeline texture) ─────────────────── */
+@utility dot-grid-bg {
+  background-image: radial-gradient(
+    oklch(0.97 0.005 90 / 4%) 1px,
+    transparent 1px
+  );
+  background-size: 28px 28px;
+}
+
+/* ─── Horizontal divider with gradient ─────────────────────────────────────── */
+@utility hr-gradient {
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    oklch(0.98 0.01 90 / 15%) 30%,
+    oklch(0.98 0.01 90 / 15%) 70%,
+    transparent 100%
+  );
+  border: none;
 }

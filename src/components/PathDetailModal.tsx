@@ -83,8 +83,8 @@ export function PathDetailModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-h-[90vh] max-w-3xl overflow-y-auto p-6 sm:p-8">
-        <DialogHeader className="border-b border-border/50 pb-4">
+      <DialogContent className="card-glow-top glass-card max-h-[90vh] max-w-3xl overflow-y-auto border border-white/10 bg-charcoal-deep/95 p-6 backdrop-blur-2xl text-foreground sm:p-8">
+        <DialogHeader className="border-b border-white/8 pb-4">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div className="flex items-center gap-2">
               <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20">

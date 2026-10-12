@@ -1,3 +1,4 @@
+import { useEffect, useRef } from "react";
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import {
   BarChart3,
@@ -25,6 +26,7 @@ export function HeaderNav() {
   const { user, isGuest } = useAuth();
   const navigate = useNavigate();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const navRef = useRef<HTMLElement>(null);
 
   async function handleSignOut() {
     await supabase.auth.signOut();
@@ -49,101 +51,130 @@ export function HeaderNav() {
     { to: "/compare", label: "Compare", icon: BarChart3 },
   ];
 
+  // Aeline-style scroll: compact + frosted on scroll
+  useEffect(() => {
+    const nav = navRef.current;
+    if (!nav) return;
+    const onScroll = () => {
+      if (window.scrollY > 24) nav.classList.add("nav-scrolled");
+      else nav.classList.remove("nav-scrolled");
+    };
+    onScroll(); // init
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
   return (
-    <header className="sticky top-0 z-30 w-full border-b border-border/50 bg-background/80 backdrop-blur-md">
+    <header
+      ref={navRef}
+      className="sticky top-0 z-30 w-full border-b border-border/40 bg-charcoal-deep/80 backdrop-blur-xl transition-all duration-400"
+    >
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-6">
         {/* Logo */}
-        <Link to="/dashboard" className="flex items-center gap-2 font-display text-lg font-bold">
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/10 text-primary transition-transform hover:scale-105">
+        <Link to="/dashboard" className="flex items-center gap-2.5 font-display text-base font-bold tracking-tight">
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/15 text-primary ring-1 ring-primary/20 transition-all hover:scale-105 hover:bg-primary/25">
             <Compass className="size-5" />
           </div>
-          <span>
+          <span className="text-foreground">
             Career<span className="text-primary">Compass</span>
           </span>
         </Link>
 
-        {/* Navigation Tabs */}
-        <nav className="hidden items-center gap-1 md:flex">
+        {/* Navigation links */}
+        <nav className="hidden items-center gap-0.5 md:flex">
           {navLinks.map((link) => {
             const Icon = link.icon;
             const isActive = pathname === link.to;
             return (
               <Link key={link.to} to={link.to} {...(link.search ? { search: link.search } : {})}>
-                <Button
-                  variant={isActive ? "secondary" : "ghost"}
-                  size="sm"
-                  className={`gap-2 text-xs font-medium transition-colors ${
-                    isActive ? "bg-primary/10 text-primary hover:bg-primary/15" : "text-muted-foreground hover:text-foreground"
+                <button
+                  type="button"
+                  className={`group flex items-center gap-1.5 rounded-lg px-3.5 py-2 text-xs font-medium transition-all duration-200 ${
+                    isActive
+                      ? "bg-primary/12 text-primary shadow-[inset_0_0_0_1px_oklch(0.72_0.19_45/25%)]"
+                      : "text-muted-foreground hover:bg-border/40 hover:text-foreground"
                   }`}
                 >
-                  <Icon className="size-4" />
+                  <Icon className={`size-3.5 transition-transform group-hover:scale-110 ${isActive ? "text-primary" : ""}`} />
                   {link.label}
-                </Button>
+                </button>
               </Link>
             );
           })}
         </nav>
 
-        {/* Top-Right Profile Icon & Actions */}
-        <div className="flex items-center gap-3">
+        {/* Right side */}
+        <div className="flex items-center gap-2.5">
+          {/* Edit details — pill button */}
           <Link to="/profile" className="hidden sm:block">
-            <Button variant="outline" size="sm" className="gap-2 text-xs font-medium">
-              <Sparkles className="size-3.5 text-primary" />
-              Edit Details
-            </Button>
+            <button
+              type="button"
+              className="inline-flex items-center gap-1.5 rounded-full border border-border/60 bg-white/5 px-3.5 py-1.5 text-xs font-medium text-muted-foreground transition-all hover:border-primary/35 hover:bg-primary/8 hover:text-primary"
+            >
+              <Sparkles className="size-3 text-primary" />
+              Edit details
+            </button>
           </Link>
 
-          {/* Profile Dropdown Menu */}
+          {/* Profile dropdown */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <button
                 type="button"
-                className="group flex items-center gap-2 rounded-full border border-border/70 p-1 pl-2 text-left transition hover:border-primary/60 hover:bg-accent/50 focus:outline-none focus:ring-2 focus:ring-primary/40"
+                className="group flex items-center gap-2 rounded-full border border-border/60 bg-white/5 p-1 pl-2.5 text-left transition-all hover:border-primary/40 hover:bg-primary/8 focus:outline-none focus:ring-2 focus:ring-primary/40"
                 aria-label="User menu"
               >
-                <span className="hidden text-xs font-medium text-muted-foreground group-hover:text-foreground sm:inline-block max-w-[100px] truncate">
+                <span className="hidden max-w-[100px] truncate text-xs font-medium text-muted-foreground group-hover:text-foreground sm:inline-block">
                   {displayName}
                 </span>
-                <Avatar className="size-8 border border-primary/20">
-                  <AvatarImage src={(user?.user_metadata as Record<string, unknown> | undefined)?.["avatar_url"] as string | undefined} alt={displayName} />
+                <Avatar className="size-7 border border-primary/20">
+                  <AvatarImage
+                    src={(user?.user_metadata as Record<string, unknown> | undefined)?.["avatar_url"] as string | undefined}
+                    alt={displayName}
+                  />
                   <AvatarFallback className="bg-primary/10 text-xs font-bold text-primary">
-                    {initials || <UserIcon className="size-4" />}
+                    {initials || <UserIcon className="size-3.5" />}
                   </AvatarFallback>
                 </Avatar>
               </button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-56 p-2">
+            <DropdownMenuContent align="end" className="w-56 rounded-xl border-border/60 bg-charcoal-mid/95 p-2 backdrop-blur-xl">
               <DropdownMenuLabel className="font-normal">
-                <div className="flex flex-col space-y-1">
-                  <p className="text-sm font-semibold leading-none">{displayName}</p>
-                  <p className="text-xs leading-none text-muted-foreground truncate">{userEmail}</p>
+                <div className="flex flex-col gap-0.5 px-1 py-0.5">
+                  <p className="text-sm font-semibold leading-none text-foreground">{displayName}</p>
+                  <p className="max-w-[180px] truncate text-xs leading-none text-muted-foreground">{userEmail}</p>
+                  {isGuest && (
+                    <span className="mt-1 inline-flex w-fit items-center rounded-full bg-amber-500/15 px-2 py-0.5 text-xs font-medium text-amber-400">
+                      Guest
+                    </span>
+                  )}
                 </div>
               </DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem asChild>
-                <Link to="/profile" className="cursor-pointer gap-2 text-xs font-medium">
-                  <UserIcon className="size-4 text-primary" />
+              <DropdownMenuSeparator className="my-1 bg-border/40" />
+              <DropdownMenuItem asChild className="rounded-lg text-xs font-medium hover:bg-primary/8 hover:text-primary">
+                <Link to="/profile" className="cursor-pointer gap-2">
+                  <UserIcon className="size-3.5 text-primary" />
                   Edit Profile & Details
                 </Link>
               </DropdownMenuItem>
-              <DropdownMenuItem asChild>
-                <Link to="/roadmap" search={{ rec: undefined }} className="cursor-pointer gap-2 text-xs font-medium">
-                  <Map className="size-4 text-primary" />
+              <DropdownMenuItem asChild className="rounded-lg text-xs font-medium hover:bg-primary/8 hover:text-primary">
+                <Link to="/roadmap" search={{ rec: undefined }} className="cursor-pointer gap-2">
+                  <Map className="size-3.5 text-primary" />
                   My Career Roadmap
                 </Link>
               </DropdownMenuItem>
-              <DropdownMenuItem asChild>
-                <Link to="/colleges" className="cursor-pointer gap-2 text-xs font-medium">
-                  <GraduationCap className="size-4 text-primary" />
+              <DropdownMenuItem asChild className="rounded-lg text-xs font-medium hover:bg-primary/8 hover:text-primary">
+                <Link to="/colleges" className="cursor-pointer gap-2">
+                  <GraduationCap className="size-3.5 text-primary" />
                   Saved Colleges
                 </Link>
               </DropdownMenuItem>
-              <DropdownMenuSeparator />
+              <DropdownMenuSeparator className="my-1 bg-border/40" />
               <DropdownMenuItem
                 onClick={handleSignOut}
-                className="cursor-pointer gap-2 text-xs font-medium text-destructive focus:bg-destructive/10 focus:text-destructive"
+                className="cursor-pointer rounded-lg gap-2 text-xs font-medium text-destructive hover:bg-destructive/10 hover:text-destructive focus:bg-destructive/10 focus:text-destructive"
               >
-                <LogOut className="size-4" />
+                <LogOut className="size-3.5" />
                 Sign Out
               </DropdownMenuItem>
             </DropdownMenuContent>

@@ -31,6 +31,7 @@ import { usePrefersReducedMotion } from "@/hooks/use-reduced-motion";
 import { getCheckmarkPop } from "@/lib/motion";
 import { RevealOnScroll } from "@/components/motion/RevealOnScroll";
 import { motion, AnimatePresence } from "framer-motion";
+import { HeaderNav } from "@/components/HeaderNav";
 
 type Recommendation = Tables<"career_recommendations">;
 type Milestone = Tables<"roadmap_milestones">;
@@ -239,9 +240,11 @@ function RoadmapPage() {
 
   /* ── Render ────────────────────────────────────────────────────────── */
   return (
-    <main className="mx-auto min-h-screen w-full max-w-3xl px-6 py-10">
-      {/* Header */}
-      <header className="flex flex-col gap-4 border-b border-border/50 pb-6 sm:flex-row sm:items-center sm:justify-between">
+    <div className="min-h-screen bg-charcoal-deep hero-glow dot-grid-bg text-foreground">
+      <HeaderNav />
+      <main className="mx-auto w-full max-w-4xl px-6 py-8">
+        {/* Header */}
+        <header className="flex flex-col gap-4 border-b border-white/8 pb-6 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-3">
           <Link
             to="/dashboard"
@@ -535,7 +538,8 @@ function RoadmapPage() {
           )}
         </section>
       )}
-    </main>
+      </main>
+    </div>
   );
 }
 

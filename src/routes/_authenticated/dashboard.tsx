@@ -404,23 +404,23 @@ function Dashboard() {
   }, [milestones]);
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className="min-h-screen bg-charcoal-deep hero-glow dot-grid-bg text-foreground">
       <HeaderNav />
 
       <main className="mx-auto w-full max-w-6xl px-6 py-8">
         {/* ─── Profile Status & Welcome Banner ─── */}
-        <section className="mb-8 overflow-hidden rounded-2xl border border-primary/20 bg-gradient-to-r from-primary/10 via-primary/5 to-background p-6 shadow-sm">
+        <section className="card-glow-top glass-card mb-8 overflow-hidden rounded-2xl border border-white/10 p-6 shadow-xl">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-start gap-4">
-              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-primary/20 text-primary font-bold">
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-primary/20 text-primary font-bold ring-1 ring-primary/30">
                 <User className="size-6" />
               </div>
               <div>
                 <div className="flex items-center gap-2">
-                  <h1 className="text-2xl font-bold tracking-tight">
+                  <h1 className="font-display text-2xl font-bold tracking-tight text-foreground">
                     {isGuest ? "Welcome to CareerCompass" : `Welcome back, ${userProfile?.full_name || user?.email?.split("@")[0] || "Student"}!`}
                   </h1>
-                  <Badge variant="secondary" className="bg-primary/15 text-primary text-xs font-semibold">
+                  <Badge variant="secondary" className="bg-primary/15 text-primary text-xs font-semibold ring-1 ring-primary/25">
                     {userProfile?.education_stage ? userProfile.education_stage.replace("_", " ").toUpperCase() : "Onboarded"}
                   </Badge>
                 </div>
@@ -432,7 +432,7 @@ function Dashboard() {
 
             <div className="flex items-center gap-2 self-start sm:self-center">
               <Link to="/profile">
-                <Button size="sm" className="gap-2 shadow-sm">
+                <Button size="sm" className="gap-2 rounded-full px-4 font-semibold shadow-sm hover:scale-[1.02] active:scale-[0.98] transition-all">
                   <User className="size-4" />
                   Profile Details & Settings
                 </Button>
@@ -442,7 +442,7 @@ function Dashboard() {
         </section>
 
         {/* ─── 1. AI-Powered Recommendations (FIRST SECTION BELOW WELCOME BANNER) ─── */}
-        <section className="mb-10 rounded-2xl border border-primary/20 bg-card/80 p-6 shadow-sm">
+        <section className="card-glow-top glass-card mb-10 rounded-2xl border border-white/10 p-6 shadow-xl">
           <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-center gap-2.5">
               <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/20 text-primary">

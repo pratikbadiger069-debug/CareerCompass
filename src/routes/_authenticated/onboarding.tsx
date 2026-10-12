@@ -237,8 +237,9 @@ function Onboarding() {
   }
 
   return (
-    <main className="mx-auto min-h-screen w-full max-w-3xl px-6 py-12">
-      <div className="sticky top-0 z-10 -mx-6 bg-background/85 px-6 pb-4 pt-2 backdrop-blur">
+    <div className="min-h-screen bg-charcoal-deep hero-glow dot-grid-bg text-foreground">
+      <main className="mx-auto min-h-screen w-full max-w-3xl px-6 py-12">
+        <div className="sticky top-0 z-10 -mx-6 bg-charcoal-deep/85 px-6 pb-4 pt-2 backdrop-blur-xl border-b border-white/8">
         <div className="flex items-baseline justify-between text-sm">
           <span className="font-medium">
             Step {step} of {TOTAL_STEPS}
@@ -582,5 +583,6 @@ function Onboarding() {
         )}
       </div>
     </main>
+  </div>
   );
 }

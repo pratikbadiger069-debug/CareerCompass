@@ -194,20 +194,23 @@ export function ChatWidget() {
             initial="hidden"
             animate="visible"
             exit="exit"
-            className="mb-4 flex h-[500px] max-h-[80vh] w-[calc(100vw-2rem)] flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-2xl sm:w-[380px]"
+            className="card-glow-top glass-card mb-4 flex h-[520px] max-h-[82vh] w-[calc(100vw-2rem)] flex-col overflow-hidden rounded-2xl border border-white/10 bg-charcoal-deep/95 shadow-2xl backdrop-blur-2xl sm:w-[390px]"
           >
             {/* Header */}
-            <div className="flex items-center justify-between border-b border-border bg-primary/5 px-4 py-3">
+            <div className="flex items-center justify-between border-b border-white/8 bg-charcoal-mid/60 px-4 py-3 backdrop-blur-sm">
               <div className="flex items-center gap-2.5">
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground shadow-sm">
+                <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-primary/20 text-primary shadow-sm ring-1 ring-primary/30">
                   <Bot className="h-4 w-4" />
                 </div>
                 <div>
-                  <h3 className="text-sm font-semibold text-foreground flex items-center gap-1.5">
+                  <h3 className="flex items-center gap-1.5 font-display text-xs font-bold tracking-tight text-foreground">
                     CareerCompass Advisor
-                    <Sparkles className="h-3 w-3 text-amber-500" />
+                    <Sparkles className="h-3 w-3 text-primary animate-pulse" />
                   </h3>
-                  <p className="text-[11px] text-muted-foreground">Contextual AI Guidance</p>
+                  <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
+                    <span className="size-1.5 rounded-full bg-emerald-400" />
+                    <span>AI Guidance • Online</span>
+                  </div>
                 </div>
               </div>
 
@@ -314,21 +317,21 @@ export function ChatWidget() {
             {/* Input Footer */}
             <form
               onSubmit={handleSubmit}
-              className="border-t border-border bg-background p-3 flex items-center gap-2"
+              className="border-t border-white/8 bg-charcoal-deep/90 p-3 flex items-center gap-2 backdrop-blur-md"
             >
               <Input
                 ref={inputRef}
                 value={inputMessage}
                 onChange={(e) => setInputMessage(e.target.value)}
-                placeholder="Ask your advisor..."
+                placeholder="Ask your advisor about careers, roadmaps, exams..."
                 disabled={isPending}
-                className="h-9 text-xs rounded-xl bg-muted/30 focus-visible:ring-1"
+                className="h-9.5 text-xs rounded-xl bg-charcoal-mid/80 border-white/10 text-foreground placeholder:text-muted-foreground/70 focus-visible:ring-1 focus-visible:ring-primary/50"
               />
               <Button
                 type="submit"
                 size="icon"
                 disabled={!inputMessage.trim() || isPending}
-                className="h-9 w-9 shrink-0 rounded-xl"
+                className="h-9.5 w-9.5 shrink-0 rounded-xl bg-primary text-primary-foreground shadow-sm hover:opacity-95 transition-opacity"
                 aria-label="Send Message"
               >
                 <Send className="h-3.5 w-3.5" />
@@ -342,9 +345,10 @@ export function ChatWidget() {
       <Button
         onClick={() => setIsOpen((prev) => !prev)}
         size="icon"
-        className="h-12 w-12 rounded-full shadow-xl hover:scale-105 active:scale-95 transition-transform bg-primary text-primary-foreground"
+        className="group relative h-13 w-13 rounded-full bg-primary text-primary-foreground shadow-[0_4px_24px_oklch(0.72_0.19_45/35%)] ring-2 ring-primary/40 hover:scale-105 active:scale-95 transition-all duration-300"
         aria-label={isOpen ? "Close Advisor Chat" : "Open Advisor Chat"}
       >
+        <span className="absolute -inset-1 rounded-full bg-primary/20 blur-sm -z-10 group-hover:bg-primary/35 transition-colors" />
         <AnimatePresence mode="wait" initial={false}>
           {isOpen ? (
             <motion.div

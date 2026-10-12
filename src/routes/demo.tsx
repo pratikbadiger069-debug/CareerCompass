@@ -71,18 +71,18 @@ function DemoPage() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-charcoal-deep hero-glow dot-grid-bg text-foreground">
       {/* Persistent Demo Mode Banner */}
-      <div className="sticky top-0 z-40 border-b border-primary/20 bg-primary/10 px-4 py-2.5 backdrop-blur-md">
+      <div className="sticky top-0 z-40 border-b border-primary/25 bg-charcoal-deep/85 px-4 py-2.5 backdrop-blur-xl">
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 text-xs font-medium text-foreground">
           <div className="flex items-center gap-2">
-            <Info className="size-4 shrink-0 text-primary" />
-            <span>
-              You're viewing demo data — sign up to generate your own personalized roadmap.
+            <span className="flex size-2 rounded-full bg-primary animate-pulse" />
+            <span className="text-muted-foreground">
+              Preview Mode: Exploring sample student profile & recommendations. Sign up to customize your own plan.
             </span>
           </div>
           <Link to="/auth">
-            <Button size="sm" className="h-7 gap-1.5 px-3 text-xs shadow-sm">
+            <Button size="sm" className="h-7.5 gap-1.5 rounded-full px-3.5 text-xs font-semibold bg-primary text-primary-foreground shadow-sm hover:scale-[1.02] active:scale-[0.98] transition-all">
               <UserCheck className="size-3.5" /> Sign Up Free
             </Button>
           </Link>
@@ -91,12 +91,14 @@ function DemoPage() {
 
       <main className="mx-auto max-w-6xl px-6 py-8">
         {/* Navigation Tabs */}
-        <div className="mb-8 flex flex-col gap-4 border-b border-border/60 pb-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="mb-8 flex flex-col gap-4 border-b border-white/8 pb-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <Badge variant="outline" className="mb-1 text-[10px] uppercase tracking-wide">
-              Instant Demo Mode
-            </Badge>
-            <h1 className="text-2xl font-bold">CareerCompass Interactive Preview</h1>
+            <span className="section-tag mb-2">
+              <Sparkles className="size-3" /> Live Demo
+            </span>
+            <h1 className="font-display text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
+              CareerCompass Interactive Preview
+            </h1>
           </div>
 
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full sm:w-auto">
@@ -147,7 +149,7 @@ function DemoPage() {
                     <motion.div
                       variants={fadeUp}
                       whileHover={cardHover.whileHover}
-                      className="flex flex-col justify-between h-full rounded-2xl border border-border/70 bg-card p-5 shadow-sm"
+                      className="card-glow-top glass-card flex flex-col justify-between h-full rounded-2xl border border-white/10 p-5 shadow-lg transition-all"
                     >
                       <div>
                         <div className="flex items-start justify-between gap-2">

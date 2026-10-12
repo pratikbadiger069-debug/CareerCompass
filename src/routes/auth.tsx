@@ -33,8 +33,8 @@ import { useAuth } from "@/hooks/useAuth";
 
 type AuthSearch = {
   mode?: "signin" | "signup";
-  error?: string;
-  error_description?: string;
+  error?: string | undefined;
+  error_description?: string | undefined;
 };
 
 export const Route = createFileRoute("/auth")({
@@ -354,26 +354,31 @@ function AuthPage() {
   const isFormDisabled = busy || googleBusy || demoBusy;
 
   return (
-    <main className="hero-glow flex min-h-screen items-center justify-center px-4 py-12 sm:px-6">
-      <div className="w-full max-w-md">
+    <main className="hero-glow dot-grid-bg relative flex min-h-screen items-center justify-center overflow-hidden px-4 py-12 sm:px-6">
+      {/* Glow orbs */}
+      <div
+        className="pointer-events-none absolute -top-40 left-1/2 -translate-x-1/2 h-[500px] w-[500px] rounded-full opacity-20"
+        style={{ background: "radial-gradient(circle, oklch(0.72 0.19 45 / 35%) 0%, transparent 70%)" }}
+      />
+      <div className="relative z-10 w-full max-w-md">
         {/* Top Header Bar */}
-        <div className="mb-6 flex items-center justify-between">
+        <div className="mb-8 flex items-center justify-between">
           <Link
             to="/"
-            className="inline-flex items-center gap-1.5 text-xs font-medium text-muted-foreground transition-colors hover:text-foreground"
+            className="inline-flex items-center gap-1.5 rounded-full border border-border/50 bg-white/5 px-3.5 py-1.5 text-xs font-medium text-muted-foreground backdrop-blur-sm transition-all hover:border-primary/35 hover:text-foreground"
           >
-            <ArrowLeft className="size-3.5" /> Back to home
+            <ArrowLeft className="size-3" /> Back
           </Link>
-          <div className="flex items-center gap-1.5 font-display text-sm font-bold">
-            <Compass className="size-4 text-primary" />
-            <span>
-              Career<span className="text-primary">Compass</span>
-            </span>
-          </div>
+          <Link to="/" className="flex items-center gap-2 font-display text-sm font-bold">
+            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/15 text-primary">
+              <Compass className="size-4" />
+            </div>
+            Career<span className="text-primary">Compass</span>
+          </Link>
         </div>
 
-        {/* Auth Card */}
-        <Card className="border-border/60 bg-card/85 backdrop-blur-md shadow-2xl">
+        {/* Auth Card — Aeline glass style */}
+        <Card className="card-glow-top border-border/40 bg-charcoal-mid/80 backdrop-blur-xl shadow-[0_32px_64px_oklch(0_0_0/40%)]">
           <CardHeader className="text-center pb-5">
             <div className="mx-auto mb-3 flex size-12 items-center justify-center rounded-2xl bg-primary/10 text-primary ring-1 ring-primary/20">
               <ShieldCheck className="size-6" />

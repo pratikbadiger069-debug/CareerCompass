@@ -127,9 +127,9 @@ function SharedRoadmapPage() {
   const completedCount = (milestones ?? []).filter((m) => m.status === "completed").length;
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-charcoal-deep hero-glow dot-grid-bg text-foreground">
       {/* Top Read-Only Public Banner */}
-      <div className="border-b border-primary/20 bg-primary/10 px-4 py-3">
+      <div className="border-b border-primary/25 bg-charcoal-deep/85 px-4 py-3 backdrop-blur-xl">
         <div className="mx-auto flex max-w-4xl items-center justify-between gap-4 text-xs font-medium">
           <div className="flex items-center gap-2">
             <Share2 className="size-4 text-primary shrink-0" />
