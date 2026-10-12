@@ -1,6 +1,18 @@
 import { useEffect, useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { Check, Eye, EyeOff, KeyRound, Loader2, Lock, ShieldCheck, X } from "lucide-react";
+import {
+  ArrowLeft,
+  Check,
+  Compass,
+  Eye,
+  EyeOff,
+  KeyRound,
+  Loader2,
+  Lock,
+  ShieldCheck,
+  Sparkles,
+  X,
+} from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -19,11 +31,18 @@ import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable/index";
 import { useAuth } from "@/hooks/useAuth";
 
-type AuthSearch = { mode?: "signin" | "signup" };
+type AuthSearch = {
+  mode?: "signin" | "signup";
+  error?: string;
+  error_description?: string;
+};
 
 export const Route = createFileRoute("/auth")({
   validateSearch: (search: Record<string, unknown>): AuthSearch => ({
     mode: search["mode"] === "signup" ? "signup" : "signin",
+    error: typeof search["error"] === "string" ? search["error"] : undefined,
+    error_description:
+      typeof search["error_description"] === "string" ? search["error_description"] : undefined,
   }),
   head: () => ({
     meta: [
@@ -47,22 +66,22 @@ export const Route = createFileRoute("/auth")({
 
 function GoogleMark() {
   return (
-    <svg viewBox="0 0 24 24" className="size-4" aria-hidden="true">
+    <svg viewBox="0 0 24 24" className="size-4 shrink-0" aria-hidden="true">
       <path
-        fill="#FFC107"
-        d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.3 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.9 1.2 8 3.1l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.2-.1-2.4-.4-3.5z"
+        fill="#4285F4"
+        d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
       />
       <path
-        fill="#FF3D00"
-        d="M6.3 14.7l6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.9 1.2 8 3.1l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"
+        fill="#34A853"
+        d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
       />
       <path
-        fill="#4CAF50"
-        d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-7.9l-6.5 5C9.6 39.6 16.2 44 24 44z"
+        fill="#FBBC05"
+        d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"
       />
       <path
-        fill="#1976D2"
-        d="M43.6 20.5H42V20H24v8h11.3c-.8 2.3-2.3 4.2-4.1 5.6l6.2 5.2C39.9 36.6 44 31 44 24c0-1.2-.1-2.4-.4-3.5z"
+        fill="#EA4335"
+        d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"
       />
     </svg>
   );
@@ -74,19 +93,23 @@ function isValidEmail(email: string): boolean {
 }
 
 function AuthPage() {
-  const { mode } = Route.useSearch();
+  const { mode, error: searchError, error_description: searchErrorDesc } = Route.useSearch();
   const navigate = useNavigate();
   const { user, isAuthenticated, loading } = useAuth();
-  
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [fullName, setFullName] = useState("");
-  
+
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [busy, setBusy] = useState(false);
-  const [activeTab, setActiveTab] = useState<"signin" | "signup">(mode === "signup" ? "signup" : "signin");
+  const [googleBusy, setGoogleBusy] = useState(false);
+  const [demoBusy, setDemoBusy] = useState(false);
+  const [activeTab, setActiveTab] = useState<"signin" | "signup">(
+    mode === "signup" ? "signup" : "signin",
+  );
 
   // Forgot Password Dialog state
   const [resetDialogOpen, setResetDialogOpen] = useState(false);
@@ -100,6 +123,23 @@ function AuthPage() {
   const hasNumber = /[0-9]/.test(password);
   const isPasswordValid = hasMinLength && hasUppercase && hasLowercase && hasNumber;
   const passwordsMatch = password === confirmPassword;
+
+  // Catch search and hash errors from OAuth redirects
+  useEffect(() => {
+    const errorMsg = searchErrorDesc || searchError;
+    if (errorMsg) {
+      toast.error(`Authentication error: ${errorMsg.replace(/\+/g, " ")}`);
+    }
+
+    if (typeof window !== "undefined" && window.location.hash) {
+      const hash = window.location.hash.substring(1);
+      const params = new URLSearchParams(hash);
+      const hashError = params.get("error_description") || params.get("error");
+      if (hashError) {
+        toast.error(`Authentication error: ${hashError.replace(/\+/g, " ")}`);
+      }
+    }
+  }, [searchError, searchErrorDesc]);
 
   const checkOnboardingAndRedirect = async (userId: string) => {
     const { data: profile } = await supabase
@@ -206,7 +246,7 @@ function AuthPage() {
     }
 
     if (!data.session) {
-      toast.success("Account created! Check your email to confirm your subscription before signing in.");
+      toast.success("Account created! Check your email to confirm your account before signing in.");
       return;
     }
 
@@ -241,82 +281,187 @@ function AuthPage() {
   }
 
   async function signInWithGoogle(): Promise<void> {
-    setBusy(true);
-    const result = await lovable.auth.signInWithOAuth("google", {
-      redirect_uri: window.location.origin,
-    });
-    if (result.error) {
-      setBusy(false);
-      toast.error("Google sign-in failed. Please try again.");
-      return;
-    }
-    if (result.redirected) return;
-    if (user) {
-      await checkOnboardingAndRedirect(user.id);
-    } else {
-      navigate({ to: "/onboarding", replace: true });
+    setGoogleBusy(true);
+    try {
+      // 1. Try Lovable's OAuth handler if inside iframe preview
+      let isInIframe = false;
+      try {
+        isInIframe = window.self !== window.top;
+      } catch {
+        isInIframe = true;
+      }
+
+      if (isInIframe) {
+        try {
+          const result = await lovable.auth.signInWithOAuth("google", {
+            redirect_uri: window.location.origin,
+          });
+
+          if (result && !result.error) {
+            if (result.redirected) return;
+            const { data: sessionData } = await supabase.auth.getSession();
+            if (sessionData?.session?.user) {
+              toast.success("Signed in with Google!");
+              await checkOnboardingAndRedirect(sessionData.session.user.id);
+              return;
+            }
+          } else if (result?.error) {
+            console.warn("Lovable OAuth note:", result.error);
+          }
+        } catch (lovableErr) {
+          console.warn("Lovable OAuth fallback to Supabase:", lovableErr);
+        }
+      }
+
+      // 2. Native Supabase OAuth flow (for standalone, custom domains, or direct browser logins)
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: {
+          redirectTo: `${window.location.origin}/auth`,
+          queryParams: {
+            access_type: "offline",
+            prompt: "consent",
+          },
+        },
+      });
+
+      if (error) {
+        throw error;
+      }
+
+      if (data?.url) {
+        window.location.href = data.url;
+      }
+    } catch (err) {
+      console.error("Google sign-in error:", err);
+      toast.error(err instanceof Error ? err.message : "Google sign-in failed. Please try again.");
+      setGoogleBusy(false);
     }
   }
 
-  return (
-    <main className="hero-glow flex min-h-screen items-center justify-center px-6 py-16">
-      <div className="w-full max-w-md">
-        <Link to="/" className="mb-6 block text-center font-display text-lg font-bold">
-          Career<span className="text-primary">Compass</span>
-        </Link>
+  async function startDemoMode(): Promise<void> {
+    setDemoBusy(true);
+    const { error } = await supabase.auth.signInAnonymously();
+    setDemoBusy(false);
+    if (error) {
+      toast.error("Could not start demo mode: " + error.message);
+      return;
+    }
+    toast.success("Welcome to Demo Mode! Your progress will be saved as a guest.");
+    navigate({ to: "/dashboard", replace: true });
+  }
 
-        <Card className="border-border/60 bg-card/80 backdrop-blur shadow-xl">
-          <CardHeader className="text-center pb-4">
-            <div className="mx-auto mb-2 flex size-10 items-center justify-center rounded-full bg-primary/10 text-primary">
-              <ShieldCheck className="size-5" />
+  const isFormDisabled = busy || googleBusy || demoBusy;
+
+  return (
+    <main className="hero-glow flex min-h-screen items-center justify-center px-4 py-12 sm:px-6">
+      <div className="w-full max-w-md">
+        {/* Top Header Bar */}
+        <div className="mb-6 flex items-center justify-between">
+          <Link
+            to="/"
+            className="inline-flex items-center gap-1.5 text-xs font-medium text-muted-foreground transition-colors hover:text-foreground"
+          >
+            <ArrowLeft className="size-3.5" /> Back to home
+          </Link>
+          <div className="flex items-center gap-1.5 font-display text-sm font-bold">
+            <Compass className="size-4 text-primary" />
+            <span>
+              Career<span className="text-primary">Compass</span>
+            </span>
+          </div>
+        </div>
+
+        {/* Auth Card */}
+        <Card className="border-border/60 bg-card/85 backdrop-blur-md shadow-2xl">
+          <CardHeader className="text-center pb-5">
+            <div className="mx-auto mb-3 flex size-12 items-center justify-center rounded-2xl bg-primary/10 text-primary ring-1 ring-primary/20">
+              <ShieldCheck className="size-6" />
             </div>
-            <CardTitle>Secure Authentication</CardTitle>
-            <CardDescription>
-              Sign in or create a password-protected account to access your career roadmap.
+            <CardTitle className="text-2xl font-bold tracking-tight">
+              {activeTab === "signin" ? "Welcome Back" : "Create Your Account"}
+            </CardTitle>
+            <CardDescription className="text-xs text-muted-foreground mt-1 max-w-xs mx-auto">
+              {activeTab === "signin"
+                ? "Sign in to access your personalized AI career roadmap and milestones."
+                : "Join thousands of students finding clarity in their education and career journey."}
             </CardDescription>
           </CardHeader>
-          <CardContent>
+
+          <CardContent className="space-y-5">
+            {/* Google OAuth Button */}
             <Button
+              type="button"
               variant="outline"
-              className="w-full gap-2 font-medium"
+              className="w-full h-11 gap-2.5 font-medium border-border/80 bg-background/50 hover:bg-secondary/60 hover:text-foreground transition-all shadow-sm"
               onClick={signInWithGoogle}
-              disabled={busy}
+              disabled={isFormDisabled}
             >
-              <GoogleMark />
-              Continue with Google
+              {googleBusy ? (
+                <>
+                  <Loader2 className="size-4 animate-spin text-primary" />
+                  <span>Connecting to Google...</span>
+                </>
+              ) : (
+                <>
+                  <GoogleMark />
+                  <span>Continue with Google</span>
+                </>
+              )}
             </Button>
 
-            <div className="my-6 flex items-center gap-3 text-xs text-muted-foreground">
-              <span className="h-px flex-1 bg-border" />
-              or with email &amp; password
-              <span className="h-px flex-1 bg-border" />
+            {/* Divider */}
+            <div className="relative flex items-center justify-center">
+              <div className="absolute inset-0 flex items-center">
+                <span className="w-full border-t border-border/60" />
+              </div>
+              <div className="relative flex justify-center bg-card px-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+                or with email &amp; password
+              </div>
             </div>
 
-            <Tabs value={activeTab} onValueChange={handleTabChange}>
-              <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="signin">Sign in</TabsTrigger>
-                <TabsTrigger value="signup">Sign up</TabsTrigger>
+            {/* Tabs for Sign In vs Sign Up */}
+            <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
+              <TabsList className="grid w-full grid-cols-2 p-1 bg-secondary/40 border border-border/40">
+                <TabsTrigger
+                  value="signin"
+                  className="text-xs font-semibold data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm"
+                >
+                  Sign In
+                </TabsTrigger>
+                <TabsTrigger
+                  value="signup"
+                  className="text-xs font-semibold data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm"
+                >
+                  Create Account
+                </TabsTrigger>
               </TabsList>
 
               {/* ─── Sign In Tab ─── */}
-              <TabsContent value="signin">
-                <form className="space-y-4 pt-4" onSubmit={signIn}>
-                  <div className="space-y-2">
-                    <Label htmlFor="signin-email">Email Address</Label>
+              <TabsContent value="signin" className="mt-4">
+                <form className="space-y-4" onSubmit={signIn}>
+                  <div className="space-y-1.5">
+                    <Label htmlFor="signin-email" className="text-xs font-semibold">
+                      Email Address
+                    </Label>
                     <Input
                       id="signin-email"
                       type="email"
                       placeholder="you@example.com"
                       required
                       autoComplete="email"
+                      disabled={isFormDisabled}
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
+                      className="h-10 text-xs bg-background/70"
                     />
                   </div>
 
-                  <div className="space-y-2">
+                  <div className="space-y-1.5">
                     <div className="flex items-center justify-between">
-                      <Label htmlFor="signin-password">Password</Label>
+                      <Label htmlFor="signin-password" className="text-xs font-semibold">
+                        Password
+                      </Label>
                       <Dialog open={resetDialogOpen} onOpenChange={setResetDialogOpen}>
                         <DialogTrigger asChild>
                           <button
@@ -332,13 +477,15 @@ function AuthPage() {
                               <KeyRound className="size-5 text-primary" />
                               Reset Your Password
                             </DialogTitle>
-                            <DialogDescription>
+                            <DialogDescription className="text-xs">
                               Enter your account email address and we'll send you a secure password reset link.
                             </DialogDescription>
                           </DialogHeader>
                           <form onSubmit={handleResetPassword} className="space-y-4 mt-2">
                             <div className="space-y-2">
-                              <Label htmlFor="reset-email">Email Address</Label>
+                              <Label htmlFor="reset-email" className="text-xs font-semibold">
+                                Email Address
+                              </Label>
                               <Input
                                 id="reset-email"
                                 type="email"
@@ -346,6 +493,7 @@ function AuthPage() {
                                 required
                                 value={resetEmail}
                                 onChange={(e) => setResetEmail(e.target.value)}
+                                className="h-10 text-xs"
                               />
                             </div>
                             <Button type="submit" className="w-full" disabled={resetBusy}>
@@ -370,9 +518,10 @@ function AuthPage() {
                         required
                         placeholder="••••••••"
                         autoComplete="current-password"
+                        disabled={isFormDisabled}
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
-                        className="pr-10"
+                        className="h-10 pr-10 text-xs bg-background/70"
                       />
                       <button
                         type="button"
@@ -386,7 +535,11 @@ function AuthPage() {
                     </div>
                   </div>
 
-                  <Button type="submit" className="w-full font-semibold" disabled={busy}>
+                  <Button
+                    type="submit"
+                    className="w-full h-10 font-semibold shadow-md"
+                    disabled={isFormDisabled}
+                  >
                     {busy ? (
                       <>
                         <Loader2 className="mr-2 size-4 animate-spin" />
@@ -400,34 +553,44 @@ function AuthPage() {
               </TabsContent>
 
               {/* ─── Sign Up Tab ─── */}
-              <TabsContent value="signup">
-                <form className="space-y-4 pt-4" onSubmit={signUp}>
-                  <div className="space-y-2">
-                    <Label htmlFor="signup-name">Full Name</Label>
+              <TabsContent value="signup" className="mt-4">
+                <form className="space-y-4" onSubmit={signUp}>
+                  <div className="space-y-1.5">
+                    <Label htmlFor="signup-name" className="text-xs font-semibold">
+                      Full Name
+                    </Label>
                     <Input
                       id="signup-name"
                       placeholder="Jane Doe"
                       autoComplete="name"
+                      disabled={isFormDisabled}
                       value={fullName}
                       onChange={(e) => setFullName(e.target.value)}
+                      className="h-10 text-xs bg-background/70"
                     />
                   </div>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="signup-email">Email Address</Label>
+                  <div className="space-y-1.5">
+                    <Label htmlFor="signup-email" className="text-xs font-semibold">
+                      Email Address
+                    </Label>
                     <Input
                       id="signup-email"
                       type="email"
                       placeholder="you@example.com"
                       required
                       autoComplete="email"
+                      disabled={isFormDisabled}
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
+                      className="h-10 text-xs bg-background/70"
                     />
                   </div>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="signup-password">Password</Label>
+                  <div className="space-y-1.5">
+                    <Label htmlFor="signup-password" className="text-xs font-semibold">
+                      Password
+                    </Label>
                     <div className="relative">
                       <Input
                         id="signup-password"
@@ -435,9 +598,10 @@ function AuthPage() {
                         required
                         placeholder="••••••••"
                         autoComplete="new-password"
+                        disabled={isFormDisabled}
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
-                        className="pr-10"
+                        className="h-10 pr-10 text-xs bg-background/70"
                       />
                       <button
                         type="button"
@@ -454,24 +618,56 @@ function AuthPage() {
                   {/* Password Security Strength Checklist */}
                   {password.length > 0 && (
                     <div className="rounded-lg border border-border/50 bg-secondary/30 p-3 space-y-1 text-xs">
-                      <div className="font-medium text-muted-foreground mb-1">Password Requirements:</div>
-                      <div className="flex items-center gap-1.5">
-                        {hasMinLength ? <Check className="size-3.5 text-emerald-500" /> : <X className="size-3.5 text-muted-foreground" />}
-                        <span className={hasMinLength ? "text-emerald-500 font-medium" : "text-muted-foreground"}>At least 8 characters</span>
+                      <div className="font-semibold text-muted-foreground mb-1 text-[11px] uppercase tracking-wider">
+                        Password Requirements:
                       </div>
                       <div className="flex items-center gap-1.5">
-                        {hasUppercase && hasLowercase ? <Check className="size-3.5 text-emerald-500" /> : <X className="size-3.5 text-muted-foreground" />}
-                        <span className={hasUppercase && hasLowercase ? "text-emerald-500 font-medium" : "text-muted-foreground"}>Uppercase &amp; lowercase letters</span>
+                        {hasMinLength ? (
+                          <Check className="size-3.5 text-emerald-500" />
+                        ) : (
+                          <X className="size-3.5 text-muted-foreground" />
+                        )}
+                        <span
+                          className={hasMinLength ? "text-emerald-500 font-medium" : "text-muted-foreground"}
+                        >
+                          At least 8 characters
+                        </span>
                       </div>
                       <div className="flex items-center gap-1.5">
-                        {hasNumber ? <Check className="size-3.5 text-emerald-500" /> : <X className="size-3.5 text-muted-foreground" />}
-                        <span className={hasNumber ? "text-emerald-500 font-medium" : "text-muted-foreground"}>At least 1 number</span>
+                        {hasUppercase && hasLowercase ? (
+                          <Check className="size-3.5 text-emerald-500" />
+                        ) : (
+                          <X className="size-3.5 text-muted-foreground" />
+                        )}
+                        <span
+                          className={
+                            hasUppercase && hasLowercase
+                              ? "text-emerald-500 font-medium"
+                              : "text-muted-foreground"
+                          }
+                        >
+                          Uppercase &amp; lowercase letters
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-1.5">
+                        {hasNumber ? (
+                          <Check className="size-3.5 text-emerald-500" />
+                        ) : (
+                          <X className="size-3.5 text-muted-foreground" />
+                        )}
+                        <span
+                          className={hasNumber ? "text-emerald-500 font-medium" : "text-muted-foreground"}
+                        >
+                          At least 1 number
+                        </span>
                       </div>
                     </div>
                   )}
 
-                  <div className="space-y-2">
-                    <Label htmlFor="signup-confirm-password">Confirm Password</Label>
+                  <div className="space-y-1.5">
+                    <Label htmlFor="signup-confirm-password" className="text-xs font-semibold">
+                      Confirm Password
+                    </Label>
                     <div className="relative">
                       <Input
                         id="signup-confirm-password"
@@ -479,9 +675,10 @@ function AuthPage() {
                         required
                         placeholder="••••••••"
                         autoComplete="new-password"
+                        disabled={isFormDisabled}
                         value={confirmPassword}
                         onChange={(e) => setConfirmPassword(e.target.value)}
-                        className="pr-10"
+                        className="h-10 pr-10 text-xs bg-background/70"
                       />
                       <button
                         type="button"
@@ -502,8 +699,8 @@ function AuthPage() {
 
                   <Button
                     type="submit"
-                    className="w-full font-semibold"
-                    disabled={busy || !isPasswordValid || !passwordsMatch}
+                    className="w-full h-10 font-semibold shadow-md"
+                    disabled={isFormDisabled || !isPasswordValid || !passwordsMatch}
                   >
                     {busy ? (
                       <>
@@ -517,6 +714,28 @@ function AuthPage() {
                 </form>
               </TabsContent>
             </Tabs>
+
+            {/* Guest / Demo Mode Quick Access */}
+            <div className="pt-4 border-t border-border/50 text-center">
+              <p className="text-xs text-muted-foreground">
+                Just exploring CareerCompass?
+              </p>
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={startDemoMode}
+                disabled={isFormDisabled}
+                className="mt-1.5 h-8 gap-1.5 text-xs font-semibold text-primary hover:text-primary hover:bg-primary/10 transition-colors"
+              >
+                {demoBusy ? (
+                  <Loader2 className="size-3.5 animate-spin" />
+                ) : (
+                  <Sparkles className="size-3.5" />
+                )}
+                Try Demo Mode as Guest
+              </Button>
+            </div>
           </CardContent>
         </Card>
       </div>
