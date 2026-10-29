@@ -500,12 +500,10 @@ function CollegesPage() {
                   </span>
                 </div>
               ) : (
-                <Link to="/profile">
-                  <Button variant="outline" size="sm" className="gap-1.5 text-xs border-dashed">
-                    <MapPin className="size-3.5 text-muted-foreground" />
-                    Set Location in Profile
-                  </Button>
-                </Link>
+                <div className="flex items-center gap-2 rounded-full border border-border/60 bg-muted/20 px-3.5 py-1.5 text-xs text-muted-foreground">
+                  <MapPin className="size-3.5 text-muted-foreground shrink-0" />
+                  <span>Location: <strong>All India</strong></span>
+                </div>
               )}
             </div>
           </div>

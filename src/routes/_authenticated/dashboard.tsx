@@ -433,15 +433,13 @@ function Dashboard() {
                   const loc = getUserLocation(user, userProfile);
                   return (
                     <div className="mt-2 flex items-center gap-2">
-                      <Link to="/profile" className="inline-flex">
-                        <Badge
-                          variant="outline"
-                          className="gap-1.5 border-primary/30 bg-primary/10 px-2.5 py-0.5 text-[11px] font-medium text-primary hover:bg-primary/20 transition-colors"
-                        >
-                          <MapPin className="size-3 text-primary" />
-                          {loc ? `${loc.city}, ${loc.state}` : "Location not set • Add in Profile"}
-                        </Badge>
-                      </Link>
+                      <Badge
+                        variant="outline"
+                        className="gap-1.5 border-primary/30 bg-primary/10 px-2.5 py-0.5 text-[11px] font-medium text-primary"
+                      >
+                        <MapPin className="size-3 text-primary" />
+                        {loc ? `${loc.city}, ${loc.state}` : "Location: All India"}
+                      </Badge>
                     </div>
                   );
                 })()}
@@ -449,10 +447,16 @@ function Dashboard() {
             </div>
 
             <div className="flex items-center gap-2 self-start sm:self-center">
-              <Link to="/profile">
-                <Button size="sm" className="gap-2 rounded-full px-4 font-semibold shadow-sm hover:scale-[1.02] active:scale-[0.98] transition-all">
-                  <User className="size-4" />
-                  Profile Details & Settings
+              <Link to="/colleges">
+                <Button size="sm" variant="outline" className="gap-2 rounded-full px-4 text-xs font-medium border-border/70 hover:border-primary/40">
+                  <GraduationCap className="size-3.5" />
+                  Colleges
+                </Button>
+              </Link>
+              <Link to="/backup">
+                <Button size="sm" className="gap-2 rounded-full px-4 text-xs font-semibold shadow-sm hover:scale-[1.02] active:scale-[0.98] transition-all bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 hover:bg-emerald-500/30">
+                  <ShieldCheck className="size-3.5" />
+                  Backup Plans
                 </Button>
               </Link>
             </div>
@@ -672,34 +676,17 @@ function Dashboard() {
           )}
         </section>
 
-        {/* ─── 2. Aligned Feature Hub Cards (4 Quick Action Cards) ─── */}
-        <section className="mb-10 grid gap-4 sm:grid-cols-3">
-          <Link to="/roadmap" search={{ rec: undefined }}>
-            <Card className="group h-full border-border/60 bg-card/70 transition-all hover:border-primary/50 hover:bg-card hover:shadow-md">
-              <CardContent className="flex flex-col justify-between p-5 h-full">
-                <div>
-                  <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-violet-500/15 text-violet-400 border border-violet-500/30">
-                    <MapIcon className="size-5" />
-                  </div>
-                  <div className="flex items-center justify-between"><h3 className="font-bold text-base group-hover:text-violet-300 transition-colors">AI Roadmap</h3><span className="ai-badge text-[10px] py-0 px-2">AI</span></div>
-                  <p className="mt-1 text-xs text-muted-foreground leading-relaxed">Step-by-step milestones tailored to your career goal.</p>
-                </div>
-                <div className="mt-4 flex items-center gap-1 text-xs font-semibold text-violet-400">
-                  View Roadmap <ArrowRight className="size-3.5 transition-transform group-hover:translate-x-1" />
-                </div>
-              </CardContent>
-            </Card>
-          </Link>
-
+        {/* ─── 2. Aligned Feature Hub Cards (Colleges & Backup) ─── */}
+        <section className="mb-10 grid gap-4 sm:grid-cols-2">
           <Link to="/colleges">
             <Card className="group h-full border-border/60 bg-card/70 transition-all hover:border-primary/50 hover:bg-card hover:shadow-md">
               <CardContent className="flex flex-col justify-between p-5 h-full">
                 <div>
-                  <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-purple-500/10 text-purple-500">
+                  <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-purple-500/10 text-purple-400 border border-purple-500/20">
                     <GraduationCap className="size-5" />
                   </div>
-                  <h3 className="font-bold text-base group-hover:text-primary transition-colors">College Explorer</h3>
-                  <p className="mt-1 text-xs text-muted-foreground leading-relaxed">Explore top universities and compare eligibility, fees & ratings side-by-side.</p>
+                  <h3 className="font-bold text-base group-hover:text-primary transition-colors">College Explorer & Comparer</h3>
+                  <p className="mt-1 text-xs text-muted-foreground leading-relaxed">Explore top universities, filter by your location & compare fees, entrance exams and ratings side-by-side.</p>
                 </div>
                 <div className="mt-4 flex items-center gap-1 text-xs font-semibold text-primary">
                   Explore Colleges <ArrowRight className="size-3.5 transition-transform group-hover:translate-x-1" />
@@ -708,230 +695,30 @@ function Dashboard() {
             </Card>
           </Link>
 
-          <Link to="/profile">
-            <Card className="group h-full border-border/60 bg-card/70 transition-all hover:border-primary/50 hover:bg-card hover:shadow-md">
+          <Link to="/backup">
+            <Card className="group h-full border-border/60 bg-card/70 transition-all hover:border-emerald-500/50 hover:bg-card hover:shadow-md">
               <CardContent className="flex flex-col justify-between p-5 h-full">
                 <div>
-                  <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-amber-500/10 text-amber-500">
-                    <User className="size-5" />
+                  <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                    <ShieldCheck className="size-5" />
                   </div>
-                  <h3 className="font-bold text-base group-hover:text-primary transition-colors">My Profile & Skills</h3>
-                  <p className="mt-1 text-xs text-muted-foreground leading-relaxed">Edit your 5 onboarding details & acquired skills.</p>
+                  <div className="flex items-center justify-between">
+                    <h3 className="font-bold text-base group-hover:text-emerald-400 transition-colors">Backup & Fallback Plans</h3>
+                    <Badge variant="outline" className="bg-emerald-500/10 text-emerald-400 border-emerald-500/25 text-[10px]">
+                      Risk Mitigation
+                    </Badge>
+                  </div>
+                  <p className="mt-1 text-xs text-muted-foreground leading-relaxed">Explore secondary career paths, entrance exam pivots & alternative options to ensure long-term security.</p>
                 </div>
-                <div className="mt-4 flex items-center gap-1 text-xs font-semibold text-primary">
-                  Edit Profile <ArrowRight className="size-3.5 transition-transform group-hover:translate-x-1" />
+                <div className="mt-4 flex items-center gap-1 text-xs font-semibold text-emerald-400">
+                  View Backup Pathways <ArrowRight className="size-3.5 transition-transform group-hover:translate-x-1" />
                 </div>
               </CardContent>
             </Card>
           </Link>
         </section>
 
-        {/* ─── 3. Backup & Fallback Options (WITH "CHECK BACKUP ROADMAP" BUTTON) ─── */}
-        <section className="mb-10">
-          <Card className="border-border/60 bg-card/70 shadow-sm">
-            <CardHeader className="pb-4">
-              <div className="flex items-center justify-between">
-                <CardTitle className="flex items-center gap-2 text-lg font-bold">
-                  <ShieldCheck className="size-5 text-emerald-500" />
-                  Backup & Fallback Career Plans
-                </CardTitle>
-                <Badge variant="outline" className="bg-emerald-500/10 text-emerald-500 border-emerald-500/20 text-xs font-semibold">
-                  Risk Mitigation
-                </Badge>
-              </div>
-              <p className="text-xs text-muted-foreground">
-                Secondary pathways to ensure long-term career security if primary entrance exams or goals change.
-              </p>
-            </CardHeader>
-            <CardContent>
-              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                {(aiBackupPaths.length > 0
-                  ? aiBackupPaths
-                  : path.backups.map(b => ({ title: b.title, description: b.description, why_it_works: b.whyItWorks }))
-                ).map((backup, idx) => (
-                  <div key={idx} className="flex flex-col justify-between rounded-xl border border-border/60 bg-card/60 p-4 text-xs hover:border-primary/40 transition-colors">
-                    <div>
-                      <div className="flex items-center justify-between gap-2 mb-2">
-                        <p className="font-bold text-sm text-foreground">{backup.title}</p>
-                        <Badge variant="secondary" className="text-[10px] bg-primary/10 text-primary border-primary/20 shrink-0">
-                          Backup Path
-                        </Badge>
-                      </div>
-                      <p className="text-muted-foreground leading-relaxed">{backup.description}</p>
-                      <p className="mt-2 text-primary font-medium">Why it works: {backup.why_it_works}</p>
-                    </div>
-
-                    <div className="mt-4 flex items-center gap-2 pt-3 border-t border-border/40">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="w-full text-xs gap-1.5 h-8 border-primary/30 hover:bg-primary/10 hover:text-primary font-medium"
-                        onClick={() => {
-                          const backupRec: PathDetailRec = {
-                            career_title: backup.title,
-                            description: backup.description,
-                            why_it_works: backup.why_it_works,
-                            match_score: 80,
-                            salary_range: "Flexible / High Demand",
-                            growth_outlook: "Stable Backup Option",
-                            required_skills: ["Transferable Skills", "Core Fundamentals"],
-                            honest_challenges: "May require complementary certifications or entrance exam pivot.",
-                            day_in_life: "Focuses on high-impact domain responsibilities with flexible entry points."
-                          };
-                          setSelectedDetailRec(backupRec);
-                          setDetailModalOpen(true);
-                        }}
-                      >
-                        <MapIcon className="size-3.5 text-primary" />
-                        Check Backup Roadmap
-                      </Button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        </section>
-
-        {/* ─── 4. Stream Pathways & Dynamic What-If Scenarios ─── */}
-        <section className="mb-10">
-          <div className="mb-6 flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Compass className="size-5 text-primary" />
-              <h2 className="text-xl font-bold">
-                {userProfile?.stream ? `Stream Pathways for ${userProfile.stream}` : "Stream Pathways & Alternatives"}
-              </h2>
-            </div>
-            <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20 text-xs">
-              {userProfile?.education_stage ? userProfile.education_stage.replace("_", " ").toUpperCase() : "Active Stream"}
-            </Badge>
-          </div>
-
-          {/* 2-Column Grid: AI Option Paths & Dynamic What-If Scenarios */}
-          <div className="grid gap-6 lg:grid-cols-2">
-            {/* AI Option Paths */}
-            <Card className="border-border/60 bg-card/70">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-base font-bold">
-                  <GraduationCap className="size-5 text-primary" />
-                  {userProfile?.education_stage === "class_10" || userProfile?.education_stage === "class_12"
-                    ? "Stream & Junior College Pathways"
-                    : "Target Academic & Skill Pathways"}
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                {(aiOptionPaths.length > 0 ? aiOptionPaths : path.options).map((option, idx) => (
-                  <div key={idx} className="rounded-xl border border-border/60 bg-card/60 p-4">
-                    <div className="flex items-start justify-between gap-3">
-                      <div>
-                        <p className="font-bold text-xs text-foreground">{option.title}</p>
-                        <p className="mt-1 text-xs text-muted-foreground leading-relaxed">{option.description}</p>
-                      </div>
-                      <Badge variant="secondary" className="shrink-0 text-[10px] uppercase font-semibold">
-                        {option.kind}
-                      </Badge>
-                    </div>
-                    {((option as any).next_steps || (option as any).nextSteps) && (
-                      <p className="mt-3 text-xs font-semibold text-primary">
-                        Next step: {((option as any).next_steps || (option as any).nextSteps)[0]}
-                      </p>
-                    )}
-                  </div>
-                ))}
-              </CardContent>
-            </Card>
-
-            {/* Dynamic What-If Scenarios & Ask Custom Question */}
-            <Card className="border-border/60 bg-card/70">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-base font-bold">
-                  <Lightbulb className="size-5 text-primary" />
-                  Dynamic What-If Scenarios
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {whatIfScenarios.length > 0 ? (
-                  <div className="space-y-3">
-                    <Select
-                      value={String(scenarioIndex)}
-                      onValueChange={(value) => setScenarioIndex(Number(value))}
-                    >
-                      <SelectTrigger className="text-xs">
-                        <SelectValue placeholder="Select a scenario" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {whatIfScenarios.map((item, index) => (
-                          <SelectItem key={index} value={String(index)} className="text-xs">
-                            {item.question}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-
-                    {(() => {
-                      const currentWhatIf = whatIfScenarios[scenarioIndex] ?? whatIfScenarios[0];
-                      if (!currentWhatIf) return null;
-                      return (
-                        <div className="rounded-xl bg-secondary/50 p-4 text-xs">
-                          <p className="font-bold text-foreground mb-1">{currentWhatIf.question}</p>
-                          <p className="leading-relaxed text-muted-foreground">{currentWhatIf.answer}</p>
-                          {currentWhatIf.alternatives && currentWhatIf.alternatives.length > 0 && (
-                            <div className="mt-3 pt-3 border-t border-border/40">
-                              <p className="font-semibold text-foreground mb-1">Alternative Next Paths:</p>
-                              <ul className="space-y-1 text-muted-foreground">
-                                {currentWhatIf.alternatives.map((alt, i) => (
-                                  <li key={i} className="flex items-center gap-1.5">
-                                    <ArrowRight className="size-3 text-primary shrink-0" />
-                                    <span>{alt}</span>
-                                  </li>
-                                ))}
-                              </ul>
-                            </div>
-                          )}
-                        </div>
-                      );
-                    })()}
-                  </div>
-                ) : (
-                  <div className="rounded-xl bg-secondary/50 p-4 text-xs text-muted-foreground">
-                    No What-If scenarios generated yet. Ask your question below!
-                  </div>
-                )}
-
-                {/* Custom What-If Question Input */}
-                <div className="border-t border-border/50 pt-4">
-                  <label className="mb-2 block text-xs font-bold uppercase tracking-wider text-muted-foreground">
-                    Ask Your Own What-If Question
-                  </label>
-                  <form onSubmit={handleAskCustomQuestion} className="flex gap-2">
-                    <Input
-                      placeholder="e.g. What if I want to switch to Data Science in year 2?"
-                      value={customQuestion}
-                      onChange={(e) => setCustomQuestion(e.target.value)}
-                      disabled={askingQuestion}
-                      className="text-xs"
-                    />
-                    <Button
-                      type="submit"
-                      size="sm"
-                      disabled={askingQuestion || !customQuestion.trim()}
-                      className="gap-1.5 shrink-0 text-xs font-medium ai-button hover:text-white"
-                    >
-                      {askingQuestion ? (
-                        <Loader2 className="size-3.5 animate-spin" />
-                      ) : (
-                        <Sparkles className="size-3.5 text-violet-200" />
-                      )}
-                      Ask
-                    </Button>
-                  </form>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        </section>
-
-        {/* ─── 5. Stream Entrance Exam Connections & Actionable Next Steps ─── */}
+        {/* ─── 3. Stream Entrance Exam Connections & Actionable Next Steps ─── */}
         <section className="mb-10 grid gap-6 lg:grid-cols-2">
           {/* Stream-Specific Exam Connections */}
           <Card className="border-border/60 bg-card/70">

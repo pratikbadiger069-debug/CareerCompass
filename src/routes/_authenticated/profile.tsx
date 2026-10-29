@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate, redirect } from "@tanstack/react-router";
 import {
   AlertCircle,
   ArrowLeft,
@@ -101,6 +101,9 @@ const AVAILABLE_INTERESTS = [
 ];
 
 export const Route = createFileRoute("/_authenticated/profile")({
+  beforeLoad: () => {
+    throw redirect({ to: "/dashboard" });
+  },
   head: () => ({
     meta: [
       { title: "CareerCompass — Edit Profile & Regenerate Roadmap" },

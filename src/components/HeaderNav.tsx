@@ -4,6 +4,7 @@ import {
   BarChart3,
   Compass,
   GraduationCap,
+  ShieldCheck,
   LogOut,
   Map,
   User as UserIcon,
@@ -46,8 +47,8 @@ export function HeaderNav() {
 
   const navLinks = [
     { to: "/dashboard", label: "Dashboard", icon: Compass },
-    { to: "/roadmap", label: "Roadmap", icon: Map, search: { rec: undefined } },
     { to: "/colleges", label: "Colleges", icon: GraduationCap },
+    { to: "/backup", label: "Backup", icon: ShieldCheck },
   ];
 
   // Aeline-style scroll: compact + frosted on scroll
@@ -104,16 +105,6 @@ export function HeaderNav() {
 
         {/* Right side */}
         <div className="flex items-center gap-2.5">
-          {/* Edit details — AI pill button */}
-          <Link to="/profile" className="hidden sm:block">
-            <button
-              type="button"
-              className="inline-flex items-center gap-1.5 rounded-full border border-violet-500/30 bg-violet-500/10 px-3.5 py-1.5 text-xs font-semibold text-violet-300 transition-all hover:border-violet-500/50 hover:bg-violet-500/20 hover:text-white"
-            >
-              <Sparkles className="size-3 text-violet-400" />
-              Edit details
-            </button>
-          </Link>
 
           {/* Profile dropdown */}
           <DropdownMenu>
@@ -158,22 +149,15 @@ export function HeaderNav() {
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuItem asChild className="rounded-lg text-xs font-medium hover:bg-primary/8 hover:text-primary">
-                <Link to="/roadmap" search={{ rec: undefined }} className="cursor-pointer gap-2">
-                  <Map className="size-3.5 text-primary" />
-                  My Career Roadmap
-                </Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem asChild className="rounded-lg text-xs font-medium hover:bg-primary/8 hover:text-primary">
                 <Link to="/colleges" className="cursor-pointer gap-2">
                   <GraduationCap className="size-3.5 text-primary" />
                   College Explorer
                 </Link>
               </DropdownMenuItem>
-
-              <DropdownMenuItem asChild className="rounded-lg text-xs font-medium hover:bg-violet-500/10 hover:text-violet-300">
-                <Link to="/profile" className="cursor-pointer gap-2">
-                  <Sparkles className="size-3.5 text-violet-400" />
-                  Edit Profile & AI Inputs
+              <DropdownMenuItem asChild className="rounded-lg text-xs font-medium hover:bg-emerald-500/10 hover:text-emerald-400">
+                <Link to="/backup" className="cursor-pointer gap-2">
+                  <ShieldCheck className="size-3.5 text-emerald-400" />
+                  Backup Pathways
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuSeparator className="my-1 bg-border/40" />
