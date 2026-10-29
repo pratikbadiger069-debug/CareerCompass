@@ -12,6 +12,7 @@ import {
   Lightbulb,
   Link2,
   Loader2,
+  MapPin,
   Map as MapIcon,
   Route as RouteIcon,
   ShieldCheck,
@@ -51,6 +52,7 @@ import { sendChatMessage } from "@/lib/chat.functions";
 import { getStaggerContainer, getFadeUp, getCardHover } from "@/lib/motion";
 import { RevealOnScroll } from "@/components/motion/RevealOnScroll";
 import { generateCareerRoadmap } from "@/lib/geminiApi";
+import { getUserLocation } from "@/lib/locationData";
 import {
   CAREER_PATHS,
   EXAM_CONNECTIONS,
@@ -427,6 +429,22 @@ function Dashboard() {
                 <p className="mt-1 text-xs text-muted-foreground">
                   {userProfile?.stream ? `Stream: ${userProfile.stream} • Goal: ${userProfile.goal_type || userProfile.career_goal || "Explore"}` : "AI guidance and career options tailored to your profile."}
                 </p>
+                {(() => {
+                  const loc = getUserLocation(user, userProfile);
+                  return (
+                    <div className="mt-2 flex items-center gap-2">
+                      <Link to="/profile" className="inline-flex">
+                        <Badge
+                          variant="outline"
+                          className="gap-1.5 border-primary/30 bg-primary/10 px-2.5 py-0.5 text-[11px] font-medium text-primary hover:bg-primary/20 transition-colors"
+                        >
+                          <MapPin className="size-3 text-primary" />
+                          {loc ? `${loc.city}, ${loc.state}` : "Location not set • Add in Profile"}
+                        </Badge>
+                      </Link>
+                    </div>
+                  );
+                })()}
               </div>
             </div>
 
@@ -655,7 +673,7 @@ function Dashboard() {
         </section>
 
         {/* ─── 2. Aligned Feature Hub Cards (4 Quick Action Cards) ─── */}
-        <section className="mb-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <section className="mb-10 grid gap-4 sm:grid-cols-3">
           <Link to="/roadmap" search={{ rec: undefined }}>
             <Card className="group h-full border-border/60 bg-card/70 transition-all hover:border-primary/50 hover:bg-card hover:shadow-md">
               <CardContent className="flex flex-col justify-between p-5 h-full">
@@ -681,27 +699,10 @@ function Dashboard() {
                     <GraduationCap className="size-5" />
                   </div>
                   <h3 className="font-bold text-base group-hover:text-primary transition-colors">College Explorer</h3>
-                  <p className="mt-1 text-xs text-muted-foreground leading-relaxed">Match top universities based on marks, stream & budget.</p>
+                  <p className="mt-1 text-xs text-muted-foreground leading-relaxed">Explore top universities and compare eligibility, fees & ratings side-by-side.</p>
                 </div>
                 <div className="mt-4 flex items-center gap-1 text-xs font-semibold text-primary">
                   Explore Colleges <ArrowRight className="size-3.5 transition-transform group-hover:translate-x-1" />
-                </div>
-              </CardContent>
-            </Card>
-          </Link>
-
-          <Link to="/compare">
-            <Card className="group h-full border-border/60 bg-card/70 transition-all hover:border-primary/50 hover:bg-card hover:shadow-md">
-              <CardContent className="flex flex-col justify-between p-5 h-full">
-                <div>
-                  <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-500">
-                    <BarChart3 className="size-5" />
-                  </div>
-                  <h3 className="font-bold text-base group-hover:text-primary transition-colors">College Comparer</h3>
-                  <p className="mt-1 text-xs text-muted-foreground leading-relaxed">Compare fees, entrance exams and ratings side by side.</p>
-                </div>
-                <div className="mt-4 flex items-center gap-1 text-xs font-semibold text-primary">
-                  Compare Now <ArrowRight className="size-3.5 transition-transform group-hover:translate-x-1" />
                 </div>
               </CardContent>
             </Card>

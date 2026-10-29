@@ -32,6 +32,8 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable/index";
 import { useAuth } from "@/hooks/useAuth";
+import { LocationSelectDialog } from "@/components/LocationSelectDialog";
+import { getUserLocation } from "@/lib/locationData";
 
 type AuthSearch = {
   mode?: "signin" | "signup";
@@ -163,6 +165,11 @@ function AuthPage() {
   const [resetEmail, setResetEmail] = useState("");
   const [resetBusy, setResetBusy] = useState(false);
 
+  // Location Collection Dialog state (prompt after login if missing)
+  const [locationDialogOpen, setLocationDialogOpen] = useState(false);
+  const [pendingUserId, setPendingUserId] = useState<string | null>(null);
+  const [pendingProfile, setPendingProfile] = useState<{ onboarding_completed?: boolean } | null>(null);
+
   // Password Strength Rules
   const hasMinLength = password.length >= 8;
   const hasUppercase = /[A-Z]/.test(password);
@@ -230,11 +237,29 @@ function AuthPage() {
   const checkOnboardingAndRedirect = async (userId: string) => {
     const { data: profile } = await supabase
       .from("user_profiles")
-      .select("onboarding_completed")
+      .select("onboarding_completed, target_country")
       .eq("user_id", userId)
       .maybeSingle();
 
+    // Check if location is missing; if so, ask user before redirecting
+    const savedLoc = getUserLocation(user, profile);
+    if (!savedLoc) {
+      setPendingUserId(userId);
+      setPendingProfile(profile);
+      setLocationDialogOpen(true);
+      return;
+    }
+
     if (profile?.onboarding_completed) {
+      navigate({ to: "/dashboard", replace: true });
+    } else {
+      navigate({ to: "/onboarding", replace: true });
+    }
+  };
+
+  const handleLocationComplete = () => {
+    setLocationDialogOpen(false);
+    if (pendingProfile?.onboarding_completed) {
       navigate({ to: "/dashboard", replace: true });
     } else {
       navigate({ to: "/onboarding", replace: true });
@@ -943,6 +968,16 @@ function AuthPage() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Location prompt during login/signup if missing */}
+      <LocationSelectDialog
+        open={locationDialogOpen}
+        onOpenChange={setLocationDialogOpen}
+        userId={pendingUserId}
+        canSkip={true}
+        onSaved={handleLocationComplete}
+        onSkip={handleLocationComplete}
+      />
     </main>
   );
 }

@@ -32,6 +32,13 @@ import type { Tables } from "@/integrations/supabase/types";
 import { useAuth } from "@/hooks/useAuth";
 import { generateCareerRoadmap } from "@/lib/geminiApi";
 import { HeaderNav } from "@/components/HeaderNav";
+import {
+  INDIAN_STATES,
+  INDIAN_STATES_AND_CITIES,
+  getUserLocation,
+  saveUserLocation,
+} from "@/lib/locationData";
+import { MapPin } from "lucide-react";
 
 const EDUCATION_STAGES = [
   { value: "class_10", label: "Class 10" },
@@ -128,6 +135,8 @@ function ProfilePage() {
   const [timeline, setTimeline] = useState("");
   const [careerGoals, setCareerGoals] = useState("");
   const [extraContext, setExtraContext] = useState("");
+  const [selectedState, setSelectedState] = useState("");
+  const [selectedCity, setSelectedCity] = useState("");
 
   useEffect(() => {
     if (!user || isGuest) {
@@ -158,6 +167,11 @@ function ProfilePage() {
           setTimeline(data.timeline ?? "");
           setCareerGoals(data.career_goals ?? data.career_goal ?? "");
           setExtraContext(data.extra_context ?? "");
+          const userLoc = getUserLocation(user, data);
+          if (userLoc) {
+            setSelectedState(userLoc.state);
+            setSelectedCity(userLoc.city);
+          }
         }
       } catch (err) {
         console.error("[Profile] Exception loading profile:", err);
@@ -197,6 +211,7 @@ function ProfilePage() {
       career_goals: careerGoals.trim() || null,
       career_goal: careerGoals.trim() || null,
       extra_context: extraContext.trim() || null,
+      target_country: selectedState && selectedCity ? `${selectedCity}, ${selectedState}` : null,
       updated_at: new Date().toISOString(),
     };
   };
@@ -215,6 +230,9 @@ function ProfilePage() {
       if (error) {
         toast.error(`Failed to save profile: ${error.message}`);
       } else {
+        if (selectedState && selectedCity) {
+          await saveUserLocation(supabase, user.id, selectedState, selectedCity);
+        }
         toast.success("Profile updated successfully!");
       }
     } catch (err) {
@@ -241,6 +259,10 @@ function ProfilePage() {
 
       if (saveErr)
         throw new Error(`Failed to update profile before regeneration: ${saveErr.message}`);
+
+      if (selectedState && selectedCity) {
+        await saveUserLocation(supabase, user.id, selectedState, selectedCity);
+      }
 
       // 2. Delete existing milestones and recommendations
       const { error: milestonesDeleteError } = await supabase
@@ -448,6 +470,62 @@ function ProfilePage() {
             </CardHeader>
 
             <CardContent className="p-6 space-y-6">
+              {/* Location: State & City */}
+              <div className="rounded-xl border border-border/60 bg-muted/20 p-4 space-y-3">
+                <div className="flex items-center gap-2">
+                  <MapPin className="size-4 text-primary" />
+                  <span className="text-xs font-semibold text-foreground">Your Location (State & City)</span>
+                </div>
+                <p className="text-[11px] text-muted-foreground">
+                  Used throughout CareerCompass to filter relevant colleges, local entrance exams, and opportunities.
+                </p>
+                <div className="grid gap-4 sm:grid-cols-2 pt-1">
+                  <div className="space-y-1.5">
+                    <Label htmlFor="profile_state" className="text-xs font-medium">State / Region</Label>
+                    <Select
+                      value={selectedState}
+                      onValueChange={(val) => {
+                        setSelectedState(val);
+                        if (selectedCity && !INDIAN_STATES_AND_CITIES[val]?.includes(selectedCity)) {
+                          setSelectedCity("");
+                        }
+                      }}
+                    >
+                      <SelectTrigger id="profile_state" className="text-xs">
+                        <SelectValue placeholder="Select state" />
+                      </SelectTrigger>
+                      <SelectContent className="max-h-60">
+                        {INDIAN_STATES.map((st) => (
+                          <SelectItem key={st} value={st} className="text-xs">
+                            {st}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <Label htmlFor="profile_city" className="text-xs font-medium">City</Label>
+                    <Select
+                      value={selectedCity}
+                      onValueChange={setSelectedCity}
+                      disabled={!selectedState}
+                    >
+                      <SelectTrigger id="profile_city" className="text-xs">
+                        <SelectValue placeholder={selectedState ? "Select city" : "Select a state first"} />
+                      </SelectTrigger>
+                      <SelectContent className="max-h-60">
+                        {(selectedState ? INDIAN_STATES_AND_CITIES[selectedState] ?? [] : []).map((ct) => (
+                          <SelectItem key={ct} value={ct} className="text-xs">
+                            {ct}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+              </div>
+
               {/* Row 1: Stage & Stream */}
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="space-y-2">

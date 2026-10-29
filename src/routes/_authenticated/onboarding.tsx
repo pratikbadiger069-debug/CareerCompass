@@ -20,6 +20,13 @@ import { useAuth } from "@/hooks/useAuth";
 import { cn } from "@/lib/utils";
 import { usePrefersReducedMotion } from "@/hooks/use-reduced-motion";
 import { getScaleOnHover, getFadeUp, getStaggerContainer } from "@/lib/motion";
+import {
+  INDIAN_STATES,
+  INDIAN_STATES_AND_CITIES,
+  getUserLocation,
+  saveUserLocation,
+} from "@/lib/locationData";
+import { MapPin } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/onboarding")({
   head: () => ({
@@ -107,6 +114,8 @@ const TOTAL_STEPS = 5;
 
 type FormState = {
   education_stage: string;
+  state: string;
+  city: string;
   stream: string;
   current_marks: string;
   institution_name: string;
@@ -121,6 +130,8 @@ type FormState = {
 
 const EMPTY: FormState = {
   education_stage: "",
+  state: "",
+  city: "",
   stream: "",
   current_marks: "",
   institution_name: "",
@@ -151,15 +162,18 @@ function Onboarding() {
     supabase
       .from("user_profiles")
       .select(
-        "education_stage, stream, current_marks, institution_name, interests, current_skills, goal_type, budget_range, timeline, career_goal, extra_context",
+        "education_stage, stream, current_marks, institution_name, interests, current_skills, goal_type, budget_range, timeline, career_goal, extra_context, target_country",
       )
       .eq("user_id", user.id)
       .maybeSingle()
       .then(({ data }) => {
         if (!active || !data) return;
+        const loc = getUserLocation(user, data);
         setForm((prev) => ({
           ...prev,
           education_stage: data.education_stage ?? "",
+          state: loc?.state ?? "",
+          city: loc?.city ?? "",
           stream: data.stream ?? "",
           current_marks: data.current_marks ?? "",
           institution_name: data.institution_name ?? "",
@@ -200,7 +214,7 @@ function Onboarding() {
   }
 
   const canContinue =
-    (step === 1 && !!form.education_stage) ||
+    (step === 1 && !!form.education_stage && !!form.state && !!form.city) ||
     (step === 2 && !!form.stream) ||
     (step === 3 && form.interests.length > 0) ||
     (step === 4 && !!form.goal_type && !!form.budget_range && !!form.timeline) ||
@@ -209,6 +223,11 @@ function Onboarding() {
   async function submit() {
     if (!user) return;
     setSaving(true);
+
+    if (form.state && form.city) {
+      await saveUserLocation(supabase, user.id, form.state, form.city);
+    }
+
     const { error } = await supabase.from("user_profiles").upsert(
       {
         user_id: user.id,
@@ -223,6 +242,7 @@ function Onboarding() {
         timeline: form.timeline,
         career_goal: form.career_goal.trim(),
         extra_context: form.extra_context.trim() || null,
+        target_country: form.state && form.city ? `${form.city}, ${form.state}` : null,
         onboarding_completed: true,
       },
       { onConflict: "user_id" },
@@ -286,6 +306,7 @@ function Onboarding() {
             transition={{ duration: prefersReduced ? 0 : 0.2 }}
           >
             {step === 1 && (
+              <>
               <motion.div
                 variants={stagger}
                 initial="hidden"
@@ -317,6 +338,69 @@ function Onboarding() {
                   );
                 })}
               </motion.div>
+
+              {/* Location Select (State and dependent City) */}
+              <div className="mt-6 rounded-2xl border border-violet-500/20 bg-violet-500/5 p-5">
+                <div className="mb-3.5 flex items-center gap-2.5">
+                  <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-violet-500/20 text-violet-300">
+                    <MapPin className="size-4" />
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-semibold">Your Location</h3>
+                    <p className="text-[11px] text-muted-foreground">
+                      We match top degree colleges and entrance exams in your region.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <div className="space-y-1.5">
+                    <Label htmlFor="onboarding-state" className="text-xs font-medium">State / UT *</Label>
+                    <Select
+                      value={form.state}
+                      onValueChange={(val) => {
+                        set("state", val);
+                        const cities = INDIAN_STATES_AND_CITIES[val] ?? [];
+                        if (!cities.includes(form.city)) {
+                          set("city", "");
+                        }
+                      }}
+                    >
+                      <SelectTrigger id="onboarding-state" className="h-10 text-xs rounded-xl bg-charcoal-mid border-white/10">
+                        <SelectValue placeholder="Select state" />
+                      </SelectTrigger>
+                      <SelectContent className="max-h-56 bg-charcoal-mid border-white/10 text-xs">
+                        {INDIAN_STATES.map((s) => (
+                          <SelectItem key={s} value={s} className="text-xs">
+                            {s}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <Label htmlFor="onboarding-city" className="text-xs font-medium">City *</Label>
+                    <Select
+                      value={form.city}
+                      onValueChange={(val) => set("city", val)}
+                      disabled={!form.state}
+                    >
+                      <SelectTrigger id="onboarding-city" className="h-10 text-xs rounded-xl bg-charcoal-mid border-white/10 disabled:opacity-50">
+                        <SelectValue placeholder={form.state ? "Select city" : "Select state first"} />
+                      </SelectTrigger>
+                      <SelectContent className="max-h-56 bg-charcoal-mid border-white/10 text-xs">
+                        {(INDIAN_STATES_AND_CITIES[form.state] ?? []).map((c) => (
+                          <SelectItem key={c} value={c} className="text-xs">
+                            {c}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+              </div>
+            </>
             )}
 
             {step === 2 && (

@@ -48,7 +48,6 @@ export function HeaderNav() {
     { to: "/dashboard", label: "Dashboard", icon: Compass },
     { to: "/roadmap", label: "Roadmap", icon: Map, search: { rec: undefined } },
     { to: "/colleges", label: "Colleges", icon: GraduationCap },
-    { to: "/compare", label: "Compare", icon: BarChart3 },
   ];
 
   // Aeline-style scroll: compact + frosted on scroll
@@ -170,12 +169,7 @@ export function HeaderNav() {
                   College Explorer
                 </Link>
               </DropdownMenuItem>
-              <DropdownMenuItem asChild className="rounded-lg text-xs font-medium hover:bg-primary/8 hover:text-primary">
-                <Link to="/compare" className="cursor-pointer gap-2">
-                  <BarChart3 className="size-3.5 text-primary" />
-                  Compare Careers
-                </Link>
-              </DropdownMenuItem>
+
               <DropdownMenuItem asChild className="rounded-lg text-xs font-medium hover:bg-violet-500/10 hover:text-violet-300">
                 <Link to="/profile" className="cursor-pointer gap-2">
                   <Sparkles className="size-3.5 text-violet-400" />
