@@ -23,10 +23,17 @@ const publicBackendKey =
   "sb_publishable__1W5giL_316aHMismZmiWQ_YAoa7HRv";
 
 export default defineConfig({
+  nitro: {
+    preset: process.env["VERCEL"] ? "vercel" : (process.env["NITRO_PRESET"] || undefined),
+  },
   vite: {
     define: {
       "import.meta.env.VITE_SUPABASE_URL": JSON.stringify(publicBackendUrl),
       "import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY": JSON.stringify(publicBackendKey),
+      "process.env.SUPABASE_URL": JSON.stringify(publicBackendUrl),
+      "process.env.SUPABASE_PUBLISHABLE_KEY": JSON.stringify(publicBackendKey),
+      "process.env.VITE_SUPABASE_URL": JSON.stringify(publicBackendUrl),
+      "process.env.VITE_SUPABASE_PUBLISHABLE_KEY": JSON.stringify(publicBackendKey),
     },
   },
   tanstackStart: {

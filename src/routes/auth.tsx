@@ -37,6 +37,7 @@ type AuthSearch = {
   mode?: "signin" | "signup";
   error?: string | undefined;
   error_description?: string | undefined;
+  code?: string | undefined;
 };
 
 export const Route = createFileRoute("/auth")({
@@ -45,6 +46,7 @@ export const Route = createFileRoute("/auth")({
     error: typeof search["error"] === "string" ? search["error"] : undefined,
     error_description:
       typeof search["error_description"] === "string" ? search["error_description"] : undefined,
+    code: typeof search["code"] === "string" ? search["code"] : undefined,
   }),
   head: () => ({
     meta: [
@@ -136,7 +138,7 @@ function parseOAuthError(raw: unknown): { title: string; message: string; isConf
 }
 
 function AuthPage() {
-  const { mode, error: searchError, error_description: searchErrorDesc } = Route.useSearch();
+  const { mode, error: searchError, error_description: searchErrorDesc, code } = Route.useSearch();
   const navigate = useNavigate();
   const { user, isAuthenticated, loading } = useAuth();
 
@@ -168,6 +170,27 @@ function AuthPage() {
   const hasNumber = /[0-9]/.test(password);
   const isPasswordValid = hasMinLength && hasUppercase && hasLowercase && hasNumber;
   const passwordsMatch = password === confirmPassword;
+
+  // Handle OAuth code exchange callback (for standalone Vercel deployments)
+  useEffect(() => {
+    if (code) {
+      setBusy(true);
+      supabase.auth.exchangeCodeForSession(code).then(async ({ data, error }) => {
+        setBusy(false);
+        if (error) {
+          console.error("OAuth code exchange error:", error);
+          const parsed = parseOAuthError(error);
+          if (parsed.isConfigError) {
+            setOauthConfigError(parsed.message);
+          }
+          toast.error(`Authentication error: ${error.message}`);
+        } else if (data?.user) {
+          toast.success("Successfully signed in!");
+          await checkOnboardingAndRedirect(data.user.id);
+        }
+      });
+    }
+  }, [code]);
 
   // Catch search and hash errors from OAuth redirects
   useEffect(() => {

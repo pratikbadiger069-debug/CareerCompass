@@ -4,6 +4,13 @@ import { supabase } from "@/integrations/supabase/client";
 export const Route = createFileRoute("/_authenticated")({
   ssr: false,
   beforeLoad: async ({ location }) => {
+    // In SSR (server-side rendering), browser storage (localStorage) is not accessible.
+    // Allow the initial shell to render on the server so the browser can hydrate
+    // and verify authentication from localStorage on the client.
+    if (typeof window === "undefined") {
+      return { user: null, onboardingCompleted: false };
+    }
+
     const { data, error } = await supabase.auth.getUser();
     if (error || !data.user) throw redirect({ to: "/auth" });
 
