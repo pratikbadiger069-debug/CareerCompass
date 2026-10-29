@@ -194,72 +194,147 @@ export async function generateRoadmapFromProfile(
   }
 
   const isLovable = Boolean(lovableKey);
-  const apiKey = lovableKey || geminiKey;
-  const endpoint = isLovable
-    ? "https://ai.gateway.lovable.dev/v1/chat/completions"
-    : "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions";
+  const apiKey = (lovableKey || geminiKey)!;
   const model = isLovable
     ? "google/gemini-2.5-flash"
     : (process.env["GEMINI_MODEL"] || "gemini-2.0-flash");
 
-  const response = await fetch(endpoint, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${apiKey}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      model,
-      response_format: {
-        type: "json_schema",
-        json_schema: {
-          name: "career_compass_plan",
-          strict: true,
-          schema: CAREER_COMPASS_SCHEMA,
-        },
-      },
-      messages: [
-        { role: "system", content: CAREER_COMPASS_SYSTEM_PROMPT },
-        {
-          role: "user",
-          content: `Student profile (JSON):\n${JSON.stringify(userProfile, null, 2)}\n\nReturn only the JSON object described in your instructions.`,
-        },
-      ],
-    }),
-  });
+  let rawContent: string | null = null;
 
-  if (!response.ok) {
-    const body = await response.text();
-    console.error(`[generate-roadmap] AI request failed [${response.status}]: ${body}`);
-    if (response.status === 401 || response.status === 403) {
-      throw new Error(
-        "AI authentication failed. Please verify that your LOVABLE_API_KEY or GEMINI_API_KEY is valid.",
-      );
+  // 1. Try Primary Endpoint (Lovable Gateway or Gemini OpenAI-compatible)
+  if (isLovable) {
+    const endpoint = "https://ai.gateway.lovable.dev/v1/chat/completions";
+    try {
+      const response = await fetch(endpoint, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${apiKey}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          model,
+          response_format: {
+            type: "json_schema",
+            json_schema: {
+              name: "career_compass_plan",
+              strict: true,
+              schema: CAREER_COMPASS_SCHEMA,
+            },
+          },
+          messages: [
+            { role: "system", content: CAREER_COMPASS_SYSTEM_PROMPT },
+            {
+              role: "user",
+              content: `Student profile (JSON):\n${JSON.stringify(userProfile, null, 2)}\n\nReturn only the JSON object described in your instructions.`,
+            },
+          ],
+        }),
+      });
+
+      if (response.ok) {
+        const payload = (await response.json()) as { choices?: Array<{ message?: { content?: string } }> };
+        rawContent = payload.choices?.[0]?.message?.content ?? null;
+      } else {
+        const errBody = await response.text();
+        console.warn(`[generate-roadmap] Lovable json_schema failed [${response.status}], trying json_object: ${errBody}`);
+      }
+    } catch (e) {
+      console.warn("[generate-roadmap] Lovable gateway error:", e);
     }
-    if (response.status === 429) {
-      throw new Error("AI rate limit reached. Please wait a moment and try again.");
+  } else {
+    // Google Gemini OpenAI Compatibility Endpoint
+    // Note: Gemini OpenAI proxy requires type: 'json_object' (not 'json_schema')
+    const endpoint = "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions";
+    try {
+      const response = await fetch(endpoint, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${apiKey}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          model,
+          response_format: { type: "json_object" },
+          messages: [
+            { role: "system", content: CAREER_COMPASS_SYSTEM_PROMPT },
+            {
+              role: "user",
+              content: `Student profile (JSON):\n${JSON.stringify(userProfile, null, 2)}\n\nReturn strictly valid JSON matching the instructions.`,
+            },
+          ],
+        }),
+      });
+
+      if (response.ok) {
+        const payload = (await response.json()) as { choices?: Array<{ message?: { content?: string } }> };
+        rawContent = payload.choices?.[0]?.message?.content ?? null;
+      } else {
+        const errText = await response.text();
+        console.warn(`[generate-roadmap] Gemini OpenAI endpoint error [${response.status}]: ${errText}`);
+      }
+    } catch (e) {
+      console.warn("[generate-roadmap] Gemini OpenAI request error:", e);
     }
-    if (response.status === 402) {
-      throw new Error("AI credits exhausted. Please replenish credits on your AI provider account.");
-    }
-    throw new Error(`AI request failed [${response.status}]. Please check your AI configuration.`);
   }
 
-  const payload = (await response.json()) as {
-    choices?: Array<{ message?: { content?: string } }>;
-  };
-  const content = payload.choices?.[0]?.message?.content;
-  if (!content) throw new Error("AI returned an empty response.");
+  // 2. Fallback to Google Gemini Native REST API if rawContent is still null
+  if (!rawContent && geminiKey) {
+    try {
+      console.log("[generate-roadmap] Attempting fallback to Gemini Native generateContent API...");
+      const nativeEndpoint = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${geminiKey}`;
+      const response = await fetch(nativeEndpoint, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          contents: [
+            {
+              role: "user",
+              parts: [
+                {
+                  text: `${CAREER_COMPASS_SYSTEM_PROMPT}\n\nStudent profile (JSON):\n${JSON.stringify(userProfile, null, 2)}\n\nReturn strictly valid JSON matching the schema.`,
+                },
+              ],
+            },
+          ],
+          generationConfig: {
+            responseMimeType: "application/json",
+          },
+        }),
+      });
 
+      if (response.ok) {
+        const nativePayload = (await response.json()) as {
+          candidates?: Array<{ content?: { parts?: Array<{ text?: string }> } }>;
+        };
+        rawContent = nativePayload.candidates?.[0]?.content?.parts?.[0]?.text ?? null;
+      } else {
+        const nativeErr = await response.text();
+        console.error(`[generate-roadmap] Gemini native generateContent failed [${response.status}]: ${nativeErr}`);
+      }
+    } catch (nativeExc) {
+      console.error("[generate-roadmap] Exception in Gemini native fallback:", nativeExc);
+    }
+  }
+
+  if (!rawContent) {
+    throw new Error(
+      "AI service was unable to generate a response. Please check that your GEMINI_API_KEY or LOVABLE_API_KEY is active and valid.",
+    );
+  }
+
+  // Parse JSON with robust recovery
+  let parsed: RoadmapResult;
   try {
-    const parsed = JSON.parse(content) as RoadmapResult;
-    console.log("[generate-roadmap] Parsed keys:", Object.keys(parsed));
-    console.log("[generate-roadmap] Full content:", content);
-    return parsed;
+    parsed = JSON.parse(rawContent) as RoadmapResult;
   } catch {
-    const match = content.match(/\{[\s\S]*\}/);
-    if (match) return JSON.parse(match[0]) as RoadmapResult;
-    console.error("[generate-roadmap] Unparseable AI content:", content.slice(0, 500));
-    throw new Error("AI returned malformed JSON.");
+    const match = rawContent.match(/\{[\s\S]*\}/);
+    if (match) {
+      parsed = JSON.parse(match[0]) as RoadmapResult;
+    } else {
+      console.error("[generate-roadmap] Malformed JSON from AI:", rawContent.slice(0, 500));
+      throw new Error("AI returned malformed JSON.");
+    }
   }
+
+  return parsed;
 }

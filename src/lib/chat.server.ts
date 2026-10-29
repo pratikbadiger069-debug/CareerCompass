@@ -63,47 +63,80 @@ export async function sendMessage(
       ? "google/gemini-2.5-flash"
       : (process.env["GEMINI_MODEL"] || "gemini-2.0-flash");
 
-    const response = await fetch(gatewayUrl, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${apiKey}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model,
-        messages: [
-          { role: "system", content: systemPrompt },
-          ...safeHistory,
-          { role: "user", content: message },
-        ],
-      }),
-    });
+    let reply: string | undefined;
 
-    if (!response.ok) {
-      const errText = await response.text();
-      console.error(`[chat.server] AI Gateway Error (${response.status}):`, errText);
-      if (response.status === 401 || response.status === 403) {
-        return {
-          reply:
-            "AI authentication failed. Please verify that your LOVABLE_API_KEY or GEMINI_API_KEY is valid.",
+    // 1. Try OpenAI-compatible chat gateway
+    try {
+      const response = await fetch(gatewayUrl, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${apiKey}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          model,
+          messages: [
+            { role: "system", content: systemPrompt },
+            ...safeHistory,
+            { role: "user", content: message },
+          ],
+        }),
+      });
+
+      if (response.ok) {
+        const payload = (await response.json()) as {
+          choices?: Array<{ message?: { content?: string } }>;
         };
+        reply = payload.choices?.[0]?.message?.content?.trim();
+      } else {
+        const errText = await response.text();
+        console.warn(`[chat.server] AI Gateway Error (${response.status}): ${errText}`);
       }
-      if (response.status === 429) {
-        return { reply: "AI rate limit reached. Please wait a moment and try asking again." };
-      }
-      if (response.status === 402) {
-        return { reply: "AI credits exhausted. Please check your AI provider account credits." };
-      }
-      return { reply: `AI service returned an error (${response.status}). Please try again shortly.` };
+    } catch (gatewayErr) {
+      console.warn("[chat.server] Gateway fetch exception:", gatewayErr);
     }
 
-    const payload = (await response.json()) as {
-      choices?: Array<{ message?: { content?: string } }>;
-    };
+    // 2. Fallback to Gemini Native REST API if reply is empty and geminiKey is available
+    if (!reply && geminiKey) {
+      try {
+        console.log("[chat.server] Calling Gemini Native generateContent fallback...");
+        const nativeEndpoint = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${geminiKey}`;
+        const geminiRes = await fetch(nativeEndpoint, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            contents: [
+              {
+                role: "user",
+                parts: [
+                  {
+                    text: `${systemPrompt}\n\nConversation History:\n${safeHistory.map((h) => `${h.role}: ${h.content}`).join('\n')}\n\nUser: ${message}`,
+                  },
+                ],
+              },
+            ],
+          }),
+        });
 
-    const reply = payload.choices?.[0]?.message?.content?.trim();
+        if (geminiRes.ok) {
+          const nativeData = (await geminiRes.json()) as {
+            candidates?: Array<{ content?: { parts?: Array<{ text?: string }> } }>;
+          };
+          reply = nativeData.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
+        } else {
+          const nativeErr = await geminiRes.text();
+          console.error(`[chat.server] Gemini native fallback failed (${geminiRes.status}): ${nativeErr}`);
+        }
+      } catch (nativeExc) {
+        console.error("[chat.server] Exception in Gemini native fallback:", nativeExc);
+      }
+    }
+
     if (!reply) {
-      return { reply: "The AI assistant returned an empty response. Please try rephrasing your question." };
+      return {
+        reply:
+          "The AI assistant is temporarily unavailable. Please verify that GEMINI_API_KEY (from https://aistudio.google.com/) or LOVABLE_API_KEY is configured in your .env file with active quota.",
+      };
     }
 
     return { reply };

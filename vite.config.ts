@@ -13,6 +13,20 @@ import { loadEnv } from "vite";
 // the app from crashing when the deployment environment does not provide them.
 const mode = process.env["NODE_ENV"] === "development" ? "development" : "production";
 const env = loadEnv(mode, process.cwd(), "");
+
+// Ensure server functions and SSR have access to backend and AI keys loaded from .env
+for (const key of [
+  "LOVABLE_API_KEY",
+  "GEMINI_API_KEY",
+  "GOOGLE_API_KEY",
+  "GEMINI_MODEL",
+  "SUPABASE_URL",
+  "SUPABASE_PUBLISHABLE_KEY",
+]) {
+  if (env[key] && !process.env[key]) {
+    process.env[key] = env[key];
+  }
+}
 const publicBackendUrl =
   process.env["VITE_SUPABASE_URL"] ??
   env["VITE_SUPABASE_URL"] ??

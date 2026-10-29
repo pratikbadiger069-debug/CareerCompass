@@ -3,8 +3,8 @@ import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import {
   BarChart3,
   Compass,
+  Database,
   GraduationCap,
-  ShieldCheck,
   LogOut,
   Map,
   User as UserIcon,
@@ -48,7 +48,7 @@ export function HeaderNav() {
   const navLinks = [
     { to: "/dashboard", label: "Dashboard", icon: Compass },
     { to: "/colleges", label: "Colleges", icon: GraduationCap },
-    { to: "/backup", label: "Backup", icon: ShieldCheck },
+    { to: "/backup", label: "Backup", icon: Database },
   ];
 
   // Aeline-style scroll: compact + frosted on scroll
@@ -156,8 +156,8 @@ export function HeaderNav() {
               </DropdownMenuItem>
               <DropdownMenuItem asChild className="rounded-lg text-xs font-medium hover:bg-emerald-500/10 hover:text-emerald-400">
                 <Link to="/backup" className="cursor-pointer gap-2">
-                  <ShieldCheck className="size-3.5 text-emerald-400" />
-                  Backup Pathways
+                  <Database className="size-3.5 text-primary" />
+                  Data Backup & Restore
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuSeparator className="my-1 bg-border/40" />

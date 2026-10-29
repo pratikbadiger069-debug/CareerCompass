@@ -409,5 +409,395 @@ export const ALL_INDIAN_COLLEGES: CollegeItem[] = [
     rating: "4.6/5",
     careerTitle: "Backend Developer / Network Architect",
   },
+  {
+  "id": "vnit-nagpur",
+  "name": "Visvesvaraya National Institute of Technology (VNIT)",
+  "course": "B.Tech Computer Science / Mechanical",
+  "city": "Nagpur",
+  "state": "Maharashtra",
+  "fees_total": "₹6.4 Lakhs (4 Years)",
+  "entrance": "JEE Main",
+  "why": "Top tier NIT in Central India known for rigorous academics, high campus placements, and strong research output.",
+  "category": "Engineering",
+  "rating": "4.6/5",
+  "careerTitle": "Software Developer / Structural Engineer"
+},
+  {
+  "id": "dy-patil-navimumbai",
+  "name": "D.Y. Patil University",
+  "course": "B.Tech AI & Data Science / BBA / MBBS",
+  "city": "Navi Mumbai",
+  "state": "Maharashtra",
+  "fees_total": "₹9.5 Lakhs (4 Years)",
+  "entrance": "MHT-CET / JEE Main / NEET",
+  "why": "Modern multidisciplinary campus in Navi Mumbai with state-of-the-art sports, medical, and engineering infrastructure.",
+  "category": "Engineering",
+  "rating": "4.3/5",
+  "careerTitle": "Data Analyst / Healthcare Specialist"
+},
+  {
+  "id": "kbt-nashik",
+  "name": "MVP's KBT College of Engineering",
+  "course": "B.Tech Information Technology / Mechanical",
+  "city": "Nashik",
+  "state": "Maharashtra",
+  "fees_total": "₹3.8 Lakhs (4 Years)",
+  "entrance": "MHT-CET / JEE Main",
+  "why": "Prominent regional engineering institute with solid industrial collaboration across Nashik manufacturing hub.",
+  "category": "Engineering",
+  "rating": "4.2/5",
+  "careerTitle": "Systems Engineer / Industrial Developer"
+},
+  {
+  "id": "geca-aurangabad",
+  "name": "Government College of Engineering, Aurangabad",
+  "course": "B.Tech Civil / Computer Science / Electrical",
+  "city": "Aurangabad",
+  "state": "Maharashtra",
+  "fees_total": "₹2.9 Lakhs (4 Years)",
+  "entrance": "MHT-CET",
+  "why": "Autonomous government institution offering affordable engineering education with solid core placement records.",
+  "category": "Engineering",
+  "rating": "4.3/5",
+  "careerTitle": "Core Engineer / Government Technical Officer"
+},
+  {
+  "id": "dtu-delhi",
+  "name": "Delhi Technological University (DTU / DCE)",
+  "course": "B.Tech Software Engineering / CSE",
+  "city": "New Delhi",
+  "state": "Delhi (NCR)",
+  "fees_total": "₹7.8 Lakhs (4 Years)",
+  "entrance": "JEE Main",
+  "why": "Iconic premier engineering university renowned for stellar tech placements, vibrant hackathons, and high ROI.",
+  "category": "Engineering",
+  "rating": "4.8/5",
+  "careerTitle": "Full Stack Engineer / Algorithm Developer"
+},
+  {
+  "id": "nsut-delhi",
+  "name": "Netaji Subhas University of Technology (NSUT)",
+  "course": "B.Tech Computer Engineering / AI",
+  "city": "New Delhi",
+  "state": "Delhi (NCR)",
+  "fees_total": "₹8.2 Lakhs (4 Years)",
+  "entrance": "JEE Main",
+  "why": "Top tier technical institution in Dwarka with top software placements matching premier IITs.",
+  "category": "Engineering",
+  "rating": "4.7/5",
+  "careerTitle": "Software Architect / Machine Learning Engineer"
+},
+  {
+  "id": "aiims-delhi",
+  "name": "All India Institute of Medical Sciences (AIIMS)",
+  "course": "MBBS / MD",
+  "city": "New Delhi",
+  "state": "Delhi (NCR)",
+  "fees_total": "₹6,000 (5.5 Years)",
+  "entrance": "NEET UG",
+  "why": "The #1 medical institution in India with unparalleled clinical exposure, research funding, and global prestige.",
+  "category": "Medical",
+  "rating": "5.0/5",
+  "careerTitle": "Physician / Medical Researcher"
+},
+  {
+  "id": "jiit-noida",
+  "name": "Jaypee Institute of Information Technology (JIIT)",
+  "course": "B.Tech Computer Science / IT",
+  "city": "Noida",
+  "state": "Delhi (NCR)",
+  "fees_total": "₹12.5 Lakhs (4 Years)",
+  "entrance": "JEE Main / Merit",
+  "why": "Premier private tech hub situated directly in Noida IT corridor with consistent Fortune 500 recruiting.",
+  "category": "Engineering",
+  "rating": "4.4/5",
+  "careerTitle": "DevOps Engineer / Cloud Consultant"
+},
+  {
+  "id": "mdi-gurugram",
+  "name": "Management Development Institute (MDI)",
+  "course": "PGDM / Executive MBA",
+  "city": "Gurugram",
+  "state": "Delhi (NCR)",
+  "fees_total": "₹24 Lakhs (2 Years)",
+  "entrance": "CAT",
+  "why": "Top 10 business school in India strategically located in the Millennium City cyber hub with stellar corporate access.",
+  "category": "Management",
+  "rating": "4.8/5",
+  "careerTitle": "Management Consultant / Strategy Lead"
+},
+  {
+  "id": "nitk-surathkal",
+  "name": "National Institute of Technology Karnataka (NITK) Surathkal",
+  "course": "B.Tech Computer Science / Electronics & Communication",
+  "city": "Mangaluru",
+  "state": "Karnataka",
+  "fees_total": "₹6.3 Lakhs (4 Years)",
+  "entrance": "JEE Main",
+  "why": "Ranked among top 3 NITs in India with private beach access, stellar global placements, and world-class labs.",
+  "category": "Engineering",
+  "rating": "4.8/5",
+  "careerTitle": "Backend Architect / Embedded Systems Lead"
+},
+  {
+  "id": "sjce-mysuru",
+  "name": "Sri Jayachamarajendra College of Engineering (JSS STU)",
+  "course": "B.E. Computer Science / Electronics",
+  "city": "Mysuru",
+  "state": "Karnataka",
+  "fees_total": "₹4.5 Lakhs (4 Years)",
+  "entrance": "KCET / COMEDK",
+  "why": "Historic engineering college in Mysuru with large campus, deep industrial alumni, and strong tech recruiting.",
+  "category": "Engineering",
+  "rating": "4.4/5",
+  "careerTitle": "Software Developer / VLSI Engineer"
+},
+  {
+  "id": "nit-trichy",
+  "name": "National Institute of Technology (NIT) Tiruchirappalli",
+  "course": "B.Tech Computer Science / Mechanical",
+  "city": "Tiruchirappalli",
+  "state": "Tamil Nadu",
+  "fees_total": "₹6.5 Lakhs (4 Years)",
+  "entrance": "JEE Main",
+  "why": "Ranked #1 NIT in India consistently with massive industry reputation, high packages, and prestigious alumni network.",
+  "category": "Engineering",
+  "rating": "4.9/5",
+  "careerTitle": "Quantitative Analyst / Systems Architect"
+},
+  {
+  "id": "vit-vellore",
+  "name": "Vellore Institute of Technology (VIT)",
+  "course": "B.Tech Computer Science (Specializations in AI / Cloud / Cyber)",
+  "city": "Vellore",
+  "state": "Tamil Nadu",
+  "fees_total": "₹9.2 Lakhs (4 Years)",
+  "entrance": "VITEEE",
+  "why": "Huge campus with flexible credit system, diverse international partnerships, and immense placement volume.",
+  "category": "Engineering",
+  "rating": "4.6/5",
+  "careerTitle": "Full Stack Engineer / Cyber Security Analyst"
+},
+  {
+  "id": "psg-coimbatore",
+  "name": "PSG College of Technology",
+  "course": "B.Tech Robotics & Automation / CSE",
+  "city": "Coimbatore",
+  "state": "Tamil Nadu",
+  "fees_total": "₹3.5 Lakhs (4 Years)",
+  "entrance": "TNEA",
+  "why": "Premier institution pioneering industry-integrated engineering with unique on-campus commercial manufacturing units.",
+  "category": "Engineering",
+  "rating": "4.7/5",
+  "careerTitle": "Robotics Engineer / Automation Architect"
+},
+  {
+  "id": "iim-lucknow",
+  "name": "Indian Institute of Management (IIM) Lucknow",
+  "course": "PGP in Management / Agribusiness",
+  "city": "Lucknow",
+  "state": "Uttar Pradesh",
+  "fees_total": "₹21 Lakhs (2 Years)",
+  "entrance": "CAT",
+  "why": "Top echelon IIM with unmatched consulting and FMCG placements and rigorous academic standard.",
+  "category": "Management",
+  "rating": "4.9/5",
+  "careerTitle": "Investment Banking Associate / Brand Strategist"
+},
+  {
+  "id": "mnnit-prayagraj",
+  "name": "Motilal Nehru National Institute of Technology (MNNIT)",
+  "course": "B.Tech Computer Science / Electronics",
+  "city": "Prayagraj",
+  "state": "Uttar Pradesh",
+  "fees_total": "₹6.2 Lakhs (4 Years)",
+  "entrance": "JEE Main",
+  "why": "Renowned coding culture with tremendous placement statistics in FAANG and multinational tech firms.",
+  "category": "Engineering",
+  "rating": "4.7/5",
+  "careerTitle": "Systems Programmer / Cloud Architect"
+},
+  {
+  "id": "iit-indore",
+  "name": "Indian Institute of Technology (IIT) Indore",
+  "course": "B.Tech Computer Science / Electrical",
+  "city": "Indore",
+  "state": "Madhya Pradesh",
+  "fees_total": "₹8.4 Lakhs (4 Years)",
+  "entrance": "JEE Advanced",
+  "why": "Fastest-rising new IIT with highest citations per faculty and modern research park in commercial capital of MP.",
+  "category": "Engineering",
+  "rating": "4.7/5",
+  "careerTitle": "AI Researcher / Deep Learning Specialist"
+},
+  {
+  "id": "manit-bhopal",
+  "name": "Maulana Azad National Institute of Technology (MANIT)",
+  "course": "B.Tech Computer Science / Architecture",
+  "city": "Bhopal",
+  "state": "Madhya Pradesh",
+  "fees_total": "₹6.1 Lakhs (4 Years)",
+  "entrance": "JEE Main",
+  "why": "Central Indian engineering giant with sprawling 650-acre campus and strong core and IT placement drives.",
+  "category": "Engineering",
+  "rating": "4.5/5",
+  "careerTitle": "Software Developer / Urban Planner"
+},
+  {
+  "id": "pec-chandigarh",
+  "name": "Punjab Engineering College (PEC)",
+  "course": "B.Tech Computer Science / Aerospace Engineering",
+  "city": "Chandigarh",
+  "state": "Chandigarh",
+  "fees_total": "₹7.4 Lakhs (4 Years)",
+  "entrance": "JEE Main",
+  "why": "Centennial legacy college with mandatory 6-month industrial internship and prestigious aerospace pedigree.",
+  "category": "Engineering",
+  "rating": "4.6/5",
+  "careerTitle": "Aerospace Engineer / Software Engineer"
+},
+  {
+  "id": "thapar-patiala",
+  "name": "Thapar Institute of Engineering & Technology (TIET)",
+  "course": "B.Tech Computer Engineering / Electronics & Computing",
+  "city": "Patiala",
+  "state": "Punjab",
+  "fees_total": "₹18 Lakhs (4 Years)",
+  "entrance": "JEE Main / Merit",
+  "why": "Leading North Indian private tech university with Trinity College Dublin partnership and outstanding recruiter tie-ups.",
+  "category": "Engineering",
+  "rating": "4.6/5",
+  "careerTitle": "Data Scientist / Mobile App Developer"
+},
+  {
+  "id": "iit-patna",
+  "name": "Indian Institute of Technology (IIT) Patna",
+  "course": "B.Tech Artificial Intelligence & Data Science",
+  "city": "Patna",
+  "state": "Bihar",
+  "fees_total": "₹8.2 Lakhs (4 Years)",
+  "entrance": "JEE Advanced",
+  "why": "Leading technical center in Eastern India with state-of-the-art incubation center and stellar high packages.",
+  "category": "Engineering",
+  "rating": "4.6/5",
+  "careerTitle": "AI Engineer / Quantitative Developer"
+},
+  {
+  "id": "iit-bhubaneswar",
+  "name": "Indian Institute of Technology (IIT) Bhubaneswar",
+  "course": "B.Tech Computer Science / Metallurgical",
+  "city": "Bhubaneswar",
+  "state": "Odisha",
+  "fees_total": "₹8.3 Lakhs (4 Years)",
+  "entrance": "JEE Advanced",
+  "why": "Rapidly expanding second-generation IIT with modern labs and vibrant student entrepreneurship ecosystem.",
+  "category": "Engineering",
+  "rating": "4.5/5",
+  "careerTitle": "Materials Scientist / Systems Developer"
+},
+  {
+  "id": "andhra-univ-vizag",
+  "name": "Andhra University College of Engineering",
+  "course": "B.Tech Information Technology / Naval Architecture",
+  "city": "Visakhapatnam",
+  "state": "Andhra Pradesh",
+  "fees_total": "₹2.8 Lakhs (4 Years)",
+  "entrance": "AP EAPCET",
+  "why": "Historic coastal university with unique marine and naval engineering programs and low tuition fees.",
+  "category": "Engineering",
+  "rating": "4.4/5",
+  "careerTitle": "Marine Engineer / Enterprise Developer"
+},
+  {
+  "id": "iit-guwahati",
+  "name": "Indian Institute of Technology (IIT) Guwahati",
+  "course": "B.Tech Computer Science / B.Des (Design)",
+  "city": "Guwahati",
+  "state": "Assam",
+  "fees_total": "₹8.5 Lakhs (4 Years)",
+  "entrance": "JEE Advanced / UCEED",
+  "why": "Known as one of India's most scenic campuses with world-leading Design department and top global tech hiring.",
+  "category": "Engineering",
+  "rating": "4.8/5",
+  "careerTitle": "Product Designer / Computer Scientist"
+},
+  {
+  "id": "iit-roorkee",
+  "name": "Indian Institute of Technology (IIT) Roorkee",
+  "course": "B.Tech Computer Science / Architecture",
+  "city": "Roorkee",
+  "state": "Uttarakhand",
+  "fees_total": "₹8.6 Lakhs (4 Years)",
+  "entrance": "JEE Advanced / NATA",
+  "why": "Asia's oldest technical institution with legendary alumni network, top civil & CSE departments, and picturesque campus.",
+  "category": "Engineering",
+  "rating": "4.9/5",
+  "careerTitle": "Full Stack Engineer / Infrastructure Architect"
+},
+  {
+  "id": "bits-goa",
+  "name": "BITS Pilani - K.K. Birla Goa Campus",
+  "course": "B.E. Computer Science / Electronics & Instrumentation",
+  "city": "Goa",
+  "state": "Goa",
+  "fees_total": "₹22 Lakhs (4 Years)",
+  "entrance": "BITSAT",
+  "why": "Prestigious BITS culture with world-class faculty, flexible curriculum, and vibrant coastal tech innovation.",
+  "category": "Engineering",
+  "rating": "4.8/5",
+  "careerTitle": "Software Developer / IoT Systems Architect"
+},
+  {
+  "id": "iit-ism-dhanbad",
+  "name": "Indian Institute of Technology (IIT-ISM) Dhanbad",
+  "course": "B.Tech Computer Science / Mining Machinery",
+  "city": "Dhanbad",
+  "state": "Jharkhand",
+  "fees_total": "₹8.4 Lakhs (4 Years)",
+  "entrance": "JEE Advanced",
+  "why": "Centennial premier institute combining world-leading earth sciences with modern top-tier computer science placements.",
+  "category": "Engineering",
+  "rating": "4.7/5",
+  "careerTitle": "Software Engineer / Energy Systems Architect"
+},
+  {
+  "id": "iist-trivandrum",
+  "name": "Indian Institute of Space Science and Technology (IIST)",
+  "course": "B.Tech Aerospace Engineering / Avionics",
+  "city": "Thiruvananthapuram",
+  "state": "Kerala",
+  "fees_total": "₹3.5 Lakhs (4 Years)",
+  "entrance": "JEE Advanced",
+  "why": "Direct educational institute of ISRO with guaranteed absorption for top graduates into India's space program.",
+  "category": "Engineering",
+  "rating": "4.8/5",
+  "careerTitle": "Spacecraft Systems Engineer / Propulsion Specialist"
+},
 ];
 
+/**
+ * Helper to match state names safely handling variations like 'Delhi (NCR)' vs 'Delhi',
+ * 'Maharashtra' vs 'maharashtra', etc.
+ */
+export function isStateMatch(collegeState: string, targetState: string): boolean {
+  if (!targetState || targetState === "ALL") return true;
+  if (!collegeState) return false;
+  const a = collegeState.toLowerCase().replace(/[\s\(\)\-_]/g, "");
+  const b = targetState.toLowerCase().replace(/[\s\(\)\-_]/g, "");
+  return a === b || a.includes(b) || b.includes(a);
+}
+
+/**
+ * Helper to match city names safely handling variations like 'Bengaluru' vs 'Bangalore',
+ * 'New Delhi' vs 'Delhi', case differences, etc.
+ */
+export function isCityMatch(collegeCity: string, targetCity: string): boolean {
+  if (!targetCity || targetCity === "ALL") return true;
+  if (!collegeCity) return false;
+  const a = collegeCity.toLowerCase().replace(/[\s\(\)\-_]/g, "");
+  const b = targetCity.toLowerCase().replace(/[\s\(\)\-_]/g, "");
+  if ((a.includes("bangalore") || a.includes("bengaluru")) && (b.includes("bangalore") || b.includes("bengaluru"))) {
+    return true;
+  }
+  return a === b || a.includes(b) || b.includes(a);
+}

@@ -7,6 +7,7 @@ import {
   BookOpen,
   CheckCircle,
   Compass,
+  Database,
   DollarSign,
   GraduationCap,
   Lightbulb,
@@ -455,8 +456,8 @@ function Dashboard() {
               </Link>
               <Link to="/backup">
                 <Button size="sm" className="gap-2 rounded-full px-4 text-xs font-semibold shadow-sm hover:scale-[1.02] active:scale-[0.98] transition-all bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 hover:bg-emerald-500/30">
-                  <ShieldCheck className="size-3.5" />
-                  Backup Plans
+                  <Database className="size-3.5" />
+                  Data Backup
                 </Button>
               </Link>
             </div>
@@ -700,72 +701,54 @@ function Dashboard() {
               <CardContent className="flex flex-col justify-between p-5 h-full">
                 <div>
                   <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-                    <ShieldCheck className="size-5" />
+                    <Database className="size-5" />
                   </div>
                   <div className="flex items-center justify-between">
-                    <h3 className="font-bold text-base group-hover:text-emerald-400 transition-colors">Backup & Fallback Plans</h3>
+                    <h3 className="font-bold text-base group-hover:text-primary transition-colors">Data Backup & Recovery</h3>
                     <Badge variant="outline" className="bg-emerald-500/10 text-emerald-400 border-emerald-500/25 text-[10px]">
-                      Risk Mitigation
+                      Live Export
                     </Badge>
                   </div>
-                  <p className="mt-1 text-xs text-muted-foreground leading-relaxed">Explore secondary career paths, entrance exam pivots & alternative options to ensure long-term security.</p>
+                  <p className="mt-1 text-xs text-muted-foreground leading-relaxed">Securely back up, download JSON snapshots, and restore your student profile, career roadmaps, and saved colleges.</p>
                 </div>
                 <div className="mt-4 flex items-center gap-1 text-xs font-semibold text-emerald-400">
-                  View Backup Pathways <ArrowRight className="size-3.5 transition-transform group-hover:translate-x-1" />
+                  Manage Backups <ArrowRight className="size-3.5 transition-transform group-hover:translate-x-1" />
                 </div>
               </CardContent>
             </Card>
           </Link>
         </section>
 
-        {/* ─── 3. Stream Entrance Exam Connections & Actionable Next Steps ─── */}
-        <section className="mb-10 grid gap-6 lg:grid-cols-2">
-          {/* Stream-Specific Exam Connections */}
-          <Card className="border-border/60 bg-card/70">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-base font-bold">
-                <Link2 className="size-5 text-primary" />
-                Stream Entrance Exam Connections
-              </CardTitle>
+        {/* ─── 3. Actionable Immediate Next Steps ─── */}
+        <section className="mb-10">
+          <Card className="border-primary/20 bg-primary/5 shadow-sm">
+            <CardHeader className="pb-3 border-b border-primary/15">
+              <div className="flex items-center justify-between">
+                <CardTitle className="flex items-center gap-2 text-base font-bold">
+                  <Sparkles className="size-5 text-primary" />
+                  Actionable Immediate Next Steps
+                </CardTitle>
+                <Badge variant="secondary" className="text-[10px] bg-primary/15 text-primary">
+                  Guidance
+                </Badge>
+              </div>
             </CardHeader>
-            <CardContent className="space-y-3">
-              {(examConnections.length > 0
-                ? examConnections
-                : EXAM_CONNECTIONS.map(c => ({ exam: c.exam, connected_exams: c.connectedExams, note: c.note }))
-              ).map((connection, idx) => (
-                <div key={idx} className="rounded-xl border border-border/60 bg-card/60 p-4 text-xs">
-                  <p className="font-bold text-foreground">{connection.exam}</p>
-                  <p className="mt-1 text-muted-foreground">
-                    Connected exams: {Array.isArray(connection.connected_exams) ? connection.connected_exams.join(", ") : connection.connected_exams}
-                  </p>
-                  <p className="mt-2 text-primary font-medium">{connection.note}</p>
-                </div>
-              ))}
-            </CardContent>
-          </Card>
-
-          {/* Actionable Next Steps */}
-          <Card className="border-primary/20 bg-primary/5">
-            <CardHeader className="pb-3">
-              <CardTitle className="flex items-center gap-2 text-base font-bold">
-                <Sparkles className="size-5 text-primary" />
-                Actionable Immediate Next Steps
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="p-6 pt-0">
+            <CardContent className="p-6">
               {nextSteps.length > 0 ? (
-                <ul className="space-y-2.5">
+                <ul className="grid gap-3 sm:grid-cols-2">
                   {nextSteps.map((stepItem, idx) => (
-                    <li key={idx} className="flex items-start gap-3 rounded-xl border border-primary/20 bg-background/80 p-3 text-xs">
+                    <li key={idx} className="flex items-start gap-3 rounded-xl border border-primary/20 bg-background/80 p-3.5 text-xs shadow-sm">
                       <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary/20 text-[11px] font-bold text-primary">
                         {idx + 1}
                       </span>
-                      <span className="mt-0.5 font-medium text-foreground">{stepItem}</span>
+                      <span className="mt-0.5 font-medium text-foreground leading-relaxed">{stepItem}</span>
                     </li>
                   ))}
                 </ul>
               ) : (
-                <p className="text-xs text-muted-foreground leading-relaxed">{path.summary}</p>
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  Generate your AI career recommendations above to see personalized preparation milestones and next steps.
+                </p>
               )}
             </CardContent>
           </Card>

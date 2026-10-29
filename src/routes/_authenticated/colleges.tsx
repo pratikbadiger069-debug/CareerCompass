@@ -44,6 +44,8 @@ import { HeaderNav } from "@/components/HeaderNav";
 import { motion } from "framer-motion";
 import {
   ALL_INDIAN_COLLEGES,
+  isStateMatch,
+  isCityMatch,
   type CollegeItem,
 } from "@/lib/collegesData";
 import {
@@ -120,7 +122,7 @@ function CollegesPage() {
   const [filterCity, setFilterCity] = useState<string>("ALL");
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [selectedCategory, setSelectedCategory] = useState<string>("All");
-  const [filterMode, setFilterMode] = useState<"prioritize" | "strict">("prioritize");
+  const [filterMode, setFilterMode] = useState<"strict" | "all">("strict");
 
   // Colleges Data
   const [savedColleges, setSavedColleges] = useState<SavedCollege[]>([]);
@@ -265,19 +267,17 @@ function CollegesPage() {
     return list;
   }, [extractedRecColleges]);
 
-  // Filter & Prioritize Colleges based on location, category, and search query
-  const displayedColleges = useMemo(() => {
+  // Filter Colleges strictly based on location, category, and search query
+  const { displayedColleges, isCityFallback } = useMemo(() => {
     const query = searchQuery.trim().toLowerCase();
     const effectiveState = filterState !== "ALL" ? filterState : null;
     const effectiveCity = filterCity !== "ALL" ? filterCity : null;
 
-    // First filter by query and category
-    let filtered = allColleges.filter((c) => {
-      // Category filter
+    // Helper to test category and search query
+    const matchesCategoryAndQuery = (c: CollegeItem) => {
       if (selectedCategory !== "All" && c.category !== selectedCategory) {
         return false;
       }
-      // Text search
       if (query) {
         const matchesName = c.name.toLowerCase().includes(query);
         const matchesCourse = c.course.toLowerCase().includes(query);
@@ -289,44 +289,75 @@ function CollegesPage() {
           return false;
         }
       }
-      // If strict filter mode is enabled, filter exclusively
-      if (filterMode === "strict") {
-        if (effectiveState && !c.state.toLowerCase().includes(effectiveState.toLowerCase())) {
-          return false;
-        }
-        if (effectiveCity && !c.city.toLowerCase().includes(effectiveCity.toLowerCase())) {
-          return false;
-        }
-      }
       return true;
-    });
+    };
 
-    // Score and Sort: Prioritize location matches at the top
-    return filtered.sort((a, b) => {
+    // 1. Strict location filter: when state is selected, NEVER show colleges of other states
+    if (effectiveState) {
+      // First try matching both state and city
+      let stateColleges = allColleges.filter(
+        (c) => isStateMatch(c.state, effectiveState) && matchesCategoryAndQuery(c),
+      );
+
+      if (effectiveCity) {
+        const cityColleges = stateColleges.filter((c) => isCityMatch(c.city, effectiveCity));
+        if (cityColleges.length > 0) {
+          return {
+            displayedColleges: cityColleges.sort((a, b) => {
+              let scoreA = a.careerTitle ? 10 : 0;
+              let scoreB = b.careerTitle ? 10 : 0;
+              return scoreB - scoreA;
+            }),
+            isCityFallback: false,
+          };
+        }
+        // If 0 colleges in that specific city, fall back to state colleges and notify
+        return {
+          displayedColleges: stateColleges.sort((a, b) => {
+            let scoreA = a.careerTitle ? 10 : 0;
+            let scoreB = b.careerTitle ? 10 : 0;
+            return scoreB - scoreA;
+          }),
+          isCityFallback: true,
+        };
+      }
+
+      return {
+        displayedColleges: stateColleges.sort((a, b) => {
+          let scoreA = a.careerTitle ? 10 : 0;
+          let scoreB = b.careerTitle ? 10 : 0;
+          return scoreB - scoreA;
+        }),
+        isCityFallback: false,
+      };
+    }
+
+    // 2. All India view: filter only by category and search query
+    const filtered = allColleges.filter(matchesCategoryAndQuery);
+
+    // If user has saved location, prioritize their home state at top of All India view
+    const sorted = filtered.sort((a, b) => {
       let scoreA = 0;
       let scoreB = 0;
 
-      // Check match against selected filter state/city or user's saved location
-      const stateToMatch = effectiveState || savedUserLoc?.state;
-      const cityToMatch = effectiveCity || savedUserLoc?.city;
-
-      if (cityToMatch) {
-        if (a.city.toLowerCase() === cityToMatch.toLowerCase()) scoreA += 100;
-        if (b.city.toLowerCase() === cityToMatch.toLowerCase()) scoreB += 100;
+      if (savedUserLoc?.city) {
+        if (isCityMatch(a.city, savedUserLoc.city)) scoreA += 100;
+        if (isCityMatch(b.city, savedUserLoc.city)) scoreB += 100;
       }
 
-      if (stateToMatch) {
-        if (a.state.toLowerCase() === stateToMatch.toLowerCase()) scoreA += 40;
-        if (b.state.toLowerCase() === stateToMatch.toLowerCase()) scoreB += 40;
+      if (savedUserLoc?.state) {
+        if (isStateMatch(a.state, savedUserLoc.state)) scoreA += 40;
+        if (isStateMatch(b.state, savedUserLoc.state)) scoreB += 40;
       }
 
-      // Prioritize extracted AI recommendations
       if (a.careerTitle) scoreA += 10;
       if (b.careerTitle) scoreB += 10;
 
       return scoreB - scoreA;
     });
-  }, [allColleges, filterState, filterCity, searchQuery, selectedCategory, filterMode, savedUserLoc]);
+
+    return { displayedColleges: sorted, isCityFallback: false };
+  }, [allColleges, filterState, filterCity, searchQuery, selectedCategory, savedUserLoc]);
 
   // Handle Location Reset to User Saved Location
   const handleResetToUserLocation = () => {
@@ -634,25 +665,35 @@ function CollegesPage() {
                     )}
                   </div>
 
-                  {/* Mode Toggle: Prioritize vs Strict Filter */}
-                  <div className="flex items-center gap-2">
-                    <span className="text-[11px] text-muted-foreground">Mode:</span>
-                    <Button
-                      variant={filterMode === "prioritize" ? "secondary" : "ghost"}
-                      size="sm"
-                      onClick={() => setFilterMode("prioritize")}
-                      className="h-7 text-[11px] px-2.5"
-                    >
-                      Prioritize Nearby First
-                    </Button>
-                    <Button
-                      variant={filterMode === "strict" ? "secondary" : "ghost"}
-                      size="sm"
-                      onClick={() => setFilterMode("strict")}
-                      className="h-7 text-[11px] px-2.5"
-                    >
-                      Show Only Selected Location
-                    </Button>
+                  {/* Location Action & Scope Buttons */}
+                  <div className="flex flex-wrap items-center gap-2">
+                    {filterState !== "ALL" ? (
+                      <Button
+                        variant="secondary"
+                        size="sm"
+                        onClick={() => {
+                          setFilterState("ALL");
+                          setFilterCity("ALL");
+                          toast.info("Showing all colleges across India.");
+                        }}
+                        className="h-7 text-[11px] gap-1 px-2.5 font-medium"
+                      >
+                        <Globe2 className="size-3 text-muted-foreground" />
+                        Show All India Colleges
+                      </Button>
+                    ) : (
+                      savedUserLoc && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={handleResetToUserLocation}
+                          className="h-7 text-[11px] gap-1 border-primary/30 text-primary hover:bg-primary/10"
+                        >
+                          <MapPin className="size-3" />
+                          Filter to My Location ({savedUserLoc.city})
+                        </Button>
+                      )
+                    )}
 
                     {user && !isGuest && filterState !== "ALL" && filterCity !== "ALL" && (
                       <Button
@@ -712,6 +753,26 @@ function CollegesPage() {
               </CardContent>
             </Card>
 
+            {/* City Fallback Notice */}
+            {isCityFallback && filterState !== "ALL" && filterCity !== "ALL" && (
+              <div className="rounded-xl border border-amber-500/30 bg-amber-500/10 p-3 text-amber-200 text-xs flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <MapPin className="size-4 shrink-0 text-amber-400" />
+                  <span>
+                    No specific colleges found in <strong>{filterCity}</strong> yet. Showing all {displayedColleges.length} premier colleges across <strong>{filterState}</strong>.
+                  </span>
+                </div>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setFilterCity("ALL")}
+                  className="h-6 text-[10px] text-amber-300 hover:text-white"
+                >
+                  Clear City Filter
+                </Button>
+              </div>
+            )}
+
             {/* Current Active Location Filter Banner */}
             <div className="flex items-center justify-between px-1">
               <div className="flex items-center gap-2 text-xs text-muted-foreground">
@@ -758,7 +819,7 @@ function CollegesPage() {
                   <Building2 className="mx-auto size-12 text-muted-foreground/40" />
                   <h3 className="text-base font-bold text-foreground">No colleges match your criteria</h3>
                   <p className="text-xs text-muted-foreground max-w-md mx-auto">
-                    Try switching location to &quot;All India&quot;, expanding your search keywords, or selecting &quot;Prioritize Nearby First&quot; instead of strict mode.
+                    Try switching location to &quot;All India&quot;, selecting another state/city, or clearing your category and search filters.
                   </p>
                   <div className="pt-2 flex items-center justify-center gap-2">
                     <Button
