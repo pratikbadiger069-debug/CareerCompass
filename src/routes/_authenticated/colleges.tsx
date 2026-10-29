@@ -10,6 +10,8 @@ import {
   Check,
   CheckCircle2,
   Filter,
+  Globe,
+  Globe2,
   GraduationCap,
   Layers,
   MapPin,

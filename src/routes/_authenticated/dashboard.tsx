@@ -455,9 +455,9 @@ function Dashboard() {
                 </Button>
               </Link>
               <Link to="/backup">
-                <Button size="sm" className="gap-2 rounded-full px-4 text-xs font-semibold shadow-sm hover:scale-[1.02] active:scale-[0.98] transition-all bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 hover:bg-emerald-500/30">
-                  <Database className="size-3.5" />
-                  Data Backup
+                <Button size="sm" variant="outline" className="gap-2 rounded-full px-4 text-xs font-medium border-border/70 hover:border-primary/40 text-primary hover:bg-primary/10">
+                  <ShieldCheck className="size-3.5 text-primary" />
+                  Backup Plans
                 </Button>
               </Link>
             </div>

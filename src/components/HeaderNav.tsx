@@ -3,10 +3,10 @@ import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import {
   BarChart3,
   Compass,
-  Database,
   GraduationCap,
   LogOut,
   Map,
+  ShieldCheck,
   User as UserIcon,
   Sparkles,
 } from "lucide-react";
@@ -48,7 +48,7 @@ export function HeaderNav() {
   const navLinks = [
     { to: "/dashboard", label: "Dashboard", icon: Compass },
     { to: "/colleges", label: "Colleges", icon: GraduationCap },
-    { to: "/backup", label: "Backup", icon: Database },
+    { to: "/backup", label: "Backup Plans", icon: ShieldCheck },
   ];
 
   // Aeline-style scroll: compact + frosted on scroll
