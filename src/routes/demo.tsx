@@ -125,8 +125,11 @@ function DemoPage() {
             <section>
               <div className="mb-4 flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <Sparkles className="size-5 text-primary" />
-                  <h2 className="text-xl font-bold">AI Recommended Careers (Demo Student)</h2>
+                  <Sparkles className="size-5 text-violet-400" />
+                  <div className="flex items-center gap-2">
+                    <h2 className="text-xl font-bold">AI Recommended Careers (Demo Student)</h2>
+                    <span className="ai-badge">AI Powered</span>
+                  </div>
                 </div>
               </div>
 

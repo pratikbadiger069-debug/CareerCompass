@@ -362,15 +362,20 @@ function CollegesPage() {
 
           {/* Bottom Section: Suggested Colleges */}
           <section>
-            <div className="mb-4 flex items-center gap-2">
-              <Sparkles className="size-5 text-primary" />
-              <div>
-                <h2 className="text-lg font-bold">
-                  {userStage === "class_10" || userStage === "class_12"
-                    ? "Recommended Streams, Junior Colleges & Entrance Prep Pathways"
-                    : "Recommended Universities & Degree Colleges"}
-                </h2>
-                <p className="text-xs text-muted-foreground">
+            <div className="mb-4 flex items-center gap-3">
+              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-violet-500/15 text-violet-400 border border-violet-500/30">
+                <Sparkles className="size-4" />
+              </div>
+              <div className="flex-1">
+                <div className="flex items-center gap-2">
+                  <h2 className="text-lg font-bold">
+                    {userStage === "class_10" || userStage === "class_12"
+                      ? "Recommended Streams, Junior Colleges & Entrance Prep Pathways"
+                      : "Recommended Universities & Degree Colleges"}
+                  </h2>
+                  <span className="ai-badge">AI Matched</span>
+                </div>
+                <p className="text-xs text-muted-foreground mt-0.5">
                   {userStage === "class_10" || userStage === "class_12"
                     ? "Age-appropriate stream pathways, preparatory institutes, and junior college options."
                     : "Top target degree institutions matched to your career path."}

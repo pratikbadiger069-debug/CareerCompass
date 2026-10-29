@@ -103,7 +103,10 @@ function ComparePage() {
             <BarChart3 className="size-5" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold tracking-tight">Career Comparison</h1>
+            <div className="flex items-center gap-2">
+              <h1 className="text-2xl font-bold tracking-tight">Career Comparison</h1>
+              <span className="ai-badge">AI Matched</span>
+            </div>
             <p className="text-xs text-muted-foreground mt-0.5">
               Side-by-side evaluation of your AI-matched career recommendations
             </p>
@@ -126,7 +129,7 @@ function ComparePage() {
       ) : (recommendations ?? []).length === 0 ? (
         <Card className="border-border/60 bg-card/70 text-center p-8">
           <CardContent className="space-y-3">
-            <Sparkles className="mx-auto size-10 text-primary/40" />
+            <Sparkles className="mx-auto size-10 text-violet-400" />
             <h3 className="text-base font-semibold">No career recommendations found</h3>
             <p className="text-xs text-muted-foreground max-w-md mx-auto">
               Generate recommendations on your dashboard first to compare career options

@@ -389,21 +389,56 @@ function ProfilePage() {
         <div className="space-y-8">
           {/* Error Banner if Regeneration Failed */}
           {regenError && (
-            <Alert variant="destructive">
-              <AlertCircle className="size-4" />
-              <AlertTitle>Regeneration Failed</AlertTitle>
-              <AlertDescription className="mt-2 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                <span>{regenError}</span>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={handleRegenerateRoadmap}
-                  className="gap-2 shrink-0 bg-background"
-                >
-                  <RefreshCw className="size-3.5" /> Retry Regeneration
-                </Button>
-              </AlertDescription>
-            </Alert>
+            regenError.toLowerCase().includes("not configured") || regenError.toLowerCase().includes("api key") ? (
+              <div className="rounded-2xl border border-violet-500/40 bg-violet-500/10 p-5 text-foreground backdrop-blur-md">
+                <div className="flex items-start gap-3">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-violet-500/20 text-violet-300 border border-violet-500/30">
+                    <Sparkles className="size-5" />
+                  </div>
+                  <div className="space-y-2 flex-1">
+                    <div className="flex items-center gap-2">
+                      <h3 className="text-sm font-bold text-violet-200">AI Service Configuration Required</h3>
+                      <span className="ai-badge">Setup Needed</span>
+                    </div>
+                    <p className="text-xs text-muted-foreground leading-relaxed">
+                      Roadmap generation requires an AI API key. Please add <code className="text-violet-300 font-mono">LOVABLE_API_KEY</code> or <code className="text-violet-300 font-mono">GEMINI_API_KEY</code> to your server environment (.env).
+                    </p>
+                    <div className="rounded-xl border border-white/10 bg-black/40 p-3 font-mono text-[11px] space-y-1 text-muted-foreground">
+                      <p className="text-violet-300 font-semibold"># In your .env file:</p>
+                      <p className="text-white">LOVABLE_API_KEY=&quot;your_lovable_key&quot;</p>
+                      <p className="text-muted-foreground text-[10px]"># or Google Gemini (https://aistudio.google.com/):</p>
+                      <p className="text-white">GEMINI_API_KEY=&quot;your_gemini_api_key&quot;</p>
+                    </div>
+                    <div className="flex items-center gap-3 pt-1">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={handleRegenerateRoadmap}
+                        className="gap-2 text-xs border-violet-500/30 text-violet-300 hover:bg-violet-500/20 hover:text-white"
+                      >
+                        <RefreshCw className="size-3.5" /> Retry Generation
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <Alert variant="destructive">
+                <AlertCircle className="size-4" />
+                <AlertTitle>Regeneration Failed</AlertTitle>
+                <AlertDescription className="mt-2 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                  <span>{regenError}</span>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleRegenerateRoadmap}
+                    className="gap-2 shrink-0 bg-background"
+                  >
+                    <RefreshCw className="size-3.5" /> Retry Regeneration
+                  </Button>
+                </AlertDescription>
+              </Alert>
+            )
           )}
 
           {/* Single-Page Form Card */}
@@ -646,7 +681,7 @@ function ProfilePage() {
                 {isRegenerating ? (
                   <Loader2 className="size-3.5 animate-spin" />
                 ) : (
-                  <Sparkles className="size-3.5 text-amber-300" />
+                  <Sparkles className="size-3.5 text-violet-200" />
                 )}
                 Regenerate Roadmap
               </Button>

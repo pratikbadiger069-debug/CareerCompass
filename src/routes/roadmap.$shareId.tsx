@@ -116,8 +116,8 @@ function SharedRoadmapPage() {
           exist.
         </p>
         <Link to="/auth" className="mt-6">
-          <Button size="sm" className="gap-2">
-            <Sparkles className="size-4" /> Create Your Own Roadmap
+          <Button size="sm" className="gap-2 ai-button hover:text-white">
+            <Sparkles className="size-4 text-violet-200" /> Create Your Own Roadmap
           </Button>
         </Link>
       </main>

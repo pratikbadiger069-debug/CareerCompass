@@ -105,13 +105,13 @@ export function HeaderNav() {
 
         {/* Right side */}
         <div className="flex items-center gap-2.5">
-          {/* Edit details — pill button */}
+          {/* Edit details — AI pill button */}
           <Link to="/profile" className="hidden sm:block">
             <button
               type="button"
-              className="inline-flex items-center gap-1.5 rounded-full border border-border/60 bg-white/5 px-3.5 py-1.5 text-xs font-medium text-muted-foreground transition-all hover:border-primary/35 hover:bg-primary/8 hover:text-primary"
+              className="inline-flex items-center gap-1.5 rounded-full border border-violet-500/30 bg-violet-500/10 px-3.5 py-1.5 text-xs font-semibold text-violet-300 transition-all hover:border-violet-500/50 hover:bg-violet-500/20 hover:text-white"
             >
-              <Sparkles className="size-3 text-primary" />
+              <Sparkles className="size-3 text-violet-400" />
               Edit details
             </button>
           </Link>
@@ -151,10 +151,11 @@ export function HeaderNav() {
                 </div>
               </DropdownMenuLabel>
               <DropdownMenuSeparator className="my-1 bg-border/40" />
+              {/* Navigation items (especially helpful on mobile where top nav is hidden) */}
               <DropdownMenuItem asChild className="rounded-lg text-xs font-medium hover:bg-primary/8 hover:text-primary">
-                <Link to="/profile" className="cursor-pointer gap-2">
-                  <UserIcon className="size-3.5 text-primary" />
-                  Edit Profile & Details
+                <Link to="/dashboard" className="cursor-pointer gap-2">
+                  <Compass className="size-3.5 text-primary" />
+                  Dashboard
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuItem asChild className="rounded-lg text-xs font-medium hover:bg-primary/8 hover:text-primary">
@@ -166,7 +167,19 @@ export function HeaderNav() {
               <DropdownMenuItem asChild className="rounded-lg text-xs font-medium hover:bg-primary/8 hover:text-primary">
                 <Link to="/colleges" className="cursor-pointer gap-2">
                   <GraduationCap className="size-3.5 text-primary" />
-                  Saved Colleges
+                  College Explorer
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild className="rounded-lg text-xs font-medium hover:bg-primary/8 hover:text-primary">
+                <Link to="/compare" className="cursor-pointer gap-2">
+                  <BarChart3 className="size-3.5 text-primary" />
+                  Compare Careers
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild className="rounded-lg text-xs font-medium hover:bg-violet-500/10 hover:text-violet-300">
+                <Link to="/profile" className="cursor-pointer gap-2">
+                  <Sparkles className="size-3.5 text-violet-400" />
+                  Edit Profile & AI Inputs
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuSeparator className="my-1 bg-border/40" />

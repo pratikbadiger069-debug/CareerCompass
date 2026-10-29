@@ -56,7 +56,7 @@ const FEATURES = [
     icon: MessageSquare,
     title: "AI advisor chat",
     body: "Ask anything about streams, majors, entrance tests or switching fields — any time.",
-    color: "#4f46e5",
+    color: "#8b5cf6",
   },
   {
     icon: GraduationCap,
@@ -70,13 +70,6 @@ const STEPS = [
   { num: "01", title: "Tell us about you", body: "Your grade, interests, strengths and where you'd like to study or work." },
   { num: "02", title: "Get matched", body: "CareerCompass reads your profile and surfaces careers that genuinely fit — with reasons." },
   { num: "03", title: "Follow your roadmap", body: "Turn the match into milestones, colleges and next steps you can act on this month." },
-];
-
-const STATS = [
-  { end: 94, suffix: "%", label: "Match accuracy" },
-  { end: 12000, suffix: "+", label: "Career paths mapped" },
-  { end: 4900, suffix: "+", label: "Students guided" },
-  { end: 48, suffix: "h", label: "Avg. time to clarity" },
 ];
 
 const PARTNERS = [
@@ -111,7 +104,6 @@ function Landing() {
   const aboutRef = useRef<HTMLElement>(null);
   const featuresRef = useRef<HTMLElement>(null);
   const stepsRef = useRef<HTMLElement>(null);
-  const statsRef = useRef<HTMLElement>(null);
   const ctaRef = useRef<HTMLElement>(null);
 
   async function startDemo() {
@@ -227,31 +219,6 @@ function Landing() {
           });
         }
 
-        // ── Stats counter animation ────────────────────────────────────────
-        if (statsRef.current) {
-          const counters = statsRef.current.querySelectorAll<HTMLElement>("[data-counter]");
-          counters.forEach((el) => {
-            const end = parseInt(el.dataset["counter"] ?? "0", 10);
-            const suffix = el.dataset["suffix"] ?? "";
-            const obj = { val: 0 };
-            g.to(obj, {
-              val: end,
-              duration: 2.2,
-              ease: "power2.out",
-              onUpdate: () => {
-                el.textContent = `${Math.round(obj.val).toLocaleString()}${suffix}`;
-              },
-              scrollTrigger: { trigger: el, start: "top 88%", toggleActions: "play none none none" },
-            });
-          });
-
-          const statCards = statsRef.current.querySelectorAll("[data-stat-card]");
-          g.fromTo(statCards, { y: 25, opacity: 0 }, {
-            y: 0, opacity: 1, duration: 0.7, ease: "power3.out", stagger: 0.1,
-            scrollTrigger: { trigger: statsRef.current, start: "top 82%", toggleActions: "play none none none" },
-          });
-        }
-
         // ── CTA section ────────────────────────────────────────────────────
         if (ctaRef.current) {
           const items = ctaRef.current.querySelectorAll("[data-cta]");
@@ -291,7 +258,7 @@ function Landing() {
 
           {/* Nav links — desktop */}
           <nav className="hidden items-center gap-1 md:flex">
-            {["Features", "How it works", "Stats"].map((l) => (
+            {["Features", "How it works"].map((l) => (
               <a
                 key={l}
                 href={`#${l.toLowerCase().replace(/\s+/g, "-")}`}
@@ -352,7 +319,7 @@ function Landing() {
         <div className="relative z-10 mx-auto w-full max-w-4xl text-center">
           {/* Section tag */}
           <span data-hero className="section-tag mb-8 inline-flex">
-            <Sparkles className="size-3.5" />
+            <Sparkles className="size-3.5 text-violet-400" />
             AI-Powered Career Guidance
           </span>
 
@@ -512,7 +479,7 @@ function Landing() {
         {/* About cards grid */}
         <div className="mt-16 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {[
-            { icon: Brain, label: "AI-powered matching", desc: "Deep profile analysis gives you career matches ranked by genuine fit.", color: "#d6fd70" },
+            { icon: Brain, label: "AI-powered matching", desc: "Deep profile analysis gives you career matches ranked by genuine fit.", color: "#8b5cf6" },
             { icon: TrendingUp, label: "Growth outlook", desc: "Real salary data and 5-year demand forecasts for every recommended path.", color: "#06b6d4" },
             { icon: Users, label: "Student community", desc: "4,900+ students on the platform sharing milestones and wins.", color: "#4f46e5" },
             { icon: Zap, label: "Instant clarity", desc: "Most users have their roadmap ready in under 48 hours from signup.", color: "#7c3aed" },
@@ -608,42 +575,6 @@ function Landing() {
               </div>
             </article>
           ))}
-        </div>
-      </section>
-
-      {/* ─── Stats ───────────────────────────────────────────────────────── */}
-      <section
-        ref={statsRef}
-        id="stats"
-        className="border-y border-border/30 bg-charcoal py-24"
-      >
-        <div className="mx-auto w-full max-w-6xl px-6">
-          <div className="text-center">
-            <span className="section-tag mb-6 inline-flex">
-              <div className="size-1.5 rounded-sm bg-current" />
-              By the numbers
-            </span>
-          </div>
-
-          <div className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {STATS.map(({ end, suffix, label }) => (
-              <div
-                key={label}
-                data-stat-card
-                className="card-glow-top glass-card rounded-2xl p-8 text-center transition-all duration-300 hover:-translate-y-1"
-              >
-                <div className="font-display text-5xl font-extrabold tracking-tight text-foreground">
-                  <span
-                    data-counter={end}
-                    data-suffix={suffix}
-                  >
-                    0{suffix}
-                  </span>
-                </div>
-                <p className="mt-3 text-sm text-muted-foreground">{label}</p>
-              </div>
-            ))}
-          </div>
         </div>
       </section>
 

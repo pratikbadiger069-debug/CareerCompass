@@ -257,6 +257,7 @@ function RoadmapPage() {
           <div className="flex items-center gap-2">
             <Map className="size-5 text-primary" />
             <h1 className="text-2xl font-bold sm:text-3xl">Your Roadmap</h1>
+            <span className="ai-badge">AI Planned</span>
           </div>
         </div>
 
@@ -330,7 +331,7 @@ function RoadmapPage() {
       {!loading && recommendations.length === 0 && (
         <Card className="mt-10 border-border/60 bg-card/70">
           <CardContent className="p-8 text-center">
-            <Sparkles className="mx-auto mb-4 size-10 text-primary/40" />
+            <Sparkles className="mx-auto mb-4 size-10 text-violet-400" />
             <p className="text-lg font-semibold">No career roadmap yet</p>
             <p className="mt-2 text-sm text-muted-foreground">
               Head to the dashboard and generate your AI-powered career recommendations first — your
@@ -407,7 +408,7 @@ function RoadmapPage() {
                           exit={{ opacity: 0 }}
                           transition={{ duration: 0.15 }}
                         >
-                          <Sparkles className="size-4 text-primary" />
+                          <Sparkles className="size-4 text-violet-400" />
                         </motion.div>
                       ) : (
                         <motion.div

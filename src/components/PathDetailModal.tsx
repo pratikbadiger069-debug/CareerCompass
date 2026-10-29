@@ -87,9 +87,10 @@ export function PathDetailModal({
         <DialogHeader className="border-b border-white/8 pb-4">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div className="flex items-center gap-2">
-              <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20">
-                Career Path Detail
-              </Badge>
+              <span className="ai-badge">
+                <Sparkles className="size-3 text-violet-400" />
+                AI Career Path Analysis
+              </span>
               {rec.match_score != null && (
                 <Badge variant="outline" className={`font-bold ${scoreColor}`}>
                   {rec.match_score}% Match Score

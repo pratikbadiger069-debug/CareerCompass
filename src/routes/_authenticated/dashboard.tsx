@@ -445,11 +445,14 @@ function Dashboard() {
         <section className="card-glow-top glass-card mb-10 rounded-2xl border border-white/10 p-6 shadow-xl">
           <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-center gap-2.5">
-              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/20 text-primary">
+              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-violet-500/15 text-violet-400 border border-violet-500/30">
                 <Sparkles className="size-5" />
               </div>
               <div>
-                <h2 className="text-xl font-bold tracking-tight">AI-Powered Career Recommendations</h2>
+                <div className="flex items-center gap-2">
+                  <h2 className="text-xl font-bold tracking-tight">AI-Powered Career Recommendations</h2>
+                  <span className="ai-badge">AI Powered</span>
+                </div>
                 <p className="text-xs text-muted-foreground">
                   Personalized career paths generated based on your profile, marks, and interests.
                 </p>
@@ -467,7 +470,7 @@ function Dashboard() {
           {!isGuest ? (
             <>
               {/* Extra context prompt & Generate/Regenerate AI Roadmap button */}
-              <div className="mb-6 flex flex-col gap-4 rounded-xl border border-border/60 bg-secondary/30 p-4 sm:flex-row sm:items-end">
+              <div className="mb-6 flex flex-col gap-4 rounded-xl border border-violet-500/25 bg-violet-500/5 p-4 sm:flex-row sm:items-end">
                 <div className="min-w-0 flex-1">
                   <label htmlFor="extra-context" className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-muted-foreground">
                     Provide Additional Context or Interests
@@ -489,12 +492,12 @@ function Dashboard() {
                   type="button"
                   onClick={() => void loadRecommendations(true)}
                   disabled={status === "loading"}
-                  className="shrink-0 gap-2 font-semibold shadow-md"
+                  className="shrink-0 gap-2 font-semibold shadow-md ai-button hover:text-white"
                 >
                   {status === "loading" ? (
                     <Loader2 className="size-4 animate-spin" />
                   ) : (
-                    <Sparkles className="size-4 text-amber-300" />
+                    <Sparkles className="size-4 text-violet-200" />
                   )}
                   {recommendations.length > 0 ? "Regenerate AI Roadmap" : "Generate AI Roadmap"}
                 </Button>
@@ -505,24 +508,62 @@ function Dashboard() {
 
               {/* Error state */}
               {status === "error" && (
-                <Alert variant="destructive" className="mb-6">
-                  <AlertCircle className="size-4" />
-                  <AlertTitle>Failed to load recommendations</AlertTitle>
-                  <AlertDescription className="mt-2 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                    <span>{error}</span>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => {
-                        setStatus("idle");
-                      }}
-                      className="shrink-0 gap-2"
-                    >
-                      <Loader2 className="size-4" />
-                      Retry
-                    </Button>
-                  </AlertDescription>
-                </Alert>
+                error?.toLowerCase().includes("not configured") || error?.toLowerCase().includes("api key") ? (
+                  <div className="mb-6 rounded-2xl border border-violet-500/40 bg-violet-500/10 p-5 text-foreground backdrop-blur-md">
+                    <div className="flex items-start gap-3">
+                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-violet-500/20 text-violet-300 border border-violet-500/30">
+                        <Sparkles className="size-5" />
+                      </div>
+                      <div className="space-y-2 flex-1">
+                        <div className="flex items-center gap-2">
+                          <h3 className="text-sm font-bold text-violet-200">AI Service Configuration Required</h3>
+                          <span className="ai-badge">Setup Needed</span>
+                        </div>
+                        <p className="text-xs text-muted-foreground leading-relaxed">
+                          Career recommendations and advisor chat are powered by AI models. To enable this feature, provide an API key in your server environment:
+                        </p>
+                        <div className="rounded-xl border border-white/10 bg-black/40 p-3 font-mono text-[11px] space-y-1 text-muted-foreground">
+                          <p className="text-violet-300 font-semibold"># Add either of these keys to your .env file:</p>
+                          <p className="text-white">LOVABLE_API_KEY=&quot;your_lovable_key&quot;</p>
+                          <p className="text-muted-foreground text-[10px]"># or from Google AI Studio (https://aistudio.google.com/):</p>
+                          <p className="text-white">GEMINI_API_KEY=&quot;your_gemini_api_key&quot;</p>
+                        </div>
+                        <div className="flex items-center gap-3 pt-1">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => {
+                              setStatus("idle");
+                            }}
+                            className="gap-2 text-xs border-violet-500/30 text-violet-300 hover:bg-violet-500/20 hover:text-white"
+                          >
+                            <Loader2 className="size-3.5" />
+                            Check Again / Retry
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <Alert variant="destructive" className="mb-6">
+                    <AlertCircle className="size-4" />
+                    <AlertTitle>Failed to load recommendations</AlertTitle>
+                    <AlertDescription className="mt-2 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                      <span>{error}</span>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          setStatus("idle");
+                        }}
+                        className="shrink-0 gap-2"
+                      >
+                        <Loader2 className="size-4" />
+                        Retry
+                      </Button>
+                    </AlertDescription>
+                  </Alert>
+                )
               )}
 
               {/* Recommendations grid */}
@@ -586,18 +627,18 @@ function Dashboard() {
               {status === "ready" && recommendations.length === 0 && (
                 <Card className="border-border/60 bg-card/70">
                   <CardContent className="p-6 text-center text-muted-foreground">
-                    <Sparkles className="mx-auto mb-3 size-8 text-primary/50" />
+                    <Sparkles className="mx-auto mb-3 size-8 text-violet-400" />
                     <p className="font-medium text-foreground">No recommendations generated yet</p>
                     <p className="mt-1 text-xs">
-                      Click <span className="font-semibold text-primary">"Generate AI Roadmap"</span> above to create your personalized recommendations.
+                      Click <span className="font-semibold text-violet-400">"Generate AI Roadmap"</span> above to create your personalized recommendations.
                     </p>
                   </CardContent>
                 </Card>
               )}
             </>
           ) : (
-            <div className="rounded-xl border border-dashed border-primary/30 bg-primary/5 p-6 text-center">
-              <Sparkles className="mx-auto mb-3 size-8 text-primary" />
+            <div className="rounded-xl border border-dashed border-violet-500/30 bg-violet-500/5 p-6 text-center">
+              <Sparkles className="mx-auto mb-3 size-8 text-violet-400" />
               <h3 className="font-bold text-base">Sign In to Unlock Personalized AI Recommendations</h3>
               <p className="mt-1 text-xs text-muted-foreground max-w-md mx-auto">
                 Create an account or sign in to get tailored career recommendations, custom skill gap tracking, and college matching.
@@ -619,13 +660,13 @@ function Dashboard() {
             <Card className="group h-full border-border/60 bg-card/70 transition-all hover:border-primary/50 hover:bg-card hover:shadow-md">
               <CardContent className="flex flex-col justify-between p-5 h-full">
                 <div>
-                  <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-blue-500/10 text-blue-500">
+                  <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-violet-500/15 text-violet-400 border border-violet-500/30">
                     <MapIcon className="size-5" />
                   </div>
-                  <h3 className="font-bold text-base group-hover:text-primary transition-colors">AI Roadmap</h3>
+                  <div className="flex items-center justify-between"><h3 className="font-bold text-base group-hover:text-violet-300 transition-colors">AI Roadmap</h3><span className="ai-badge text-[10px] py-0 px-2">AI</span></div>
                   <p className="mt-1 text-xs text-muted-foreground leading-relaxed">Step-by-step milestones tailored to your career goal.</p>
                 </div>
-                <div className="mt-4 flex items-center gap-1 text-xs font-semibold text-primary">
+                <div className="mt-4 flex items-center gap-1 text-xs font-semibold text-violet-400">
                   View Roadmap <ArrowRight className="size-3.5 transition-transform group-hover:translate-x-1" />
                 </div>
               </CardContent>
@@ -873,12 +914,12 @@ function Dashboard() {
                       type="submit"
                       size="sm"
                       disabled={askingQuestion || !customQuestion.trim()}
-                      className="gap-1.5 shrink-0 text-xs font-medium"
+                      className="gap-1.5 shrink-0 text-xs font-medium ai-button hover:text-white"
                     >
                       {askingQuestion ? (
                         <Loader2 className="size-3.5 animate-spin" />
                       ) : (
-                        <Sparkles className="size-3.5 text-amber-300" />
+                        <Sparkles className="size-3.5 text-violet-200" />
                       )}
                       Ask
                     </Button>

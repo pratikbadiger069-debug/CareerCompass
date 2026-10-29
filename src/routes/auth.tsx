@@ -935,7 +935,7 @@ function AuthPage() {
                 {demoBusy ? (
                   <Loader2 className="size-3.5 animate-spin" />
                 ) : (
-                  <Sparkles className="size-3.5" />
+                  <Sparkles className="size-3.5 text-violet-400" />
                 )}
                 Try Demo Mode as Guest
               </Button>

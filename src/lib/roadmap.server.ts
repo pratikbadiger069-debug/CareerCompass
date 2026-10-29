@@ -184,17 +184,30 @@ const CAREER_COMPASS_SCHEMA = {
 export async function generateRoadmapFromProfile(
   userProfile: Record<string, unknown>,
 ): Promise<RoadmapResult> {
-  const apiKey = process.env["LOVABLE_API_KEY"];
-  if (!apiKey) throw new Error("AI is not configured. Missing API key.");
+  const lovableKey = process.env["LOVABLE_API_KEY"];
+  const geminiKey = process.env["GEMINI_API_KEY"] || process.env["GOOGLE_API_KEY"];
 
-  const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+  if (!lovableKey && !geminiKey) {
+    throw new Error(
+      "AI is not configured. Missing LOVABLE_API_KEY or GEMINI_API_KEY in server environment variables. Please set LOVABLE_API_KEY or GEMINI_API_KEY in your .env file.",
+    );
+  }
+
+  const isLovable = Boolean(lovableKey);
+  const apiKey = lovableKey || geminiKey;
+  const endpoint = isLovable
+    ? "https://ai.gateway.lovable.dev/v1/chat/completions"
+    : "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions";
+  const model = isLovable ? "google/gemini-2.5-flash" : "gemini-2.5-flash";
+
+  const response = await fetch(endpoint, {
     method: "POST",
     headers: {
       Authorization: `Bearer ${apiKey}`,
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      model: "google/gemini-2.5-flash",
+      model,
       response_format: {
         type: "json_schema",
         json_schema: {
@@ -216,9 +229,18 @@ export async function generateRoadmapFromProfile(
   if (!response.ok) {
     const body = await response.text();
     console.error(`[generate-roadmap] AI request failed [${response.status}]: ${body}`);
-    if (response.status === 429) throw new Error("Rate limit reached. Please try again shortly.");
-    if (response.status === 402) throw new Error("AI credits exhausted. Please add credits.");
-    throw new Error(`AI request failed [${response.status}]`);
+    if (response.status === 401 || response.status === 403) {
+      throw new Error(
+        "AI authentication failed. Please verify that your LOVABLE_API_KEY or GEMINI_API_KEY is valid.",
+      );
+    }
+    if (response.status === 429) {
+      throw new Error("AI rate limit reached. Please wait a moment and try again.");
+    }
+    if (response.status === 402) {
+      throw new Error("AI credits exhausted. Please replenish credits on your AI provider account.");
+    }
+    throw new Error(`AI request failed [${response.status}]. Please check your AI configuration.`);
   }
 
   const payload = (await response.json()) as {

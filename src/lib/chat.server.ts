@@ -44,12 +44,23 @@ export async function sendMessage(
       roadmapMilestones,
     );
 
-    const apiKey = process.env["LOVABLE_API_KEY"];
-    if (!apiKey) {
-      throw new Error("AI gateway key missing on server.");
+    const lovableKey = process.env["LOVABLE_API_KEY"];
+    const geminiKey = process.env["GEMINI_API_KEY"] || process.env["GOOGLE_API_KEY"];
+
+    if (!lovableKey && !geminiKey) {
+      return {
+        reply:
+          "AI Advisor is not configured yet. To enable AI career advising, please set LOVABLE_API_KEY or GEMINI_API_KEY in your environment variables (.env).",
+      };
     }
 
-    const gatewayUrl = "https://ai.gateway.lovable.dev/v1/chat/completions";
+    const isLovable = Boolean(lovableKey);
+    const apiKey = lovableKey || geminiKey;
+    const gatewayUrl = isLovable
+      ? "https://ai.gateway.lovable.dev/v1/chat/completions"
+      : "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions";
+    const model = isLovable ? "google/gemini-2.5-flash" : "gemini-2.5-flash";
+
     const response = await fetch(gatewayUrl, {
       method: "POST",
       headers: {
@@ -57,7 +68,7 @@ export async function sendMessage(
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "google/gemini-2.5-flash",
+        model,
         messages: [
           { role: "system", content: systemPrompt },
           ...safeHistory,
@@ -69,7 +80,19 @@ export async function sendMessage(
     if (!response.ok) {
       const errText = await response.text();
       console.error(`[chat.server] AI Gateway Error (${response.status}):`, errText);
-      return { reply: "Couldn't reach the assistant — try again" };
+      if (response.status === 401 || response.status === 403) {
+        return {
+          reply:
+            "AI authentication failed. Please verify that your LOVABLE_API_KEY or GEMINI_API_KEY is valid.",
+        };
+      }
+      if (response.status === 429) {
+        return { reply: "AI rate limit reached. Please wait a moment and try asking again." };
+      }
+      if (response.status === 402) {
+        return { reply: "AI credits exhausted. Please check your AI provider account credits." };
+      }
+      return { reply: `AI service returned an error (${response.status}). Please try again shortly.` };
     }
 
     const payload = (await response.json()) as {
@@ -78,12 +101,17 @@ export async function sendMessage(
 
     const reply = payload.choices?.[0]?.message?.content?.trim();
     if (!reply) {
-      return { reply: "Couldn't reach the assistant — try again" };
+      return { reply: "The AI assistant returned an empty response. Please try rephrasing your question." };
     }
 
     return { reply };
   } catch (err) {
     console.error("[chat.server] Exception during sendMessage:", err);
-    return { reply: "Couldn't reach the assistant — try again" };
+    return {
+      reply:
+        err instanceof Error
+          ? `AI request error: ${err.message}`
+          : "An unexpected error occurred while contacting the AI assistant. Please try again.",
+    };
   }
 }
