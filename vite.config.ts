@@ -16,11 +16,11 @@ const env = loadEnv(mode, process.cwd(), "");
 const publicBackendUrl =
   process.env["VITE_SUPABASE_URL"] ??
   env["VITE_SUPABASE_URL"] ??
-  "https://bnxuyyzdmiqhgzmppmsv.supabase.co";
+  "https://mhszlojwfnvvveplhcsm.supabase.co";
 const publicBackendKey =
   process.env["VITE_SUPABASE_PUBLISHABLE_KEY"] ??
   env["VITE_SUPABASE_PUBLISHABLE_KEY"] ??
-  "sb_publishable__1W5giL_316aHMismZmiWQ_YAoa7HRv";
+  "sb_publishable_MCPMlVsazo-oHAi4uqDlFQ_3UtQaizW";
 
 export default defineConfig({
   nitro: {

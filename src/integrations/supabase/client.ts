@@ -37,13 +37,13 @@ function createSupabaseClient() {
     import.meta.env["VITE_SUPABASE_URL"] ||
     process.env["SUPABASE_URL"] ||
     process.env["VITE_SUPABASE_URL"] ||
-    "https://bnxuyyzdmiqhgzmppmsv.supabase.co";
+    "https://mhszlojwfnvvveplhcsm.supabase.co";
   const SUPABASE_PUBLISHABLE_KEY =
     import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY ||
     import.meta.env["VITE_SUPABASE_PUBLISHABLE_KEY"] ||
     process.env["SUPABASE_PUBLISHABLE_KEY"] ||
     process.env["VITE_SUPABASE_PUBLISHABLE_KEY"] ||
-    "sb_publishable__1W5giL_316aHMismZmiWQ_YAoa7HRv";
+    "sb_publishable_MCPMlVsazo-oHAi4uqDlFQ_3UtQaizW";
 
   if (!SUPABASE_URL || !SUPABASE_PUBLISHABLE_KEY) {
     const missing = [
