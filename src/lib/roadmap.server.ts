@@ -197,7 +197,7 @@ export async function generateRoadmapFromProfile(
   const apiKey = (lovableKey || geminiKey)!;
   const model = isLovable
     ? "google/gemini-2.5-flash"
-    : (process.env["GEMINI_MODEL"] || "gemini-2.0-flash");
+    : (process.env["GEMINI_MODEL"] || "gemini-3.5-flash-lite");
 
   let rawContent: string | null = null;
 

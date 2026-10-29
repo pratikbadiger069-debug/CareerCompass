@@ -61,7 +61,7 @@ export async function sendMessage(
       : "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions";
     const model = isLovable
       ? "google/gemini-2.5-flash"
-      : (process.env["GEMINI_MODEL"] || "gemini-2.0-flash");
+      : (process.env["GEMINI_MODEL"] || "gemini-3.5-flash-lite");
 
     let reply: string | undefined;
 
