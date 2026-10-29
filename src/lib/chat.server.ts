@@ -59,7 +59,9 @@ export async function sendMessage(
     const gatewayUrl = isLovable
       ? "https://ai.gateway.lovable.dev/v1/chat/completions"
       : "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions";
-    const model = isLovable ? "google/gemini-2.5-flash" : "gemini-2.5-flash";
+    const model = isLovable
+      ? "google/gemini-2.5-flash"
+      : (process.env["GEMINI_MODEL"] || "gemini-2.0-flash");
 
     const response = await fetch(gatewayUrl, {
       method: "POST",
