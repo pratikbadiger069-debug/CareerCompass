@@ -571,11 +571,11 @@ function Dashboard() {
                   </div>
                 </div>
 
-                {/* Fields 3 and 4: Target Skill/Interest & Additional Context Inputs */}
+                {/* Fields 1 and 2: Target Skill/Interest & Additional Context Inputs */}
                 <div className="grid gap-4 sm:grid-cols-2">
                   <div className="space-y-1.5">
                     <label htmlFor="target-skill" className="block text-xs font-semibold text-foreground">
-                      3. Target Skill, Career Track or Specific Interest
+                      1. Target Skill, Career Track or Specific Interest
                     </label>
                     <Input
                       id="target-skill"
@@ -591,7 +591,7 @@ function Dashboard() {
 
                   <div className="space-y-1.5">
                     <label htmlFor="extra-context" className="block text-xs font-semibold text-foreground">
-                      4. Additional Preferences & Context (Optional)
+                      2. Additional Preferences & Context (Optional)
                     </label>
                     <Textarea
                       id="extra-context"
