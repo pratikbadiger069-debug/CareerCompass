@@ -5,6 +5,7 @@ import {
   ArrowRight,
   BarChart3,
   BookOpen,
+  Check,
   CheckCircle,
   Compass,
   Database,
@@ -18,6 +19,7 @@ import {
   Route as RouteIcon,
   ShieldCheck,
   Sparkles,
+  Target,
   TrendingUp,
   User,
   Zap,
@@ -43,6 +45,11 @@ import type { Tables } from "@/integrations/supabase/types";
 import { useAuth } from "@/hooks/useAuth";
 import { usePrefersReducedMotion } from "@/hooks/use-reduced-motion";
 import { HeaderNav } from "@/components/HeaderNav";
+import {
+  EDUCATION_LEVEL_PRESETS,
+  getEduStageDetails,
+  type SkillPreset,
+} from "@/lib/educationSkillsData";
 import {
   PathDetailModal,
   type OptionPath,
@@ -107,7 +114,19 @@ function Dashboard() {
   const [selectedRecId, setSelectedRecId] = useState<string | null>(null);
   const [milestones, setMilestones] = useState<Milestone[]>([]);
   const [extraContext, setExtraContext] = useState("");
+  const [selectedEduStage, setSelectedEduStage] = useState<string>("class_12");
+  const [targetSkillOrInterest, setTargetSkillOrInterest] = useState<string>("");
   const [error, setError] = useState<string | null>(null);
+
+  const currentEduPreset = useMemo(() => {
+    return getEduStageDetails(selectedEduStage);
+  }, [selectedEduStage]);
+
+  const handleSelectSkillPreset = (preset: SkillPreset) => {
+    setTargetSkillOrInterest(preset.name);
+    setExtraContext(preset.prompt);
+    toast.success(`Selected focus: ${preset.name}`);
+  };
 
   // Detail Modal & Dynamic AI Sections State
   const [selectedDetailRec, setSelectedDetailRec] = useState<PathDetailRec | null>(null);
@@ -188,6 +207,12 @@ function Dashboard() {
         if (profileError) throw new Error(`Could not load your profile: ${profileError.message}`);
         setUserProfile(profile);
         setExtraContext(profile.extra_context ?? "");
+        if (profile.education_stage) {
+          setSelectedEduStage(profile.education_stage);
+        }
+        if (profile.career_goal || profile.career_goals) {
+          setTargetSkillOrInterest(profile.career_goal || profile.career_goals || "");
+        }
 
         // Keep existing results unless this is an explicit manual regeneration.
         const { data: existing, error: fetchError } = await supabase
@@ -236,15 +261,39 @@ function Dashboard() {
           return;
         }
 
+        // Prepare context tailored to selected education level and specified skill/interest
+        const stagePreset = getEduStageDetails(selectedEduStage || profile.education_stage);
+        const stageLabel = stagePreset.label;
+
+        const contextSegments: string[] = [];
+        if (targetSkillOrInterest.trim()) {
+          contextSegments.push(`Target Specific Skill / Track Focus: "${targetSkillOrInterest.trim()}"`);
+        }
+        contextSegments.push(`Education Level: ${stageLabel}`);
+        if (extraContext.trim()) {
+          contextSegments.push(`User Custom Notes & Constraints: ${extraContext.trim()}`);
+        }
+        const fullPromptContext = contextSegments.join(". ");
+
         const contextForRoadmap = forceRegenerate
-          ? extraContext.trim()
+          ? fullPromptContext
           : (profile.extra_context ?? "");
-        const profileForRoadmap = { ...profile, extra_context: contextForRoadmap };
+        const profileForRoadmap = {
+          ...profile,
+          education_stage: selectedEduStage || profile.education_stage,
+          career_goal: targetSkillOrInterest.trim() || profile.career_goal,
+          career_goals: targetSkillOrInterest.trim() || profile.career_goals,
+          extra_context: contextForRoadmap,
+        };
 
         if (forceRegenerate) {
           const { error: profileUpdateError } = await supabase
             .from("user_profiles")
-            .update({ extra_context: contextForRoadmap || null })
+            .update({
+              extra_context: extraContext.trim() || null,
+              education_stage: selectedEduStage || profile.education_stage,
+              career_goal: targetSkillOrInterest.trim() || profile.career_goal,
+            })
             .eq("user_id", user.id);
           if (profileUpdateError)
             throw new Error(`Failed to save your context: ${profileUpdateError.message}`);
@@ -385,7 +434,7 @@ function Dashboard() {
         setStatus("error");
       }
     },
-    [user, isGuest, applyAiPayload],
+    [user, isGuest, applyAiPayload, extraContext, selectedEduStage, targetSkillOrInterest],
   );
 
   useEffect(() => {
@@ -503,38 +552,174 @@ function Dashboard() {
 
           {!isGuest ? (
             <>
-              {/* Extra context prompt & Generate/Regenerate AI Roadmap button */}
-              <div className="mb-6 flex flex-col gap-4 rounded-xl border border-violet-500/25 bg-violet-500/5 p-4 sm:flex-row sm:items-end">
-                <div className="min-w-0 flex-1">
-                  <label htmlFor="extra-context" className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-muted-foreground">
-                    Provide Additional Context or Interests
-                  </label>
-                  <Textarea
-                    id="extra-context"
-                    value={extraContext}
-                    onChange={(event) => setExtraContext(event.target.value)}
-                    maxLength={500}
-                    disabled={status === "loading"}
-                    placeholder="E.g. I prefer software engineering over hardware, want remote work options, or prefer colleges in Mumbai/Bengaluru..."
-                    className="min-h-20 resize-y text-xs bg-background/80"
-                  />
-                  <p className="mt-1 text-right text-[11px] text-muted-foreground">
-                    {extraContext.length}/500
-                  </p>
+              {/* Education-Level Tailored Skill, Interest & Roadmap Customizer */}
+              <div className="mb-8 rounded-2xl border border-violet-500/30 bg-gradient-to-br from-violet-500/10 via-card/90 to-charcoal-deep p-5 sm:p-6 shadow-xl backdrop-blur-md space-y-5">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-white/10 pb-4">
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-violet-500/20 text-violet-300 border border-violet-500/30 shadow-inner">
+                      <Target className="size-5" />
+                    </div>
+                    <div>
+                      <h3 className="text-sm sm:text-base font-bold text-foreground flex items-center gap-2">
+                        Provide Additional Context, Skills & Interests
+                        <span className="ai-badge text-[10px]">AI Guided</span>
+                      </h3>
+                      <p className="text-xs text-muted-foreground mt-0.5">
+                        Specify any skill, target exam, or passion based on your education level to generate an adaptive AI roadmap.
+                      </p>
+                    </div>
+                  </div>
                 </div>
-                <Button
-                  type="button"
-                  onClick={() => void loadRecommendations(true)}
-                  disabled={status === "loading"}
-                  className="shrink-0 gap-2 font-semibold shadow-md ai-button hover:text-white"
-                >
-                  {status === "loading" ? (
-                    <Loader2 className="size-4 animate-spin" />
-                  ) : (
-                    <Sparkles className="size-4 text-violet-200" />
-                  )}
-                  {recommendations.length > 0 ? "Regenerate AI Roadmap" : "Generate AI Roadmap"}
-                </Button>
+
+                {/* Step 1: Select Education Level */}
+                <div className="space-y-2">
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <label className="text-xs font-semibold text-foreground flex items-center gap-1.5">
+                      <GraduationCap className="size-3.5 text-primary" />
+                      1. Select / Confirm Your Education Level
+                    </label>
+                    <span className="text-[11px] text-muted-foreground">
+                      {currentEduPreset.subtext}
+                    </span>
+                  </div>
+
+                  <div className="flex flex-wrap gap-2 pt-0.5">
+                    {Object.values(EDUCATION_LEVEL_PRESETS).map((lvl) => {
+                      const isActive = selectedEduStage === lvl.stageId;
+                      return (
+                        <button
+                          key={lvl.stageId}
+                          type="button"
+                          onClick={() => {
+                            setSelectedEduStage(lvl.stageId);
+                          }}
+                          className={`rounded-lg px-3 py-1.5 text-xs font-medium transition-all ${
+                            isActive
+                              ? "bg-primary text-primary-foreground font-bold shadow-sm ring-1 ring-primary/40"
+                              : "bg-muted/50 text-muted-foreground hover:bg-muted hover:text-foreground border border-border/50"
+                          }`}
+                        >
+                          {lvl.shortLabel}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Step 2: High-Impact Recommended Skills & Interests for this Level */}
+                <div className="space-y-2.5 rounded-xl border border-border/60 bg-muted/20 p-4">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-semibold text-foreground flex items-center gap-1.5">
+                      <Sparkles className="size-3.5 text-amber-400" />
+                      2. Recommended Focus Skills & Tracks for {currentEduPreset.shortLabel}
+                    </span>
+                    <span className="text-[11px] text-muted-foreground">
+                      Click any track to apply
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2">
+                    {currentEduPreset.skills.map((preset) => {
+                      const isSelected = targetSkillOrInterest === preset.name;
+                      return (
+                        <button
+                          key={preset.name}
+                          type="button"
+                          onClick={() => handleSelectSkillPreset(preset)}
+                          className={`group flex items-start gap-2.5 rounded-xl border p-2.5 text-left transition-all ${
+                            isSelected
+                              ? "border-primary bg-primary/15 text-foreground ring-1 ring-primary/30"
+                              : "border-border/50 bg-card/60 text-muted-foreground hover:border-primary/40 hover:bg-muted/60 hover:text-foreground"
+                          }`}
+                        >
+                          <span className="text-base shrink-0 group-hover:scale-110 transition-transform">{preset.icon}</span>
+                          <div className="min-w-0 flex-1">
+                            <p className="text-xs font-semibold leading-tight truncate text-foreground">
+                              {preset.name}
+                            </p>
+                            <span className="text-[10px] text-muted-foreground/80 mt-0.5 inline-block">
+                              {preset.category}
+                            </span>
+                          </div>
+                          {isSelected && <CheckCircle className="size-3.5 text-primary shrink-0 mt-0.5" />}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Step 3: Custom Skill / Interest & Context Inputs */}
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <div className="space-y-1.5">
+                    <label htmlFor="target-skill" className="block text-xs font-semibold text-foreground">
+                      3. Target Skill, Career Track or Specific Interest
+                    </label>
+                    <Input
+                      id="target-skill"
+                      value={targetSkillOrInterest}
+                      onChange={(e) => setTargetSkillOrInterest(e.target.value)}
+                      placeholder="e.g. Generative AI, Full Stack Web Dev, Investment Banking, Robotics..."
+                      className="text-xs bg-background/80"
+                    />
+                    <p className="text-[11px] text-muted-foreground">
+                      Type any custom skill, exam, or passion you want the roadmap built around.
+                    </p>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label htmlFor="extra-context" className="block text-xs font-semibold text-foreground">
+                      4. Additional Preferences & Context (Optional)
+                    </label>
+                    <Textarea
+                      id="extra-context"
+                      value={extraContext}
+                      onChange={(event) => setExtraContext(event.target.value)}
+                      maxLength={500}
+                      disabled={status === "loading"}
+                      placeholder="E.g. I prefer software over hardware, want remote work options, or want top colleges in Bangalore/Mumbai..."
+                      className="min-h-16 resize-y text-xs bg-background/80"
+                    />
+                    <p className="text-right text-[10px] text-muted-foreground">
+                      {extraContext.length}/500
+                    </p>
+                  </div>
+                </div>
+
+                {/* Action Bar */}
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pt-2 border-t border-white/10">
+                  <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+                    <span className="text-foreground font-semibold">
+                      Current Target:
+                    </span>
+                    <Badge variant="outline" className="border-primary/40 bg-primary/10 text-primary text-[11px] font-semibold">
+                      {targetSkillOrInterest.trim() || "Comprehensive Career Roadmap"}
+                    </Badge>
+                    <span className="text-[11px] text-muted-foreground">• Level: {currentEduPreset.shortLabel}</span>
+                  </div>
+
+                  <Button
+                    type="button"
+                    onClick={() => void loadRecommendations(true)}
+                    disabled={status === "loading"}
+                    className="shrink-0 gap-2 font-bold shadow-lg ai-button hover:text-white px-5"
+                  >
+                    {status === "loading" ? (
+                      <>
+                        <Loader2 className="size-4 animate-spin" />
+                        Generating Custom Roadmap...
+                      </>
+                    ) : (
+                      <>
+                        <Sparkles className="size-4 text-violet-200" />
+                        {targetSkillOrInterest.trim()
+                          ? `Generate Roadmap for ${targetSkillOrInterest.slice(0, 24)}${targetSkillOrInterest.length > 24 ? "..." : ""}`
+                          : recommendations.length > 0
+                            ? "Regenerate AI Roadmap"
+                            : "Generate AI Roadmap"}
+                      </>
+                    )}
+                  </Button>
+                </div>
               </div>
 
               {/* Loading skeleton */}
