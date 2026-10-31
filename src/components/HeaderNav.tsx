@@ -48,7 +48,7 @@ export function HeaderNav() {
   const navLinks = [
     { to: "/dashboard", label: "Dashboard", icon: Compass },
     { to: "/colleges", label: "Colleges", icon: GraduationCap },
-    { to: "/backup", label: "Backup Plans", icon: ShieldCheck },
+    { to: "/backup", label: "Backup", icon: ShieldCheck },
   ];
 
   // Aeline-style scroll: compact + frosted on scroll
@@ -154,10 +154,10 @@ export function HeaderNav() {
                   College Explorer
                 </Link>
               </DropdownMenuItem>
-              <DropdownMenuItem asChild className="rounded-lg text-xs font-medium hover:bg-emerald-500/10 hover:text-emerald-400">
+              <DropdownMenuItem asChild className="rounded-lg text-xs font-medium hover:bg-primary/8 hover:text-primary">
                 <Link to="/backup" className="cursor-pointer gap-2">
-                  <Database className="size-3.5 text-primary" />
-                  Data Backup & Restore
+                  <ShieldCheck className="size-3.5 text-primary" />
+                  Backup Pathways
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuSeparator className="my-1 bg-border/40" />

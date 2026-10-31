@@ -779,11 +779,11 @@ export const ALL_INDIAN_COLLEGES: CollegeItem[] = [
  * Helper to match state names safely handling variations like 'Delhi (NCR)' vs 'Delhi',
  * 'Maharashtra' vs 'maharashtra', etc.
  */
-export function isStateMatch(collegeState: string, targetState: string): boolean {
+export function isStateMatch(collegeState?: string | null, targetState?: string | null): boolean {
   if (!targetState || targetState === "ALL") return true;
   if (!collegeState) return false;
-  const a = collegeState.toLowerCase().replace(/[\s\(\)\-_]/g, "");
-  const b = targetState.toLowerCase().replace(/[\s\(\)\-_]/g, "");
+  const a = String(collegeState).toLowerCase().replace(/[\s\(\)\-_]/g, "");
+  const b = String(targetState).toLowerCase().replace(/[\s\(\)\-_]/g, "");
   return a === b || a.includes(b) || b.includes(a);
 }
 
@@ -791,11 +791,11 @@ export function isStateMatch(collegeState: string, targetState: string): boolean
  * Helper to match city names safely handling variations like 'Bengaluru' vs 'Bangalore',
  * 'New Delhi' vs 'Delhi', case differences, etc.
  */
-export function isCityMatch(collegeCity: string, targetCity: string): boolean {
+export function isCityMatch(collegeCity?: string | null, targetCity?: string | null): boolean {
   if (!targetCity || targetCity === "ALL") return true;
   if (!collegeCity) return false;
-  const a = collegeCity.toLowerCase().replace(/[\s\(\)\-_]/g, "");
-  const b = targetCity.toLowerCase().replace(/[\s\(\)\-_]/g, "");
+  const a = String(collegeCity).toLowerCase().replace(/[\s\(\)\-_]/g, "");
+  const b = String(targetCity).toLowerCase().replace(/[\s\(\)\-_]/g, "");
   if ((a.includes("bangalore") || a.includes("bengaluru")) && (b.includes("bangalore") || b.includes("bengaluru"))) {
     return true;
   }

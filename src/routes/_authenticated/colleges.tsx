@@ -67,6 +67,7 @@ export type CollegesSearch = {
 };
 
 export const Route = createFileRoute("/_authenticated/colleges")({
+  ssr: false,
   validateSearch: (search: Record<string, unknown>): CollegesSearch => {
     const validTabs = ["explore", "compare", "saved"];
     const tab = typeof search.tab === "string" && validTabs.includes(search.tab)
@@ -89,6 +90,27 @@ export const Route = createFileRoute("/_authenticated/colleges")({
       { property: "og:title", content: "CareerCompass — College Explorer" },
     ],
   }),
+  errorComponent: ({ reset }) => (
+    <div className="min-h-screen bg-charcoal-deep hero-glow dot-grid-bg text-foreground flex items-center justify-center p-6">
+      <div className="max-w-md w-full bg-card/90 border border-border/80 rounded-2xl p-6 text-center space-y-4 shadow-xl">
+        <Building2 className="size-12 mx-auto text-primary" />
+        <h2 className="text-xl font-bold">College Explorer</h2>
+        <p className="text-sm text-muted-foreground">
+          We encountered an issue preparing the college directory. You can retry loading or return to your dashboard.
+        </p>
+        <div className="flex justify-center gap-3 pt-2">
+          <Button onClick={() => reset()} className="text-xs">
+            Try Again
+          </Button>
+          <Link to="/dashboard">
+            <Button variant="outline" className="text-xs">
+              Go to Dashboard
+            </Button>
+          </Link>
+        </div>
+      </div>
+    </div>
+  ),
   component: CollegesPage,
 });
 
@@ -200,31 +222,40 @@ function CollegesPage() {
 
         const recColleges: CollegeItem[] = [];
         (recsData ?? []).forEach((rec) => {
-          const list = (rec as Record<string, unknown>).colleges as Array<Record<string, unknown>> | undefined;
-          (list ?? []).forEach((col, idx) => {
-            if (col && (col.name || col.college_name)) {
-              const cName = String(col.name ?? col.college_name ?? "Institution");
-              const cCity = String(col.city ?? "India");
-              // Parse state from city string if formatted as "City, State"
-              const parts = cCity.split(",").map((s) => s.trim());
-              const cityName = parts[0] || cCity;
-              const stateName = parts[1] || "";
-
-              recColleges.push({
-                id: `rec-${rec.id}-${idx}`,
-                name: cName,
-                course: String(col.course ?? col.program ?? "Degree Program"),
-                city: cityName,
-                state: stateName,
-                fees_total: String(col.fees_total ?? col.tuition_estimate ?? "Varies"),
-                entrance: String(col.entrance ?? col.application_deadline ?? "Direct / Entrance Exam"),
-                why: String(col.why ?? col.notes ?? `Matches your career recommendation: ${rec.career_title}`),
-                category: "Science",
-                rating: "4.7/5",
-                careerTitle: rec.career_title,
-              });
+          let list = (rec as Record<string, unknown>).colleges;
+          if (typeof list === "string") {
+            try {
+              list = JSON.parse(list);
+            } catch {
+              list = [];
             }
-          });
+          }
+          if (Array.isArray(list)) {
+            list.forEach((col, idx) => {
+              if (col && (col.name || col.college_name)) {
+                const cName = String(col.name ?? col.college_name ?? "Institution");
+                const cCity = String(col.city ?? "India");
+                // Parse state from city string if formatted as "City, State"
+                const parts = cCity.split(",").map((s) => s.trim());
+                const cityName = parts[0] || cCity;
+                const stateName = parts[1] || "";
+
+                recColleges.push({
+                  id: `rec-${rec.id}-${idx}`,
+                  name: cName,
+                  course: String(col.course ?? col.program ?? "Degree Program"),
+                  city: cityName,
+                  state: stateName,
+                  fees_total: String(col.fees_total ?? col.tuition_estimate ?? "Varies"),
+                  entrance: String(col.entrance ?? col.application_deadline ?? "Direct / Entrance Exam"),
+                  why: String(col.why ?? col.notes ?? `Matches your career recommendation: ${rec.career_title || "Path"}`),
+                  category: "Science",
+                  rating: "4.7/5",
+                  careerTitle: rec.career_title || undefined,
+                });
+              }
+            });
+          }
         });
         setExtractedRecColleges(recColleges);
       } else {
@@ -259,10 +290,15 @@ function CollegesPage() {
   // Combine static colleges and extracted AI recommendation colleges
   const allColleges = useMemo<CollegeItem[]>(() => {
     const list: CollegeItem[] = [...extractedRecColleges];
-    const existingNames = new Set(list.map((c) => c.name.toLowerCase()));
+    const existingNames = new Set(
+      list
+        .map((c) => (c?.name ? String(c.name).toLowerCase().trim() : ""))
+        .filter(Boolean),
+    );
 
     for (const c of ALL_INDIAN_COLLEGES) {
-      if (!existingNames.has(c.name.toLowerCase())) {
+      const cNorm = c?.name ? String(c.name).toLowerCase().trim() : "";
+      if (cNorm && !existingNames.has(cNorm)) {
         list.push(c);
       }
     }
@@ -277,16 +313,17 @@ function CollegesPage() {
 
     // Helper to test category and search query
     const matchesCategoryAndQuery = (c: CollegeItem) => {
+      if (!c) return false;
       if (selectedCategory !== "All" && c.category !== selectedCategory) {
         return false;
       }
       if (query) {
-        const matchesName = c.name.toLowerCase().includes(query);
-        const matchesCourse = c.course.toLowerCase().includes(query);
-        const matchesCity = c.city.toLowerCase().includes(query);
-        const matchesState = c.state.toLowerCase().includes(query);
-        const matchesEntrance = c.entrance.toLowerCase().includes(query);
-        const matchesWhy = c.why.toLowerCase().includes(query);
+        const matchesName = (c.name || "").toLowerCase().includes(query);
+        const matchesCourse = (c.course || "").toLowerCase().includes(query);
+        const matchesCity = (c.city || "").toLowerCase().includes(query);
+        const matchesState = (c.state || "").toLowerCase().includes(query);
+        const matchesEntrance = (c.entrance || "").toLowerCase().includes(query);
+        const matchesWhy = (c.why || "").toLowerCase().includes(query);
         if (!matchesName && !matchesCourse && !matchesCity && !matchesState && !matchesEntrance && !matchesWhy) {
           return false;
         }
@@ -404,15 +441,19 @@ function CollegesPage() {
 
   // Comparison Management
   const isSelectedForCompare = (col: CollegeItem) => {
+    if (!col || !col.name) return false;
+    const targetName = String(col.name).toLowerCase().trim();
     return selectedForCompare.some(
-      (item) => item.id === col.id || item.name.toLowerCase() === col.name.toLowerCase(),
+      (item) => item?.id === col.id || (Boolean(item?.name) && String(item.name).toLowerCase().trim() === targetName),
     );
   };
 
   const handleToggleCompare = (col: CollegeItem) => {
+    if (!col || !col.name) return;
+    const targetName = String(col.name).toLowerCase().trim();
     if (isSelectedForCompare(col)) {
       setSelectedForCompare((prev) =>
-        prev.filter((item) => item.id !== col.id && item.name.toLowerCase() !== col.name.toLowerCase()),
+        prev.filter((item) => item?.id !== col.id && (!item?.name || String(item.name).toLowerCase().trim() !== targetName)),
       );
       toast.info(`Removed ${col.name} from comparison.`);
     } else {
@@ -486,17 +527,23 @@ function CollegesPage() {
     }
   };
 
-  const isCollegeSaved = (name: string) => {
+  const isCollegeSaved = (name?: string | null) => {
+    if (!name) return false;
+    const target = String(name).trim().toLowerCase();
     return (savedColleges ?? []).some(
-      (s) => s.college_name.trim().toLowerCase() === name.trim().toLowerCase(),
+      (s) => Boolean(s?.college_name) && String(s.college_name).trim().toLowerCase() === target,
     );
   };
 
   // Available cities for selected filter state
   const availableCities = useMemo(() => {
     if (filterState === "ALL") return [];
-    return INDIAN_STATES_AND_CITIES[filterState] ?? [];
-  }, [filterState]);
+    const baseList = INDIAN_STATES_AND_CITIES[filterState] ?? [];
+    if (filterCity && filterCity !== "ALL" && !baseList.includes(filterCity)) {
+      return [filterCity, ...baseList];
+    }
+    return baseList;
+  }, [filterState, filterCity]);
 
   return (
     <div className="min-h-screen bg-charcoal-deep hero-glow dot-grid-bg text-foreground pb-28">
@@ -849,17 +896,15 @@ function CollegesPage() {
                 className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
               >
                 {displayedColleges.map((col) => {
-                  const saved = isCollegeSaved(col.name);
+                  const saved = isCollegeSaved(col?.name);
                   const inCompare = isSelectedForCompare(col);
 
-                  // Detect location match
-                  const isCityMatch =
-                    (filterCity !== "ALL" && col.city.toLowerCase() === filterCity.toLowerCase()) ||
-                    (Boolean(savedUserLoc?.city) && col.city.toLowerCase() === savedUserLoc?.city.toLowerCase());
+                  const userCity = filterCity !== "ALL" ? filterCity : (savedUserLoc?.city ?? "");
+                  const userState = filterState !== "ALL" ? filterState : (savedUserLoc?.state ?? "");
 
-                  const isStateMatch =
-                    (filterState !== "ALL" && col.state.toLowerCase() === filterState.toLowerCase()) ||
-                    (Boolean(savedUserLoc?.state) && col.state.toLowerCase() === savedUserLoc?.state.toLowerCase());
+                  // Detect location match using null-safe helper
+                  const isCityMatchPill = Boolean(userCity) && isCityMatch(col?.city, userCity);
+                  const isStateMatchPill = Boolean(userState) && isStateMatch(col?.state, userState);
 
                   return (
                     <motion.div
@@ -869,9 +914,9 @@ function CollegesPage() {
                       className={`flex flex-col h-full justify-between rounded-2xl border bg-card/85 p-5 shadow-sm transition-all ${
                         inCompare
                           ? "ring-2 ring-primary border-primary/60 bg-primary/5"
-                          : isCityMatch
+                          : isCityMatchPill
                             ? "border-emerald-500/50 bg-emerald-500/5"
-                            : isStateMatch
+                            : isStateMatchPill
                               ? "border-primary/40 bg-card/90"
                               : "border-border/70"
                       }`}
@@ -880,11 +925,11 @@ function CollegesPage() {
                         {/* Header Badges: Location Match & Category */}
                         <div className="flex flex-wrap items-center justify-between gap-1.5 mb-2.5">
                           <div className="flex flex-wrap items-center gap-1.5">
-                            {isCityMatch ? (
+                            {isCityMatchPill ? (
                               <Badge className="bg-emerald-500 text-black text-[10px] font-bold px-2 py-0.5">
                                 <MapPin className="mr-1 size-2.5" /> In Your City
                               </Badge>
-                            ) : isStateMatch ? (
+                            ) : isStateMatchPill ? (
                               <Badge className="bg-primary/20 text-primary border border-primary/30 text-[10px] font-medium px-2 py-0.5">
                                 <MapPin className="mr-1 size-2.5" /> In Your State
                               </Badge>
@@ -1101,11 +1146,11 @@ function CollegesPage() {
                     }}
                   >
                     {selectedForCompare.map((col) => {
-                      const saved = isCollegeSaved(col.name);
-                      const isCityMatch =
-                        savedUserLoc?.city && col.city.toLowerCase() === savedUserLoc.city.toLowerCase();
-                      const isStateMatch =
-                        savedUserLoc?.state && col.state.toLowerCase() === savedUserLoc.state.toLowerCase();
+                      const saved = isCollegeSaved(col?.name);
+                      const isHomeCityMatch =
+                        Boolean(savedUserLoc?.city) && isCityMatch(col?.city, savedUserLoc!.city);
+                      const isHomeStateMatch =
+                        Boolean(savedUserLoc?.state) && isStateMatch(col?.state, savedUserLoc!.state);
 
                       return (
                         <Card
@@ -1151,11 +1196,11 @@ function CollegesPage() {
                                 <MapPin className="size-3.5 text-primary shrink-0" />
                                 <span>{col.city}, {col.state}</span>
                               </div>
-                              {isCityMatch ? (
+                              {isHomeCityMatch ? (
                                 <Badge className="mt-1.5 bg-emerald-500/20 text-emerald-400 border-emerald-500/30 text-[10px]">
                                   Matches Your Home City
                                 </Badge>
-                              ) : isStateMatch ? (
+                              ) : isHomeStateMatch ? (
                                 <Badge className="mt-1.5 bg-primary/15 text-primary border-primary/25 text-[10px]">
                                   In Your Home State
                                 </Badge>
@@ -1279,15 +1324,16 @@ function CollegesPage() {
                 className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
               >
                 {savedColleges.map((col) => {
+                  const safeName = col?.college_name || "Target College";
                   const matchingItem: CollegeItem = {
-                    id: `saved-${col.id}`,
-                    name: col.college_name,
-                    course: col.program || "Target Degree",
-                    city: col.city || "India",
+                    id: `saved-${col?.id || Math.random()}`,
+                    name: safeName,
+                    course: col?.program || "Target Degree",
+                    city: col?.city || "India",
                     state: "",
-                    fees_total: col.tuition_estimate || "Varies",
-                    entrance: col.application_deadline || "Entrance Exam",
-                    why: col.notes || "Saved target institution.",
+                    fees_total: col?.tuition_estimate || "Varies",
+                    entrance: col?.application_deadline || "Entrance Exam",
+                    why: col?.notes || "Saved target institution.",
                     category: "Science",
                   };
                   const inCompare = isSelectedForCompare(matchingItem);
@@ -1302,12 +1348,12 @@ function CollegesPage() {
                       <div>
                         <div className="flex items-start justify-between gap-2">
                           <h3 className="text-sm font-bold text-foreground leading-snug">
-                            {col.college_name}
+                            {safeName}
                           </h3>
                           <Button
                             variant="ghost"
                             size="icon"
-                            onClick={() => handleRemoveSavedCollege(col.id, col.college_name)}
+                            onClick={() => handleRemoveSavedCollege(col.id, safeName)}
                             className="h-7 w-7 text-muted-foreground hover:text-destructive shrink-0"
                             title="Remove from saved"
                           >

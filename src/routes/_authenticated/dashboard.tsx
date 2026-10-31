@@ -697,30 +697,32 @@ function Dashboard() {
           </Link>
 
           <Link to="/backup">
-            <Card className="group h-full border-border/60 bg-card/70 transition-all hover:border-emerald-500/50 hover:bg-card hover:shadow-md">
+            <Card className="group h-full border-border/60 bg-card/70 transition-all hover:border-primary/50 hover:bg-card hover:shadow-md">
               <CardContent className="flex flex-col justify-between p-5 h-full">
                 <div>
-                  <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-                    <Database className="size-5" />
+                  <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary border border-primary/20">
+                    <ShieldCheck className="size-5" />
                   </div>
                   <div className="flex items-center justify-between">
-                    <h3 className="font-bold text-base group-hover:text-primary transition-colors">Data Backup & Recovery</h3>
-                    <Badge variant="outline" className="bg-emerald-500/10 text-emerald-400 border-emerald-500/25 text-[10px]">
-                      Live Export
+                    <h3 className="font-bold text-base group-hover:text-primary transition-colors">Backup & Fallback Plans</h3>
+                    <Badge variant="outline" className="bg-primary/10 text-primary border-primary/25 text-[10px]">
+                      Safety Net
                     </Badge>
                   </div>
-                  <p className="mt-1 text-xs text-muted-foreground leading-relaxed">Securely back up, download JSON snapshots, and restore your student profile, career roadmaps, and saved colleges.</p>
+                  <p className="mt-1 text-xs text-muted-foreground leading-relaxed">
+                    Explore secondary career paths, entrance exam pivots, and risk mitigation strategies to ensure long-term career security.
+                  </p>
                 </div>
-                <div className="mt-4 flex items-center gap-1 text-xs font-semibold text-emerald-400">
-                  Manage Backups <ArrowRight className="size-3.5 transition-transform group-hover:translate-x-1" />
+                <div className="mt-4 flex items-center gap-1 text-xs font-semibold text-primary">
+                  View Backup Plans <ArrowRight className="size-3.5 transition-transform group-hover:translate-x-1" />
                 </div>
               </CardContent>
             </Card>
           </Link>
         </section>
 
-        {/* ─── 3. Actionable Immediate Next Steps ─── */}
-        <section className="mb-10">
+        {/* ─── 3. Actionable Immediate Next Steps & Exam Connections ─── */}
+        <section className="mb-10 space-y-6">
           <Card className="border-primary/20 bg-primary/5 shadow-sm">
             <CardHeader className="pb-3 border-b border-primary/15">
               <div className="flex items-center justify-between">
@@ -750,6 +752,43 @@ function Dashboard() {
                   Generate your AI career recommendations above to see personalized preparation milestones and next steps.
                 </p>
               )}
+            </CardContent>
+          </Card>
+
+          {/* Parallel Entrance Exam Connections Summary */}
+          <Card className="border-border/60 bg-card/70 shadow-sm">
+            <CardHeader className="pb-3 border-b border-border/40">
+              <div className="flex items-center justify-between">
+                <CardTitle className="flex items-center gap-2 text-base font-bold">
+                  <Link2 className="size-5 text-primary" />
+                  Parallel Entrance Exam Connections
+                </CardTitle>
+                <Link to="/backup">
+                  <Button variant="ghost" size="sm" className="h-7 text-xs gap-1 text-primary hover:bg-primary/10">
+                    Full Fallback Map <ArrowRight className="size-3" />
+                  </Button>
+                </Link>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Target key entrance exams alongside overlapping alternatives to maximize your admission safety net.
+              </p>
+            </CardHeader>
+            <CardContent className="p-6">
+              <div className="grid gap-3 sm:grid-cols-3">
+                {EXAM_CONNECTIONS.slice(0, 3).map((conn, idx) => (
+                  <div key={idx} className="rounded-xl border border-border/60 bg-background/60 p-3.5 text-xs">
+                    <Badge variant="outline" className="mb-1.5 text-[10px] border-primary/30 text-primary">
+                      Primary: {conn.exam}
+                    </Badge>
+                    <p className="font-semibold text-foreground text-xs mt-1">
+                      Parallel: {Array.isArray(conn.connected_exams) ? conn.connected_exams.join(", ") : conn.connected_exams}
+                    </p>
+                    <p className="mt-1.5 text-[11px] text-muted-foreground leading-relaxed line-clamp-2">
+                      {conn.note}
+                    </p>
+                  </div>
+                ))}
+              </div>
             </CardContent>
           </Card>
         </section>
