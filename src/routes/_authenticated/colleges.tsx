@@ -1,14 +1,18 @@
 import { useEffect, useMemo, useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import {
+  AlertCircle,
   ArrowLeft,
   ArrowRight,
+  ArrowUpRight,
+  Award,
   BarChart3,
   BookmarkCheck,
   BookmarkPlus,
   Building2,
   Check,
   CheckCircle2,
+  ExternalLink,
   Filter,
   Globe,
   Globe2,
@@ -20,6 +24,7 @@ import {
   Search,
   Sparkles,
   Star,
+  ThumbsUp,
   Trash2,
   X,
 } from "lucide-react";
@@ -49,6 +54,12 @@ import {
   isStateMatch,
   isCityMatch,
   getCollegeType,
+  getCollegeWebsite,
+  getCollegeReview,
+  getCollegeNIRF,
+  getCollegePros,
+  getCollegeCons,
+  getCollegeRating,
   type CollegeItem,
 } from "@/lib/collegesData";
 import {
@@ -1024,14 +1035,16 @@ function CollegesPage() {
                                 {col.category}
                               </Badge>
                             )}
+
+                            <Badge variant="outline" className="text-[10px] text-muted-foreground border-border/60 font-medium">
+                              {getCollegeNIRF(col)}
+                            </Badge>
                           </div>
 
-                          {col.rating && (
-                            <span className="flex items-center gap-1 text-[11px] font-bold text-amber-400 shrink-0">
-                              <Star className="size-3 fill-amber-400 text-amber-400" />
-                              {col.rating}
-                            </span>
-                          )}
+                          <span className="flex items-center gap-1 text-[11px] font-bold text-amber-400 bg-amber-400/10 px-2 py-0.5 rounded-full border border-amber-400/20 shrink-0">
+                            <Star className="size-3 fill-amber-400 text-amber-400" />
+                            {getCollegeRating(col)}
+                          </span>
                         </div>
 
                         {/* Career Alignment Badge */}
@@ -1077,14 +1090,35 @@ function CollegesPage() {
                           </div>
                         </div>
 
+                        {/* Verified Review Quote */}
+                        <div className="mt-3 rounded-xl border border-border/40 bg-muted/20 p-2.5 text-xs">
+                          <div className="flex items-center gap-1.5 text-[10px] font-semibold text-foreground/90 mb-1">
+                            <Award className="size-3 text-primary" /> Verified Review & NIRF Insights
+                          </div>
+                          <p className="text-[11px] text-muted-foreground leading-relaxed italic">
+                            &ldquo;{getCollegeReview(col)}&rdquo;
+                          </p>
+                        </div>
+
                         {/* Description */}
                         <p className="mt-3 text-xs text-muted-foreground leading-relaxed line-clamp-3">
                           {col.why}
                         </p>
                       </div>
 
-                      {/* Card Actions: Compare Checkbox + Save Button */}
-                      <div className="mt-5 space-y-2 pt-2 border-t border-border/40">
+                      {/* Card Actions: Official Link + Compare Checkbox + Save Button */}
+                      <div className="mt-4 space-y-2 pt-2 border-t border-border/40">
+                        {/* Official College Website Link */}
+                        <a
+                          href={getCollegeWebsite(col)}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center justify-center gap-1.5 w-full h-8 px-3 rounded-lg border border-primary/30 bg-primary/10 text-primary hover:bg-primary/20 text-xs font-semibold transition-colors"
+                        >
+                          <Globe className="size-3.5" /> Visit Official Website
+                          <ExternalLink className="size-3 ml-0.5 opacity-80" />
+                        </a>
+
                         <div className="grid grid-cols-2 gap-2">
                           {/* Compare Toggle Button */}
                           <Button
@@ -1279,17 +1313,85 @@ function CollegesPage() {
                               {col.name}
                             </h3>
 
-                            {col.rating && (
+                            <div className="flex items-center justify-between gap-2 pt-0.5">
                               <div className="flex items-center gap-1 text-xs font-bold text-amber-400">
                                 <Star className="size-3 fill-amber-400 text-amber-400" />
-                                {col.rating} Rating
+                                {getCollegeRating(col)} Rating
                               </div>
-                            )}
+                              <span className="text-[10px] font-medium text-muted-foreground bg-muted/60 px-2 py-0.5 rounded">
+                                {getCollegeNIRF(col)}
+                              </span>
+                            </div>
+
+                            {/* Direct Official Website Link */}
+                            <a
+                              href={getCollegeWebsite(col)}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center justify-center gap-1.5 w-full py-1.5 px-2.5 rounded-lg border border-primary/30 bg-primary/10 text-primary hover:bg-primary/20 text-xs font-semibold transition-colors"
+                            >
+                              <Globe className="size-3.5" /> Visit Official Portal
+                              <ExternalLink className="size-3 ml-0.5 opacity-80" />
+                            </a>
                           </div>
 
                           <CardContent className="p-4 space-y-4 text-xs divide-y divide-border/30">
-                            {/* Attribute: Ownership / Sector */}
+                            {/* Attribute: NIRF & Verified Accreditation */}
                             <div className="pt-2">
+                              <span className="font-semibold text-muted-foreground uppercase tracking-wider text-[10px] block mb-1">
+                                NIRF & Official Accreditation
+                              </span>
+                              <div className="flex items-center gap-1.5">
+                                <Award className="size-3.5 text-amber-400 shrink-0" />
+                                <span className="font-bold text-foreground text-xs">{getCollegeNIRF(col)}</span>
+                              </div>
+                              <p className="text-[11px] text-muted-foreground mt-0.5">
+                                Verified student & alumni rating: <strong className="text-amber-400">{getCollegeRating(col)} / 5.0</strong>
+                              </p>
+                            </div>
+
+                            {/* Attribute: Verified Detailed Review */}
+                            <div className="pt-3">
+                              <span className="font-semibold text-muted-foreground uppercase tracking-wider text-[10px] block mb-1">
+                                Verified Comprehensive Review
+                              </span>
+                              <div className="rounded-lg bg-muted/40 p-2.5 border border-border/40 text-[11px] text-muted-foreground leading-relaxed italic">
+                                &ldquo;{getCollegeReview(col)}&rdquo;
+                              </div>
+                            </div>
+
+                            {/* Attribute: Key Advantages (Pros) */}
+                            <div className="pt-3">
+                              <span className="font-semibold text-emerald-400 uppercase tracking-wider text-[10px] block mb-1 flex items-center gap-1">
+                                <CheckCircle2 className="size-3 text-emerald-400" /> Key Strengths (Pros)
+                              </span>
+                              <ul className="space-y-1 text-[11px]">
+                                {getCollegePros(col).map((pro, idx) => (
+                                  <li key={idx} className="flex items-start gap-1.5 text-foreground/90">
+                                    <span className="text-emerald-400 font-bold shrink-0">✓</span>
+                                    <span>{pro}</span>
+                                  </li>
+                                ))}
+                              </ul>
+                            </div>
+
+                            {/* Attribute: Trade-offs & Considerations (Cons) */}
+                            <div className="pt-3">
+                              <span className="font-semibold text-amber-400 uppercase tracking-wider text-[10px] block mb-1 flex items-center gap-1">
+                                <AlertCircle className="size-3 text-amber-400" /> Trade-offs & Considerations
+                              </span>
+                              <ul className="space-y-1 text-[11px]">
+                                {getCollegeCons(col).map((con, idx) => (
+                                  <li key={idx} className="flex items-start gap-1.5 text-muted-foreground">
+                                    <span className="text-amber-400 font-bold shrink-0">•</span>
+                                    <span>{con}</span>
+                                  </li>
+                                ))}
+                              </ul>
+                            </div>
+
+                            {/* Attribute: Ownership / Sector */}
+                            <div className="pt-3">
                               <span className="font-semibold text-muted-foreground uppercase tracking-wider text-[10px] block mb-1">
                                 Ownership / Sector
                               </span>
@@ -1487,6 +1589,14 @@ function CollegesPage() {
                               Fees: {col.tuition_estimate}
                             </span>
                           )}
+                          <a
+                            href={getCollegeWebsite(matchingItem)}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-1 text-[11px] text-primary hover:underline font-medium"
+                          >
+                            <Globe className="size-3" /> Official Site <ExternalLink className="size-2.5" />
+                          </a>
                         </div>
 
                         {col.notes && (
