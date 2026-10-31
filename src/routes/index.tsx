@@ -467,31 +467,6 @@ function Landing() {
         className="mx-auto w-full max-w-6xl px-6 py-24"
       >
         <div className="text-center">
-          {/* Real Students Photo Pill */}
-          <div className="mb-4 inline-flex items-center gap-3 rounded-full border border-border/70 bg-charcoal-mid/80 px-3.5 py-1.5 backdrop-blur-md shadow-md">
-            <div className="flex -space-x-2">
-              {[
-                "https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=120&auto=format&fit=crop",
-                "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?q=80&w=120&auto=format&fit=crop",
-                "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=120&auto=format&fit=crop",
-                "https://images.unsplash.com/photo-1517841905240-472988babdf9?q=80&w=120&auto=format&fit=crop",
-              ].map((src, i) => (
-                <img
-                  key={i}
-                  src={src}
-                  alt="Student Profile"
-                  className="size-7 rounded-full object-cover ring-2 ring-charcoal-deep"
-                  loading="lazy"
-                />
-              ))}
-            </div>
-            <div className="flex items-center gap-1.5 text-xs text-muted-foreground pr-1">
-              <span className="font-semibold text-foreground">4,900+</span>
-              <span>students guided</span>
-              <span className="text-amber-400 font-bold">★★★★★</span>
-            </div>
-          </div>
-
           <div>
             <span data-tag className="section-tag mb-4 inline-flex">
               <div className="size-1.5 rounded-sm bg-current" />
@@ -581,7 +556,7 @@ function Landing() {
             {
               icon: Users,
               label: "Student community",
-              desc: "4,900+ students on the platform sharing milestones and wins.",
+              desc: "Engage with like-minded students, share roadmap milestones, and navigate options together.",
               color: "#4f46e5",
               image: "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?q=80&w=500&auto=format&fit=crop",
             },
