@@ -396,3 +396,4 @@ export function getEduStageDetails(stageId?: string | null): EducationLevelPrese
   if (!stageId) return EDUCATION_LEVEL_PRESETS["class_12"];
   return EDUCATION_LEVEL_PRESETS[stageId] || EDUCATION_LEVEL_PRESETS["class_12"];
 }
+

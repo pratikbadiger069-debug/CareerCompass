@@ -552,9 +552,9 @@ function Dashboard() {
 
           {!isGuest ? (
             <>
-              {/* Education-Level Tailored Skill, Interest & Roadmap Customizer */}
-              <div className="mb-8 rounded-2xl border border-violet-500/30 bg-gradient-to-br from-violet-500/10 via-card/90 to-charcoal-deep p-5 sm:p-6 shadow-xl backdrop-blur-md space-y-5">
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-white/10 pb-4">
+              {/* Provide Additional Context, Skills & Interests (Fields 3 and 4) */}
+              <div className="mb-8 rounded-2xl border border-violet-500/30 bg-gradient-to-br from-violet-500/10 via-card/90 to-charcoal-deep p-5 sm:p-6 shadow-xl backdrop-blur-md space-y-4">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-white/10 pb-3">
                   <div className="flex items-center gap-3">
                     <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-violet-500/20 text-violet-300 border border-violet-500/30 shadow-inner">
                       <Target className="size-5" />
@@ -565,90 +565,13 @@ function Dashboard() {
                         <span className="ai-badge text-[10px]">AI Guided</span>
                       </h3>
                       <p className="text-xs text-muted-foreground mt-0.5">
-                        Specify any skill, target exam, or passion based on your education level to generate an adaptive AI roadmap.
+                        Specify any target skill, career track, or interest and provide additional context to generate an adaptive AI roadmap.
                       </p>
                     </div>
                   </div>
                 </div>
 
-                {/* Step 1: Select Education Level */}
-                <div className="space-y-2">
-                  <div className="flex flex-wrap items-center justify-between gap-2">
-                    <label className="text-xs font-semibold text-foreground flex items-center gap-1.5">
-                      <GraduationCap className="size-3.5 text-primary" />
-                      1. Select / Confirm Your Education Level
-                    </label>
-                    <span className="text-[11px] text-muted-foreground">
-                      {currentEduPreset.subtext}
-                    </span>
-                  </div>
-
-                  <div className="flex flex-wrap gap-2 pt-0.5">
-                    {Object.values(EDUCATION_LEVEL_PRESETS).map((lvl) => {
-                      const isActive = selectedEduStage === lvl.stageId;
-                      return (
-                        <button
-                          key={lvl.stageId}
-                          type="button"
-                          onClick={() => {
-                            setSelectedEduStage(lvl.stageId);
-                          }}
-                          className={`rounded-lg px-3 py-1.5 text-xs font-medium transition-all ${
-                            isActive
-                              ? "bg-primary text-primary-foreground font-bold shadow-sm ring-1 ring-primary/40"
-                              : "bg-muted/50 text-muted-foreground hover:bg-muted hover:text-foreground border border-border/50"
-                          }`}
-                        >
-                          {lvl.shortLabel}
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-
-                {/* Step 2: High-Impact Recommended Skills & Interests for this Level */}
-                <div className="space-y-2.5 rounded-xl border border-border/60 bg-muted/20 p-4">
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-semibold text-foreground flex items-center gap-1.5">
-                      <Sparkles className="size-3.5 text-amber-400" />
-                      2. Recommended Focus Skills & Tracks for {currentEduPreset.shortLabel}
-                    </span>
-                    <span className="text-[11px] text-muted-foreground">
-                      Click any track to apply
-                    </span>
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2">
-                    {currentEduPreset.skills.map((preset) => {
-                      const isSelected = targetSkillOrInterest === preset.name;
-                      return (
-                        <button
-                          key={preset.name}
-                          type="button"
-                          onClick={() => handleSelectSkillPreset(preset)}
-                          className={`group flex items-start gap-2.5 rounded-xl border p-2.5 text-left transition-all ${
-                            isSelected
-                              ? "border-primary bg-primary/15 text-foreground ring-1 ring-primary/30"
-                              : "border-border/50 bg-card/60 text-muted-foreground hover:border-primary/40 hover:bg-muted/60 hover:text-foreground"
-                          }`}
-                        >
-                          <span className="text-base shrink-0 group-hover:scale-110 transition-transform">{preset.icon}</span>
-                          <div className="min-w-0 flex-1">
-                            <p className="text-xs font-semibold leading-tight truncate text-foreground">
-                              {preset.name}
-                            </p>
-                            <span className="text-[10px] text-muted-foreground/80 mt-0.5 inline-block">
-                              {preset.category}
-                            </span>
-                          </div>
-                          {isSelected && <CheckCircle className="size-3.5 text-primary shrink-0 mt-0.5" />}
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-
-                {/* Step 3: Custom Skill / Interest & Context Inputs */}
+                {/* Fields 3 and 4: Target Skill/Interest & Additional Context Inputs */}
                 <div className="grid gap-4 sm:grid-cols-2">
                   <div className="space-y-1.5">
                     <label htmlFor="target-skill" className="block text-xs font-semibold text-foreground">
@@ -658,11 +581,11 @@ function Dashboard() {
                       id="target-skill"
                       value={targetSkillOrInterest}
                       onChange={(e) => setTargetSkillOrInterest(e.target.value)}
-                      placeholder="e.g. Generative AI, Full Stack Web Dev, Investment Banking, Robotics..."
+                      placeholder="e.g. Generative AI, Full Stack Web Dev, Investment Banking, Robotics, Medical..."
                       className="text-xs bg-background/80"
                     />
                     <p className="text-[11px] text-muted-foreground">
-                      Type any custom skill, exam, or passion you want the roadmap built around.
+                      Specify any skill, subject, or domain you want your roadmap built around.
                     </p>
                   </div>
 
@@ -694,7 +617,11 @@ function Dashboard() {
                     <Badge variant="outline" className="border-primary/40 bg-primary/10 text-primary text-[11px] font-semibold">
                       {targetSkillOrInterest.trim() || "Comprehensive Career Roadmap"}
                     </Badge>
-                    <span className="text-[11px] text-muted-foreground">• Level: {currentEduPreset.shortLabel}</span>
+                    {userProfile?.education_stage && (
+                      <span className="text-[11px] text-muted-foreground">
+                        • Stage: {userProfile.education_stage.replace("_", " ").toUpperCase()}
+                      </span>
+                    )}
                   </div>
 
                   <Button
