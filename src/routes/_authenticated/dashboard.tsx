@@ -121,6 +121,11 @@ function Dashboard() {
 
   const [customQuestion, setCustomQuestion] = useState("");
   const [askingQuestion, setAskingQuestion] = useState(false);
+  const [customApiKey, setCustomApiKey] = useState(() => {
+    return typeof window !== "undefined"
+      ? localStorage.getItem("careercompass_custom_gemini_key") ?? ""
+      : "";
+  });
 
   const path = useMemo<StreamPath>(() => {
     const id = STREAM_VALUE_TO_PATH[stream] ?? "mpc";
@@ -546,22 +551,39 @@ function Dashboard() {
                           Career recommendations and advisor chat are powered by AI models. To enable this feature, provide an API key in your server environment:
                         </p>
                         <div className="rounded-xl border border-white/10 bg-black/40 p-3 font-mono text-[11px] space-y-1 text-muted-foreground">
-                          <p className="text-violet-300 font-semibold"># Add either of these keys to your .env file:</p>
-                          <p className="text-white">LOVABLE_API_KEY=&quot;your_lovable_key&quot;</p>
-                          <p className="text-muted-foreground text-[10px]"># or from Google AI Studio (https://aistudio.google.com/):</p>
+                          <p className="text-violet-300 font-semibold"># Server configuration (.env / Lovable Secrets):</p>
                           <p className="text-white">GEMINI_API_KEY=&quot;your_gemini_api_key&quot;</p>
+                          <p className="text-white">GEMINI_MODEL=&quot;gemini-flash-lite-latest&quot;</p>
                         </div>
-                        <div className="flex items-center gap-3 pt-1">
+                        <div className="pt-2 flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+                          <Input
+                            placeholder="Or enter Gemini API key here (AIza... or AQ...)"
+                            value={customApiKey}
+                            onChange={(e) => setCustomApiKey(e.target.value)}
+                            type="password"
+                            className="text-xs h-8 bg-background/80"
+                          />
+                          <Button
+                            size="sm"
+                            onClick={() => {
+                              if (customApiKey.trim()) {
+                                localStorage.setItem("careercompass_custom_gemini_key", customApiKey.trim());
+                                toast.success("Gemini API key saved to browser!");
+                              }
+                              void loadRecommendations(true);
+                            }}
+                            className="h-8 text-xs shrink-0 ai-button text-white"
+                          >
+                            <Sparkles className="size-3 mr-1" /> Save & Activate AI
+                          </Button>
                           <Button
                             variant="outline"
                             size="sm"
-                            onClick={() => {
-                              setStatus("idle");
-                            }}
-                            className="gap-2 text-xs border-violet-500/30 text-violet-300 hover:bg-violet-500/20 hover:text-white"
+                            onClick={() => void loadRecommendations(true)}
+                            className="h-8 text-xs shrink-0 border-violet-500/30 text-violet-300 hover:bg-violet-500/20 hover:text-white"
                           >
-                            <Loader2 className="size-3.5" />
-                            Check Again / Retry
+                            <Loader2 className="size-3.5 mr-1" />
+                            Retry Generation
                           </Button>
                         </div>
                       </div>
