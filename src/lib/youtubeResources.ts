@@ -9,9 +9,11 @@ export type YouTubeResource = {
 /**
  * Generates a direct YouTube search URL for any custom skill or topic.
  */
-export function getDirectYoutubeSearchUrl(query: string): string {
-  const clean = query.trim().replace(/[^\w\s+#.-]/gi, "");
-  return `https://www.youtube.com/results?search_query=${encodeURIComponent(`${clean} tutorial course full playlist`)}`;
+export function getDirectYoutubeSearchUrl(query?: string | null): string {
+  const raw = query ?? "";
+  const clean = raw.trim().replace(/[^\w\s+#.-]/gi, "");
+  const searchTerm = clean || "Career and Skill Development";
+  return `https://www.youtube.com/results?search_query=${encodeURIComponent(`${searchTerm} tutorial course full playlist`)}`;
 }
 
 /**

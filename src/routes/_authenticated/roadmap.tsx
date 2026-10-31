@@ -157,17 +157,17 @@ function RoadmapPage() {
 
     async function init() {
       setLoading(true);
-      if (user?.id) {
-        supabase
-          .from("user_profiles")
-          .select("*")
-          .eq("user_id", user.id)
-          .maybeSingle()
-          .then(({ data }) => {
-            if (data && !cancelled) setUserProfile(data);
-          });
+      const [profileRes, recs] = await Promise.all([
+        user?.id
+          ? supabase.from("user_profiles").select("*").eq("user_id", user.id).maybeSingle()
+          : Promise.resolve({ data: null }),
+        loadRecommendations(),
+      ]);
+
+      if (profileRes.data && !cancelled) {
+        setUserProfile(profileRes.data);
       }
-      const recs = await loadRecommendations();
+
       if (cancelled || !recs || recs.length === 0) {
         setLoading(false);
         return;

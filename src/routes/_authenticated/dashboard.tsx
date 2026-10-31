@@ -129,6 +129,20 @@ function Dashboard() {
     return getEduStageDetails(selectedEduStage);
   }, [selectedEduStage]);
 
+  const activeTargetSkill = useMemo(() => {
+    return (
+      targetSkillOrInterest.trim() ||
+      userProfile?.career_goal ||
+      recommendations[0]?.career_title ||
+      ""
+    );
+  }, [targetSkillOrInterest, userProfile?.career_goal, recommendations]);
+
+  const activeTargetSkillYtResources = useMemo(() => {
+    if (!activeTargetSkill) return [];
+    return getYoutubeResourcesForSkill(activeTargetSkill);
+  }, [activeTargetSkill]);
+
   const handleSelectSkillPreset = (preset: SkillPreset) => {
     setTargetSkillOrInterest(preset.name);
     setExtraContext(preset.prompt);
@@ -638,14 +652,7 @@ function Dashboard() {
 
                 {/* Live Curated YouTube Tutorials specifically for the target skill */}
                 {(() => {
-                  const activeSkill =
-                    targetSkillOrInterest.trim() ||
-                    userProfile?.career_goal ||
-                    recommendations[0]?.career_title ||
-                    "";
-                  if (!activeSkill) return null;
-                  const ytResources = getYoutubeResourcesForSkill(activeSkill);
-                  if (ytResources.length === 0) return null;
+                  if (!activeTargetSkill || activeTargetSkillYtResources.length === 0) return null;
                   return (
                     <div className="rounded-xl border border-red-500/25 bg-red-500/5 p-4 space-y-3">
                       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1.5 border-b border-red-500/15 pb-2.5">
@@ -657,7 +664,7 @@ function Dashboard() {
                             <span className="text-xs font-bold text-red-400 flex items-center gap-1.5 flex-wrap">
                               Curated YouTube Video Courses for:
                               <span className="text-white font-extrabold underline decoration-red-500/60">
-                                {activeSkill}
+                                {activeTargetSkill}
                               </span>
                             </span>
                             <p className="text-[10px] text-muted-foreground">
@@ -667,18 +674,18 @@ function Dashboard() {
                         </div>
 
                         <a
-                          href={getDirectYoutubeSearchUrl(activeSkill)}
+                          href={getDirectYoutubeSearchUrl(activeTargetSkill)}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="inline-flex items-center gap-1 text-[11px] font-semibold text-red-400 hover:text-red-300 hover:underline"
                         >
-                          <span>Explore more {activeSkill} on YouTube</span>
+                          <span>Explore more {activeTargetSkill} on YouTube</span>
                           <ExternalLink className="size-3" />
                         </a>
                       </div>
 
                       <div className="grid gap-2.5 sm:grid-cols-3">
-                        {ytResources.slice(0, 3).map((yt, idx) => (
+                        {activeTargetSkillYtResources.slice(0, 3).map((yt, idx) => (
                           <div
                             key={idx}
                             className="flex flex-col justify-between rounded-lg border border-white/10 bg-background/80 p-3 text-xs space-y-2 hover:border-red-500/40 transition-colors shadow-sm"
