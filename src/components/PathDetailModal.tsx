@@ -23,7 +23,10 @@ import {
   Zap,
 } from "lucide-react";
 import { Link } from "@tanstack/react-router";
-import { getYoutubeResourcesForMilestone } from "@/lib/youtubeResources";
+import {
+  getYoutubeResourcesForMilestone,
+  getDirectYoutubeSearchUrl,
+} from "@/lib/youtubeResources";
 
 export type OptionPath = {
   title: string;
@@ -141,14 +144,25 @@ export function PathDetailModal({
           {/* Required Skills */}
           {rec.required_skills && rec.required_skills.length > 0 && (
             <div className="rounded-xl border border-border/60 bg-card/60 p-4">
-              <h4 className="mb-2 flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-muted-foreground">
-                <Zap className="size-4 text-primary" /> Required Core Skills
-              </h4>
+              <div className="flex items-center justify-between mb-2">
+                <h4 className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                  <Zap className="size-4 text-primary" /> Required Core Skills
+                </h4>
+                <span className="text-[10px] text-muted-foreground">Click skill for YouTube guide</span>
+              </div>
               <div className="flex flex-wrap gap-2">
                 {rec.required_skills.map((skill) => (
-                  <Badge key={skill} variant="secondary" className="px-3 py-1 text-xs font-medium">
-                    {skill}
-                  </Badge>
+                  <a
+                    key={skill}
+                    href={getDirectYoutubeSearchUrl(skill)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    title={`Watch YouTube tutorials for ${skill}`}
+                    className="inline-flex items-center gap-1.5 rounded-lg border border-primary/20 bg-primary/10 px-3 py-1 text-xs font-medium text-foreground hover:bg-primary/20 hover:border-primary/40 transition-colors group cursor-pointer"
+                  >
+                    <span>{skill}</span>
+                    <Youtube className="size-3 text-red-500 opacity-80 group-hover:opacity-100 transition-opacity" />
+                  </a>
                 ))}
               </div>
             </div>

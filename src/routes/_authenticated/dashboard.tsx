@@ -47,7 +47,11 @@ import type { Tables } from "@/integrations/supabase/types";
 import { useAuth } from "@/hooks/useAuth";
 import { usePrefersReducedMotion } from "@/hooks/use-reduced-motion";
 import { HeaderNav } from "@/components/HeaderNav";
-import { getYoutubeResourcesForMilestone } from "@/lib/youtubeResources";
+import {
+  getYoutubeResourcesForMilestone,
+  getYoutubeResourcesForSkill,
+  getDirectYoutubeSearchUrl,
+} from "@/lib/youtubeResources";
 import {
   EDUCATION_LEVEL_PRESETS,
   getEduStageDetails,
@@ -577,9 +581,12 @@ function Dashboard() {
                 {/* Fields 1 and 2: Target Skill/Interest & Additional Context Inputs */}
                 <div className="grid gap-4 sm:grid-cols-2">
                   <div className="space-y-1.5">
-                    <label htmlFor="target-skill" className="block text-xs font-semibold text-foreground">
-                      1. Target Skill, Career Track or Specific Interest
-                    </label>
+                    <div className="flex items-center justify-between">
+                      <label htmlFor="target-skill" className="block text-xs font-semibold text-foreground">
+                        1. Target Skill, Career Track or Specific Interest
+                      </label>
+                      <span className="text-[10px] text-violet-300 font-medium">Auto-fetches YouTube courses</span>
+                    </div>
                     <Input
                       id="target-skill"
                       value={targetSkillOrInterest}
@@ -587,9 +594,27 @@ function Dashboard() {
                       placeholder="e.g. Generative AI, Full Stack Web Dev, Investment Banking, Robotics, Medical..."
                       className="text-xs bg-background/80"
                     />
-                    <p className="text-[11px] text-muted-foreground">
-                      Specify any skill, subject, or domain you want your roadmap built around.
-                    </p>
+                    <div className="flex flex-wrap items-center gap-1.5 pt-1">
+                      <span className="text-[10px] text-muted-foreground">Popular:</span>
+                      {[
+                        "Generative AI & LLMs",
+                        "Full Stack Web Dev",
+                        "Data Structures (DSA)",
+                        "Data Analytics & SQL",
+                        "Cloud & DevOps",
+                        "Investment Banking",
+                        "Cybersecurity",
+                      ].map((item) => (
+                        <button
+                          key={item}
+                          type="button"
+                          onClick={() => setTargetSkillOrInterest(item)}
+                          className="rounded-full bg-white/5 hover:bg-violet-500/20 hover:text-violet-200 border border-white/10 px-2 py-0.5 text-[10px] text-muted-foreground transition-all"
+                        >
+                          {item}
+                        </button>
+                      ))}
+                    </div>
                   </div>
 
                   <div className="space-y-1.5">
@@ -610,6 +635,89 @@ function Dashboard() {
                     </p>
                   </div>
                 </div>
+
+                {/* Live Curated YouTube Tutorials specifically for the target skill */}
+                {(() => {
+                  const activeSkill =
+                    targetSkillOrInterest.trim() ||
+                    userProfile?.career_goal ||
+                    recommendations[0]?.career_title ||
+                    "";
+                  if (!activeSkill) return null;
+                  const ytResources = getYoutubeResourcesForSkill(activeSkill);
+                  if (ytResources.length === 0) return null;
+                  return (
+                    <div className="rounded-xl border border-red-500/25 bg-red-500/5 p-4 space-y-3">
+                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1.5 border-b border-red-500/15 pb-2.5">
+                        <div className="flex items-center gap-2">
+                          <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-red-500/20 text-red-500">
+                            <Youtube className="size-4" />
+                          </div>
+                          <div>
+                            <span className="text-xs font-bold text-red-400 flex items-center gap-1.5 flex-wrap">
+                              Curated YouTube Video Courses for:
+                              <span className="text-white font-extrabold underline decoration-red-500/60">
+                                {activeSkill}
+                              </span>
+                            </span>
+                            <p className="text-[10px] text-muted-foreground">
+                              Free full-length courses, project walkthroughs & verified playlists to acquire this skill
+                            </p>
+                          </div>
+                        </div>
+
+                        <a
+                          href={getDirectYoutubeSearchUrl(activeSkill)}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1 text-[11px] font-semibold text-red-400 hover:text-red-300 hover:underline"
+                        >
+                          <span>Explore more {activeSkill} on YouTube</span>
+                          <ExternalLink className="size-3" />
+                        </a>
+                      </div>
+
+                      <div className="grid gap-2.5 sm:grid-cols-3">
+                        {ytResources.slice(0, 3).map((yt, idx) => (
+                          <div
+                            key={idx}
+                            className="flex flex-col justify-between rounded-lg border border-white/10 bg-background/80 p-3 text-xs space-y-2 hover:border-red-500/40 transition-colors shadow-sm"
+                          >
+                            <div>
+                              <div className="flex items-start justify-between gap-1 mb-1">
+                                <span className="font-semibold text-foreground leading-snug line-clamp-2">
+                                  {yt.title}
+                                </span>
+                                {yt.badge && (
+                                  <Badge
+                                    variant="outline"
+                                    className="text-[9px] py-0 px-1 border-red-500/30 text-red-400 bg-red-500/10 shrink-0"
+                                  >
+                                    {yt.badge}
+                                  </Badge>
+                                )}
+                              </div>
+                              <p className="text-[11px] text-muted-foreground line-clamp-2">
+                                <strong className="text-foreground/90">{yt.channel}:</strong>{" "}
+                                {yt.description}
+                              </p>
+                            </div>
+                            <a
+                              href={yt.url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center justify-center gap-1.5 rounded-md bg-red-500/15 hover:bg-red-500/25 text-red-400 py-1.5 px-2.5 text-[11px] font-semibold transition-colors mt-1"
+                            >
+                              <Youtube className="size-3.5 text-red-500 shrink-0" />
+                              Watch Video Course
+                              <ExternalLink className="size-3 shrink-0 opacity-80" />
+                            </a>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  );
+                })()}
 
                 {/* Action Bar */}
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pt-2 border-t border-white/10">
@@ -1225,19 +1333,26 @@ function SkillGapTracker({ rec, userSkills = [] }: { rec: Recommendation; userSk
 
             {/* High Priority Missing (Red) */}
             <div className="rounded-xl border border-rose-500/20 bg-rose-500/5 p-3">
-              <p className="mb-2 flex items-center gap-1.5 text-xs font-semibold text-rose-600 dark:text-rose-400">
-                <AlertCircle className="size-3.5" /> High Priority / Missing (
-                {(highPriorityMissing ?? []).length})
+              <p className="mb-2 flex items-center justify-between text-xs font-semibold text-rose-600 dark:text-rose-400">
+                <span className="flex items-center gap-1.5">
+                  <AlertCircle className="size-3.5" /> High Priority / Missing ({(highPriorityMissing ?? []).length})
+                </span>
+                <span className="text-[10px] text-muted-foreground">Click for video</span>
               </p>
               <div className="flex flex-wrap gap-1.5">
                 {(highPriorityMissing ?? []).length > 0 ? (
                   (highPriorityMissing ?? []).map((skill) => (
-                    <Badge
+                    <a
                       key={skill}
-                      className="bg-rose-500/15 text-rose-700 dark:text-rose-300 border-rose-500/30 hover:bg-rose-500/20"
+                      href={getDirectYoutubeSearchUrl(skill)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      title={`Watch YouTube tutorials to learn ${skill}`}
+                      className="inline-flex items-center gap-1 rounded-md bg-rose-500/15 px-2 py-0.5 text-xs font-medium text-rose-700 dark:text-rose-300 border border-rose-500/30 hover:bg-rose-500/25 transition-all group"
                     >
-                      ! {skill}
-                    </Badge>
+                      <span>! {skill}</span>
+                      <Youtube className="size-3 text-red-500 opacity-80 group-hover:opacity-100" />
+                    </a>
                   ))
                 ) : (
                   <span className="text-xs text-muted-foreground italic">
@@ -1249,18 +1364,26 @@ function SkillGapTracker({ rec, userSkills = [] }: { rec: Recommendation; userSk
 
             {/* Skills to Learn (Blue) */}
             <div className="rounded-xl border border-blue-500/20 bg-blue-500/5 p-3">
-              <p className="mb-2 flex items-center gap-1.5 text-xs font-semibold text-blue-600 dark:text-blue-400">
-                <BookOpen className="size-3.5" /> Needs to Learn ({(remainingMissing ?? []).length})
+              <p className="mb-2 flex items-center justify-between text-xs font-semibold text-blue-600 dark:text-blue-400">
+                <span className="flex items-center gap-1.5">
+                  <BookOpen className="size-3.5" /> Needs to Learn ({(remainingMissing ?? []).length})
+                </span>
+                <span className="text-[10px] text-muted-foreground">Click for video</span>
               </p>
               <div className="flex flex-wrap gap-1.5">
                 {(remainingMissing ?? []).length > 0 ? (
                   (remainingMissing ?? []).map((skill) => (
-                    <Badge
+                    <a
                       key={skill}
-                      className="bg-blue-500/15 text-blue-700 dark:text-blue-300 border-blue-500/30 hover:bg-blue-500/20"
+                      href={getDirectYoutubeSearchUrl(skill)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      title={`Watch YouTube tutorials to learn ${skill}`}
+                      className="inline-flex items-center gap-1 rounded-md bg-blue-500/15 px-2 py-0.5 text-xs font-medium text-blue-700 dark:text-blue-300 border border-blue-500/30 hover:bg-blue-500/25 transition-all group"
                     >
-                      + {skill}
-                    </Badge>
+                      <span>+ {skill}</span>
+                      <Youtube className="size-3 text-red-500 opacity-80 group-hover:opacity-100" />
+                    </a>
                   ))
                 ) : (
                   <span className="text-xs text-muted-foreground italic">No secondary gaps</span>
@@ -1268,6 +1391,55 @@ function SkillGapTracker({ rec, userSkills = [] }: { rec: Recommendation; userSk
               </div>
             </div>
           </div>
+
+          {/* YouTube Video Tutorials for Missing Target Skills */}
+          {missing.length > 0 && (
+            <div className="mt-3 rounded-xl border border-red-500/20 bg-red-500/5 p-3.5 space-y-2.5">
+              <div className="flex items-center justify-between">
+                <span className="flex items-center gap-1.5 text-xs font-bold text-red-400">
+                  <Youtube className="size-4 text-red-500" />
+                  YouTube Video Tutorials for Skills You Need to Acquire
+                </span>
+                <span className="text-[10px] text-muted-foreground">Free Course Guides</span>
+              </div>
+              <div className="grid gap-2.5 sm:grid-cols-2 md:grid-cols-3">
+                {missing.slice(0, 3).map((missingSkill) => {
+                  const yt = getYoutubeResourcesForSkill(missingSkill)[0];
+                  return (
+                    <div
+                      key={missingSkill}
+                      className="flex flex-col justify-between rounded-lg border border-border/50 bg-background/80 p-2.5 text-xs space-y-2 hover:border-red-500/40 transition-colors"
+                    >
+                      <div>
+                        <div className="flex items-center justify-between gap-1 mb-1">
+                          <span className="font-bold text-foreground truncate">{missingSkill}</span>
+                          <Badge
+                            variant="outline"
+                            className="text-[9px] px-1 py-0 border-rose-500/30 text-rose-400 bg-rose-500/10 shrink-0"
+                          >
+                            Skill Gap
+                          </Badge>
+                        </div>
+                        <p className="text-[11px] text-muted-foreground line-clamp-1">
+                          {yt ? `${yt.channel}: ${yt.title}` : `Complete video course for ${missingSkill}`}
+                        </p>
+                      </div>
+                      <a
+                        href={yt?.url || getDirectYoutubeSearchUrl(missingSkill)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center justify-center gap-1.5 rounded bg-red-500/15 hover:bg-red-500/25 px-2 py-1 text-[11px] font-semibold text-red-400 transition-colors"
+                      >
+                        <Youtube className="size-3 text-red-500" />
+                        Watch {missingSkill} Video
+                        <ExternalLink className="size-2.5 opacity-80" />
+                      </a>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
         </CardContent>
       </Card>
     </RevealOnScroll>

@@ -12,7 +12,11 @@ import {
   Sparkles,
   Youtube,
 } from "lucide-react";
-import { getYoutubeResourcesForMilestone } from "@/lib/youtubeResources";
+import {
+  getYoutubeResourcesForMilestone,
+  getYoutubeResourcesForSkill,
+  getDirectYoutubeSearchUrl,
+} from "@/lib/youtubeResources";
 
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
@@ -79,6 +83,7 @@ function RoadmapPage() {
 
   const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
   const [milestones, setMilestones] = useState<Milestone[]>([]);
+  const [userProfile, setUserProfile] = useState<Tables<"user_profiles"> | null>(null);
   const [loading, setLoading] = useState(true);
   const [updatingId, setUpdatingId] = useState<string | null>(null);
   const [isSharing, setIsSharing] = useState(false);
@@ -152,6 +157,16 @@ function RoadmapPage() {
 
     async function init() {
       setLoading(true);
+      if (user?.id) {
+        supabase
+          .from("user_profiles")
+          .select("*")
+          .eq("user_id", user.id)
+          .maybeSingle()
+          .then(({ data }) => {
+            if (data && !cancelled) setUserProfile(data);
+          });
+      }
       const recs = await loadRecommendations();
       if (cancelled || !recs || recs.length === 0) {
         setLoading(false);
@@ -361,6 +376,81 @@ function RoadmapPage() {
         </Card>
       )}
 
+      {/* Target Skill & Career Video Learning Hub */}
+      {!loading && activeRec && (
+        <section className="mt-6 rounded-2xl border border-red-500/25 bg-red-500/5 p-4 sm:p-5 space-y-3">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 border-b border-red-500/15 pb-3">
+            <div className="flex items-center gap-2.5">
+              <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-red-500/20 text-red-500 shrink-0">
+                <Youtube className="size-4" />
+              </div>
+              <div>
+                <h3 className="text-sm font-bold text-red-400 flex items-center gap-1.5 flex-wrap">
+                  Target Skill & Career Video Courses:
+                  <span className="text-white font-extrabold underline decoration-red-500/50">
+                    {userProfile?.career_goal || activeRec.career_title}
+                  </span>
+                </h3>
+                <p className="text-[11px] text-muted-foreground">
+                  Master this skill with top-rated free full-length courses & playlists on YouTube
+                </p>
+              </div>
+            </div>
+
+            <a
+              href={getDirectYoutubeSearchUrl(userProfile?.career_goal || activeRec.career_title)}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 text-xs font-semibold text-red-400 hover:text-red-300 hover:underline shrink-0"
+            >
+              <span>Search YouTube Playlists</span>
+              <ExternalLink className="size-3" />
+            </a>
+          </div>
+
+          <div className="grid gap-3 sm:grid-cols-3">
+            {getYoutubeResourcesForSkill(userProfile?.career_goal || activeRec.career_title)
+              .slice(0, 3)
+              .map((res, i) => (
+                <div
+                  key={i}
+                  className="flex flex-col justify-between rounded-xl border border-white/10 bg-background/80 p-3.5 text-xs space-y-2 hover:border-red-500/40 transition-colors shadow-sm"
+                >
+                  <div>
+                    <div className="flex items-start justify-between gap-1 mb-1">
+                      <span className="font-semibold text-foreground leading-snug line-clamp-2">
+                        {res.title}
+                      </span>
+                      {res.badge && (
+                        <Badge
+                          variant="outline"
+                          className="text-[9px] py-0 px-1 border-red-500/30 text-red-400 bg-red-500/10 shrink-0"
+                        >
+                          {res.badge}
+                        </Badge>
+                      )}
+                    </div>
+                    <p className="text-[11px] text-muted-foreground line-clamp-2">
+                      <strong className="text-foreground/90">{res.channel}:</strong>{" "}
+                      {res.description}
+                    </p>
+                  </div>
+                  <a
+                    href={res.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center justify-center gap-1.5 rounded-md bg-red-500/15 hover:bg-red-500/25 text-red-400 py-1.5 px-2.5 text-[11px] font-semibold transition-colors mt-1"
+                  >
+                    <Youtube className="size-3.5 text-red-500 shrink-0" />
+                    Watch Video Course
+                    <ExternalLink className="size-3 shrink-0 opacity-80" />
+                  </a>
+                </div>
+              ))}
+          </div>
+        </section>
+      )}
+
       {/* ─── Timeline ─── */}
       {!loading && milestones.length > 0 && (
         <section className="relative mt-8">
@@ -527,7 +617,7 @@ function RoadmapPage() {
                             const ytResources = getYoutubeResourcesForMilestone(
                               milestone.title,
                               milestone.category,
-                              activeRec?.career_title,
+                              userProfile?.career_goal || activeRec?.career_title,
                             );
                             if (!ytResources || ytResources.length === 0) return null;
                             return (
