@@ -452,7 +452,13 @@ function Dashboard() {
               </div>
             </div>
 
-            <div className="flex items-center gap-2 self-start sm:self-center">
+            <div className="flex flex-wrap items-center gap-2 self-start sm:self-center">
+              <Link to="/profile">
+                <Button size="sm" variant="outline" className="gap-2 rounded-full px-4 text-xs font-semibold border-primary/40 bg-primary/10 text-primary hover:bg-primary/20">
+                  <User className="size-3.5" />
+                  Edit Profile
+                </Button>
+              </Link>
               <Link to="/colleges">
                 <Button size="sm" variant="outline" className="gap-2 rounded-full px-4 text-xs font-medium border-border/70 hover:border-primary/40">
                   <GraduationCap className="size-3.5" />

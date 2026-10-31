@@ -49,6 +49,7 @@ export function HeaderNav() {
     { to: "/dashboard", label: "Dashboard", icon: Compass },
     { to: "/colleges", label: "Colleges", icon: GraduationCap },
     { to: "/backup", label: "Backup", icon: ShieldCheck },
+    { to: "/profile", label: "Profile", icon: UserIcon },
   ];
 
   // Aeline-style scroll: compact + frosted on scroll
@@ -142,6 +143,12 @@ export function HeaderNav() {
               </DropdownMenuLabel>
               <DropdownMenuSeparator className="my-1 bg-border/40" />
               {/* Navigation items (especially helpful on mobile where top nav is hidden) */}
+              <DropdownMenuItem asChild className="rounded-lg text-xs font-medium hover:bg-primary/8 hover:text-primary">
+                <Link to="/profile" className="cursor-pointer gap-2">
+                  <UserIcon className="size-3.5 text-primary" />
+                  Edit Profile Details
+                </Link>
+              </DropdownMenuItem>
               <DropdownMenuItem asChild className="rounded-lg text-xs font-medium hover:bg-primary/8 hover:text-primary">
                 <Link to="/dashboard" className="cursor-pointer gap-2">
                   <Compass className="size-3.5 text-primary" />
