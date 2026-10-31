@@ -48,6 +48,7 @@ import {
   ALL_INDIAN_COLLEGES,
   isStateMatch,
   isCityMatch,
+  getCollegeType,
   type CollegeItem,
 } from "@/lib/collegesData";
 import {
@@ -146,6 +147,7 @@ function CollegesPage() {
   const [filterCity, setFilterCity] = useState<string>("ALL");
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [selectedCategory, setSelectedCategory] = useState<string>("All");
+  const [filterType, setFilterType] = useState<"ALL" | "Government" | "Private">("ALL");
   const [filterMode, setFilterMode] = useState<"strict" | "all">("strict");
 
   // Colleges Data
@@ -317,14 +319,22 @@ function CollegesPage() {
       if (selectedCategory !== "All" && c.category !== selectedCategory) {
         return false;
       }
+      if (filterType !== "ALL") {
+        const cType = getCollegeType(c);
+        if (cType !== filterType) {
+          return false;
+        }
+      }
       if (query) {
+        const colType = getCollegeType(c).toLowerCase();
         const matchesName = (c.name || "").toLowerCase().includes(query);
         const matchesCourse = (c.course || "").toLowerCase().includes(query);
         const matchesCity = (c.city || "").toLowerCase().includes(query);
         const matchesState = (c.state || "").toLowerCase().includes(query);
         const matchesEntrance = (c.entrance || "").toLowerCase().includes(query);
         const matchesWhy = (c.why || "").toLowerCase().includes(query);
-        if (!matchesName && !matchesCourse && !matchesCity && !matchesState && !matchesEntrance && !matchesWhy) {
+        const matchesType = colType.includes(query);
+        if (!matchesName && !matchesCourse && !matchesCity && !matchesState && !matchesEntrance && !matchesWhy && !matchesType) {
           return false;
         }
       }
@@ -396,7 +406,7 @@ function CollegesPage() {
     });
 
     return { displayedColleges: sorted, isCityFallback: false };
-  }, [allColleges, filterState, filterCity, searchQuery, selectedCategory, savedUserLoc]);
+  }, [allColleges, filterState, filterCity, searchQuery, selectedCategory, filterType, savedUserLoc]);
 
   // Handle Location Reset to User Saved Location
   const handleResetToUserLocation = () => {
@@ -799,6 +809,52 @@ function CollegesPage() {
                     ))}
                   </div>
                 </div>
+
+                {/* Institution Type Filter (Government vs Private) */}
+                <div className="flex flex-wrap items-center justify-between gap-2.5 pt-3 border-t border-border/40">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-semibold text-foreground">Type:</span>
+                    <div className="inline-flex rounded-lg border border-border/60 bg-background/80 p-0.5">
+                      <button
+                        type="button"
+                        onClick={() => setFilterType("ALL")}
+                        className={`rounded-md px-3 py-1 text-xs font-semibold transition-all ${
+                          filterType === "ALL"
+                            ? "bg-primary text-primary-foreground shadow-sm"
+                            : "text-muted-foreground hover:text-foreground"
+                        }`}
+                      >
+                        All Types
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setFilterType("Government")}
+                        className={`rounded-md px-3 py-1 text-xs font-semibold transition-all ${
+                          filterType === "Government"
+                            ? "bg-sky-500 text-white shadow-sm"
+                            : "text-muted-foreground hover:text-sky-400"
+                        }`}
+                      >
+                        🏛️ Government
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setFilterType("Private")}
+                        className={`rounded-md px-3 py-1 text-xs font-semibold transition-all ${
+                          filterType === "Private"
+                            ? "bg-purple-600 text-white shadow-sm"
+                            : "text-muted-foreground hover:text-purple-300"
+                        }`}
+                      >
+                        🏢 Private
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="text-[11px] text-muted-foreground">
+                    Explore both premier Government institutions and accredited Private universities.
+                  </div>
+                </div>
               </CardContent>
             </Card>
 
@@ -837,6 +893,18 @@ function CollegesPage() {
                 {selectedCategory !== "All" && (
                   <Badge variant="outline" className="border-border/60">
                     {selectedCategory}
+                  </Badge>
+                )}
+                {filterType !== "ALL" && (
+                  <Badge
+                    variant="outline"
+                    className={
+                      filterType === "Government"
+                        ? "border-sky-500/40 text-sky-400 bg-sky-500/10"
+                        : "border-purple-500/40 text-purple-300 bg-purple-500/10"
+                    }
+                  >
+                    {filterType === "Government" ? "🏛️ Government" : "🏢 Private"}
                   </Badge>
                 )}
                 <span>({displayedColleges.length} colleges found)</span>
@@ -898,6 +966,7 @@ function CollegesPage() {
                 {displayedColleges.map((col) => {
                   const saved = isCollegeSaved(col?.name);
                   const inCompare = isSelectedForCompare(col);
+                  const colType = getCollegeType(col);
 
                   const userCity = filterCity !== "ALL" ? filterCity : (savedUserLoc?.city ?? "");
                   const userState = filterState !== "ALL" ? filterState : (savedUserLoc?.state ?? "");
@@ -922,9 +991,20 @@ function CollegesPage() {
                       }`}
                     >
                       <div>
-                        {/* Header Badges: Location Match & Category */}
+                        {/* Header Badges: Corner Type & Location & Category */}
                         <div className="flex flex-wrap items-center justify-between gap-1.5 mb-2.5">
                           <div className="flex flex-wrap items-center gap-1.5">
+                            {/* Corner Government / Private Badge */}
+                            {colType === "Government" ? (
+                              <Badge className="bg-sky-500/15 text-sky-400 border border-sky-500/35 text-[10px] font-bold px-2 py-0.5 shadow-sm">
+                                🏛️ Government
+                              </Badge>
+                            ) : (
+                              <Badge className="bg-purple-500/15 text-purple-300 border border-purple-500/35 text-[10px] font-bold px-2 py-0.5 shadow-sm">
+                                🏢 Private
+                              </Badge>
+                            )}
+
                             {isCityMatchPill ? (
                               <Badge className="bg-emerald-500 text-black text-[10px] font-bold px-2 py-0.5">
                                 <MapPin className="mr-1 size-2.5" /> In Your City
@@ -947,7 +1027,7 @@ function CollegesPage() {
                           </div>
 
                           {col.rating && (
-                            <span className="flex items-center gap-1 text-[11px] font-bold text-amber-400">
+                            <span className="flex items-center gap-1 text-[11px] font-bold text-amber-400 shrink-0">
                               <Star className="size-3 fill-amber-400 text-amber-400" />
                               {col.rating}
                             </span>
@@ -974,6 +1054,12 @@ function CollegesPage() {
 
                         {/* Key Attributes Box */}
                         <div className="mt-3.5 space-y-1.5 rounded-xl bg-muted/40 p-3 text-xs border border-white/5">
+                          <div className="flex justify-between items-center">
+                            <span className="text-muted-foreground">Type:</span>
+                            <span className={`font-semibold ${colType === "Government" ? "text-sky-400" : "text-purple-300"}`}>
+                              {colType} Institution
+                            </span>
+                          </div>
                           <div className="flex justify-between items-center">
                             <span className="text-muted-foreground">Location:</span>
                             <span className="font-medium text-foreground flex items-center gap-1">
@@ -1150,6 +1236,7 @@ function CollegesPage() {
                   >
                     {selectedForCompare.map((col) => {
                       const saved = isCollegeSaved(col?.name);
+                      const colType = getCollegeType(col);
                       const isHomeCityMatch =
                         Boolean(savedUserLoc?.city) && isCityMatch(col?.city, savedUserLoc!.city);
                       const isHomeStateMatch =
@@ -1163,9 +1250,20 @@ function CollegesPage() {
                           {/* Card Header with remove action */}
                           <div className="p-4 border-b border-border/50 bg-white/5 space-y-2">
                             <div className="flex items-start justify-between gap-2">
-                              <Badge variant="secondary" className="text-[10px]">
-                                {col.category || "Institution"}
-                              </Badge>
+                              <div className="flex items-center gap-1.5 flex-wrap">
+                                {colType === "Government" ? (
+                                  <Badge className="bg-sky-500/15 text-sky-400 border border-sky-500/35 text-[10px] font-bold">
+                                    🏛️ Government
+                                  </Badge>
+                                ) : (
+                                  <Badge className="bg-purple-500/15 text-purple-300 border border-purple-500/35 text-[10px] font-bold">
+                                    🏢 Private
+                                  </Badge>
+                                )}
+                                <Badge variant="secondary" className="text-[10px]">
+                                  {col.category || "Institution"}
+                                </Badge>
+                              </div>
                               <Button
                                 variant="ghost"
                                 size="icon"
@@ -1190,6 +1288,16 @@ function CollegesPage() {
                           </div>
 
                           <CardContent className="p-4 space-y-4 text-xs divide-y divide-border/30">
+                            {/* Attribute: Ownership / Sector */}
+                            <div className="pt-2">
+                              <span className="font-semibold text-muted-foreground uppercase tracking-wider text-[10px] block mb-1">
+                                Ownership / Sector
+                              </span>
+                              <span className={`font-semibold ${colType === "Government" ? "text-sky-400" : "text-purple-300"}`}>
+                                {colType === "Government" ? "Government / Central / State University" : "Private / Deemed University"}
+                              </span>
+                            </div>
+
                             {/* Attribute: Location */}
                             <div className="pt-2">
                               <span className="font-semibold text-muted-foreground uppercase tracking-wider text-[10px] block mb-1">

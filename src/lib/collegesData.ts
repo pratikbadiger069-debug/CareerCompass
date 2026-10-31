@@ -10,6 +10,7 @@ export interface CollegeItem {
   category: "Engineering" | "Management" | "Commerce" | "Medical" | "Law" | "Design" | "Science" | "Arts";
   rating?: string;
   careerTitle?: string;
+  type?: "Government" | "Private";
 }
 
 export const ALL_INDIAN_COLLEGES: CollegeItem[] = [
@@ -761,19 +762,486 @@ export const ALL_INDIAN_COLLEGES: CollegeItem[] = [
   "careerTitle": "Software Engineer / Energy Systems Architect"
 },
   {
-  "id": "iist-trivandrum",
-  "name": "Indian Institute of Space Science and Technology (IIST)",
-  "course": "B.Tech Aerospace Engineering / Avionics",
-  "city": "Thiruvananthapuram",
-  "state": "Kerala",
-  "fees_total": "₹3.5 Lakhs (4 Years)",
-  "entrance": "JEE Advanced",
-  "why": "Direct educational institute of ISRO with guaranteed absorption for top graduates into India's space program.",
-  "category": "Engineering",
-  "rating": "4.8/5",
-  "careerTitle": "Spacecraft Systems Engineer / Propulsion Specialist"
-},
+    id: "iist-trivandrum",
+    name: "Indian Institute of Space Science and Technology (IIST)",
+    course: "B.Tech Aerospace Engineering / Avionics",
+    city: "Thiruvananthapuram",
+    state: "Kerala",
+    fees_total: "₹3.5 Lakhs (4 Years)",
+    entrance: "JEE Advanced",
+    why: "Direct educational institute of ISRO with guaranteed absorption for top graduates into India's space program.",
+    category: "Engineering",
+    rating: "4.8/5",
+    careerTitle: "Spacecraft Systems Engineer / Propulsion Specialist",
+    type: "Government",
+  },
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // PREMIER PRIVATE COLLEGES ACROSS INDIA (MORE OPTIONS)
+  // ══════════════════════════════════════════════════════════════════════════
+  {
+    id: "bits-pilani-main",
+    name: "Birla Institute of Technology and Science (BITS) Pilani",
+    course: "B.E. Computer Science / Electronics & Instrumentation",
+    city: "Pilani",
+    state: "Rajasthan",
+    fees_total: "₹22 Lakhs (4 Years)",
+    entrance: "BITSAT",
+    why: "Elite private university renowned for zero-attendance policy, top startup incubation, and Silicon Valley alumni.",
+    category: "Engineering",
+    rating: "4.9/5",
+    careerTitle: "Software Architect / Startup Founder",
+    type: "Private",
+  },
+  {
+    id: "vit-vellore",
+    name: "Vellore Institute of Technology (VIT)",
+    course: "B.Tech Computer Science & Engineering",
+    city: "Vellore",
+    state: "Tamil Nadu",
+    fees_total: "₹7.8 Lakhs (4 Years)",
+    entrance: "VITEEE",
+    why: "Top private engineering powerhouse with massive campus placements, cutting-edge labs, and flexible credit system.",
+    category: "Engineering",
+    rating: "4.6/5",
+    careerTitle: "Full Stack Engineer / Cloud Specialist",
+    type: "Private",
+  },
+  {
+    id: "thapar-patiala",
+    name: "Thapar Institute of Engineering and Technology",
+    course: "B.Tech Computer Science / Data Science",
+    city: "Patiala",
+    state: "Punjab",
+    fees_total: "₹16 Lakhs (4 Years)",
+    entrance: "JEE Main / TIET Entrance",
+    why: "Historic private institution partner of Trinity College Dublin with excellent research output and high corporate recruitment.",
+    category: "Engineering",
+    rating: "4.6/5",
+    careerTitle: "Machine Learning Engineer / Solutions Architect",
+    type: "Private",
+  },
+  {
+    id: "ashoka-university",
+    name: "Ashoka University",
+    course: "B.A. (Hons) Economics / Computer Science / Liberal Arts",
+    city: "Sonipat",
+    state: "Haryana",
+    fees_total: "₹28 Lakhs (3-4 Years)",
+    entrance: "Ashoka Aptitude Test (AAT)",
+    why: "India's premier private liberal arts and sciences university with Ivy-League faculty and top corporate/policy placements.",
+    category: "Arts",
+    rating: "4.8/5",
+    careerTitle: "Economic Analyst / Policy Strategist",
+    type: "Private",
+  },
+  {
+    id: "nmims-mumbai",
+    name: "Narsee Monjee Institute of Management Studies (NMIMS)",
+    course: "BBA / B.Com / MBA Tech / Finance",
+    city: "Mumbai",
+    state: "Maharashtra",
+    fees_total: "₹12 Lakhs (3 Years)",
+    entrance: "NPAT / NMAT",
+    why: "Premier private business school located in India's financial capital with unparalleled corporate connections.",
+    category: "Management",
+    rating: "4.7/5",
+    careerTitle: "Investment Banker / Corporate Strategist",
+    type: "Private",
+  },
+  {
+    id: "srm-chennai",
+    name: "SRM Institute of Science and Technology",
+    course: "B.Tech Computer Science & AI / Cyber Security",
+    city: "Chennai",
+    state: "Tamil Nadu",
+    fees_total: "₹14 Lakhs (4 Years)",
+    entrance: "SRMJEEE",
+    why: "Expansive private research campus with international semester-abroad programs and high tech hiring.",
+    category: "Engineering",
+    rating: "4.4/5",
+    careerTitle: "Cybersecurity Analyst / AI Developer",
+    type: "Private",
+  },
+  {
+    id: "amrita-coimbatore",
+    name: "Amrita Vishwa Vidyapeetham",
+    course: "B.Tech Computer Science & Engineering / AI",
+    city: "Coimbatore",
+    state: "Tamil Nadu",
+    fees_total: "₹12 Lakhs (4 Years)",
+    entrance: "AEEE / JEE Main",
+    why: "NAAC A++ ranked multidisciplinary private university with world-class faculty and stellar placement records.",
+    category: "Engineering",
+    rating: "4.6/5",
+    careerTitle: "Deep Learning Engineer / Robotics Engineer",
+    type: "Private",
+  },
+  {
+    id: "jindal-global-law",
+    name: "Jindal Global Law School (O.P. Jindal University)",
+    course: "B.A. LL.B. (Hons) / B.B.A. LL.B.",
+    city: "Sonipat",
+    state: "Haryana",
+    fees_total: "₹30 Lakhs (5 Years)",
+    entrance: "LSAT-India / CLAT",
+    why: "Ranked India's #1 private law school by QS World University Rankings with global faculty and magic-circle law firm recruiting.",
+    category: "Law",
+    rating: "4.8/5",
+    careerTitle: "Corporate Attorney / International Arbitrator",
+    type: "Private",
+  },
+  {
+    id: "kmc-manipal",
+    name: "Kasturba Medical College (KMC Manipal)",
+    course: "MBBS",
+    city: "Manipal",
+    state: "Karnataka",
+    fees_total: "₹70 Lakhs (5.5 Years)",
+    entrance: "NEET UG",
+    why: "Consistently ranked among top 10 medical schools in India with unmatched clinical exposure and USMLE pass rates.",
+    category: "Medical",
+    rating: "4.8/5",
+    careerTitle: "Doctor / Surgeon / Medical Researcher",
+    type: "Private",
+  },
+  {
+    id: "pes-bangalore",
+    name: "PES University",
+    course: "B.Tech Computer Science & Engineering",
+    city: "Bengaluru",
+    state: "Karnataka",
+    fees_total: "₹18 Lakhs (4 Years)",
+    entrance: "PESSAT / KCET",
+    why: "Premier private Bengaluru tech university known for rigorous curriculum and top silicon-plate tier-1 packages.",
+    category: "Engineering",
+    rating: "4.5/5",
+    careerTitle: "Full Stack Developer / DevOps Engineer",
+    type: "Private",
+  },
+  {
+    id: "bms-bangalore",
+    name: "BMS College of Engineering",
+    course: "B.E. Computer Science / Information Science",
+    city: "Bengaluru",
+    state: "Karnataka",
+    fees_total: "₹10 Lakhs (4 Years)",
+    entrance: "KCET / COMEDK",
+    why: "Historic Bengaluru autonomous college with strong tech industry integration and stellar alumni base.",
+    category: "Engineering",
+    rating: "4.5/5",
+    careerTitle: "Software Developer / Cloud Architect",
+    type: "Private",
+  },
+  {
+    id: "mit-wpu-pune",
+    name: "MIT World Peace University (MIT-WPU)",
+    course: "B.Tech Computer Science / Electronics",
+    city: "Pune",
+    state: "Maharashtra",
+    fees_total: "₹14 Lakhs (4 Years)",
+    entrance: "MHT-CET / JEE Main / MIT-WPU CET",
+    why: "Top private Pune campus with active innovation centers, hackathons, and multinational corporate tie-ups.",
+    category: "Engineering",
+    rating: "4.4/5",
+    careerTitle: "Software Engineer / Product Analyst",
+    type: "Private",
+  },
+  {
+    id: "cmc-vellore",
+    name: "Christian Medical College (CMC Vellore)",
+    course: "MBBS / Allied Health Sciences",
+    city: "Vellore",
+    state: "Tamil Nadu",
+    fees_total: "₹1.5 Lakhs (5.5 Years)",
+    entrance: "NEET UG",
+    why: "World-renowned private philanthropic medical institution with subsidized fees and premier clinical training.",
+    category: "Medical",
+    rating: "4.9/5",
+    careerTitle: "Physician / Medical Specialist",
+    type: "Private",
+  },
+  {
+    id: "shiv-nadar-noida",
+    name: "Shiv Nadar University",
+    course: "B.Tech Computer Science / Data Analytics",
+    city: "Greater Noida",
+    state: "Delhi (NCR)",
+    fees_total: "₹16 Lakhs (4 Years)",
+    entrance: "SNUSAT / JEE Main",
+    why: "UGC Institution of Eminence recognized private research university with world-class faculty and multidisciplinary curriculum.",
+    category: "Engineering",
+    rating: "4.6/5",
+    careerTitle: "Data Scientist / Algorithm Engineer",
+    type: "Private",
+  },
+  {
+    id: "bits-hyderabad",
+    name: "BITS Pilani - Hyderabad Campus",
+    course: "B.E. Computer Science / Electrical & Electronics",
+    city: "Hyderabad",
+    state: "Telangana",
+    fees_total: "₹22 Lakhs (4 Years)",
+    entrance: "BITSAT",
+    why: "State-of-the-art BITS campus with immediate access to HITEC City tech ecosystem and tier-1 corporate hiring.",
+    category: "Engineering",
+    rating: "4.8/5",
+    careerTitle: "Software Engineer / VLSI Design Specialist",
+    type: "Private",
+  },
+  {
+    id: "xlri-jamshedpur",
+    name: "XLRI - Xavier School of Management",
+    course: "PGDM (Business Management / HR)",
+    city: "Jamshedpur",
+    state: "Jharkhand",
+    fees_total: "₹26 Lakhs (2 Years)",
+    entrance: "XAT",
+    why: "India's apex private management school and Asia's best HR & General Management program with 100% executive placements.",
+    category: "Management",
+    rating: "4.9/5",
+    careerTitle: "Human Resources Director / Management Consultant",
+    type: "Private",
+  },
+  {
+    id: "spjimr-mumbai",
+    name: "S.P. Jain Institute of Management and Research (SPJIMR)",
+    course: "PGDM (Finance / Marketing / Operations)",
+    city: "Mumbai",
+    state: "Maharashtra",
+    fees_total: "₹22 Lakhs (2 Years)",
+    entrance: "CAT / GMAT",
+    why: "Top tier private business school in Mumbai famous for value-based leadership and elite strategy consulting recruitment.",
+    category: "Management",
+    rating: "4.8/5",
+    careerTitle: "Strategy Consultant / Operations Lead",
+    type: "Private",
+  },
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // PREMIER GOVERNMENT COLLEGES ACROSS INDIA (EXPANDED OPTIONS)
+  // ══════════════════════════════════════════════════════════════════════════
+  {
+    id: "nit-trichy",
+    name: "National Institute of Technology (NIT) Trichy",
+    course: "B.Tech Computer Science / Electronics",
+    city: "Tiruchirappalli",
+    state: "Tamil Nadu",
+    fees_total: "₹5.8 Lakhs (4 Years)",
+    entrance: "JEE Main",
+    why: "Consistently ranked #1 among all NITs in India with exceptional placement records and strong coding culture.",
+    category: "Engineering",
+    rating: "4.8/5",
+    careerTitle: "Software Engineer / Embedded Systems Architect",
+    type: "Government",
+  },
+  {
+    id: "nit-surathkal",
+    name: "National Institute of Technology (NIT) Surathkal",
+    course: "B.Tech Computer Science / Information Technology",
+    city: "Mangalore",
+    state: "Karnataka",
+    fees_total: "₹5.6 Lakhs (4 Years)",
+    entrance: "JEE Main",
+    why: "Premier coastal NIT with private beach, high international research collaborations, and elite tech hiring.",
+    category: "Engineering",
+    rating: "4.8/5",
+    careerTitle: "Cloud Architect / Distributed Systems Engineer",
+    type: "Government",
+  },
+  {
+    id: "nit-warangal",
+    name: "National Institute of Technology (NIT) Warangal",
+    course: "B.Tech Computer Science / Electrical Engineering",
+    city: "Warangal",
+    state: "Telangana",
+    fees_total: "₹5.5 Lakhs (4 Years)",
+    entrance: "JEE Main",
+    why: "First established Regional Engineering College in India with formidable reputation and top software packages.",
+    category: "Engineering",
+    rating: "4.7/5",
+    careerTitle: "Software Engineer / Network Systems Engineer",
+    type: "Government",
+  },
+  {
+    id: "nit-rourkela",
+    name: "National Institute of Technology (NIT) Rourkela",
+    course: "B.Tech Computer Science / Mechanical Engineering",
+    city: "Rourkela",
+    state: "Odisha",
+    fees_total: "₹5.4 Lakhs (4 Years)",
+    entrance: "JEE Main",
+    why: "Sprawling government technical university with modern computing facilities and broad multidisciplinary strengths.",
+    category: "Engineering",
+    rating: "4.6/5",
+    careerTitle: "Software Developer / Robotics Specialist",
+    type: "Government",
+  },
+  {
+    id: "nit-calicut",
+    name: "National Institute of Technology (NIT) Calicut",
+    course: "B.Tech Computer Science / Electronics",
+    city: "Kozhikode",
+    state: "Kerala",
+    fees_total: "₹5.5 Lakhs (4 Years)",
+    entrance: "JEE Main",
+    why: "Leading technical institute of Kerala with stellar placement percentages and strong open-source development groups.",
+    category: "Engineering",
+    rating: "4.6/5",
+    careerTitle: "Systems Programmer / Web Architect",
+    type: "Government",
+  },
+  {
+    id: "nid-ahmedabad",
+    name: "National Institute of Design (NID)",
+    course: "B.Des Product Design / Communication Design",
+    city: "Ahmedabad",
+    state: "Gujarat",
+    fees_total: "₹14 Lakhs (4 Years)",
+    entrance: "NID DAT (Prelims & Mains)",
+    why: "India's apex design institute recognized as an Institute of National Importance with international design studio recruiting.",
+    category: "Design",
+    rating: "4.9/5",
+    careerTitle: "UI/UX Designer / Industrial Product Designer",
+    type: "Government",
+  },
+  {
+    id: "nift-delhi",
+    name: "National Institute of Fashion Technology (NIFT)",
+    course: "B.Des Fashion Communication / Textile Design",
+    city: "New Delhi",
+    state: "Delhi (NCR)",
+    fees_total: "₹12 Lakhs (4 Years)",
+    entrance: "NIFT Entrance Exam",
+    why: "Pioneering government fashion & design school producing top creative directors and international brand leaders.",
+    category: "Design",
+    rating: "4.8/5",
+    careerTitle: "Creative Director / Fashion Brand Strategist",
+    type: "Government",
+  },
+  {
+    id: "kgmu-lucknow",
+    name: "King George's Medical University (KGMU)",
+    course: "MBBS",
+    city: "Lucknow",
+    state: "Uttar Pradesh",
+    fees_total: "₹2.8 Lakhs (5.5 Years)",
+    entrance: "NEET UG",
+    why: "One of India's largest and most historic government medical institutions with extensive clinical surgery experience.",
+    category: "Medical",
+    rating: "4.8/5",
+    careerTitle: "Medical Doctor / General Surgeon",
+    type: "Government",
+  },
+  {
+    id: "mmc-chennai",
+    name: "Madras Medical College (MMC)",
+    course: "MBBS",
+    city: "Chennai",
+    state: "Tamil Nadu",
+    fees_total: "₹1.2 Lakhs (5.5 Years)",
+    entrance: "NEET UG",
+    why: "Third oldest medical college in India offering world-class government subsidized medical education.",
+    category: "Medical",
+    rating: "4.8/5",
+    careerTitle: "Physician / Medical Specialist",
+    type: "Government",
+  },
+  {
+    id: "iiser-pune",
+    name: "Indian Institute of Science Education and Research (IISER)",
+    course: "BS-MS Dual Degree (Physics / Chemistry / Biology / Math)",
+    city: "Pune",
+    state: "Maharashtra",
+    fees_total: "₹3.8 Lakhs (5 Years)",
+    entrance: "IAT (IISER Aptitude Test) / JEE Advanced",
+    why: "Autonomous government research institute dedicated to science research and advanced scientific discovery.",
+    category: "Science",
+    rating: "4.9/5",
+    careerTitle: "Research Scientist / Computational Physicist",
+    type: "Government",
+  },
+  {
+    id: "nalsar-hyderabad",
+    name: "NALSAR University of Law",
+    course: "B.A. LL.B. (Hons)",
+    city: "Hyderabad",
+    state: "Telangana",
+    fees_total: "₹13 Lakhs (5 Years)",
+    entrance: "CLAT",
+    why: "Premier government National Law University renowned for corporate law, moot court excellence, and judicial clerkships.",
+    category: "Law",
+    rating: "4.8/5",
+    careerTitle: "Corporate Attorney / Legal Advisor",
+    type: "Government",
+  },
+  {
+    id: "wbnujs-kolkata",
+    name: "The West Bengal National University of Juridical Sciences (WBNUJS)",
+    course: "B.A. LL.B. (Hons)",
+    city: "Kolkata",
+    state: "West Bengal",
+    fees_total: "₹12 Lakhs (5 Years)",
+    entrance: "CLAT",
+    why: "Elite government law school with near 100% placement in tier-1 law firms and national civil service selections.",
+    category: "Law",
+    rating: "4.8/5",
+    careerTitle: "Litigation Specialist / Legal Counsel",
+    type: "Government",
+  },
 ];
+
+/**
+ * Returns whether a college is Government or Private.
+ * Defaults to explicitly tagged type, or accurately derives from institution metadata.
+ */
+export function getCollegeType(college: CollegeItem): "Government" | "Private" {
+  if (college.type) return college.type;
+  const nameLower = (college.name || "").toLowerCase();
+  const whyLower = (college.why || "").toLowerCase();
+
+  // Recognized Private identifiers
+  if (
+    nameLower.includes("private") ||
+    nameLower.includes("bits") ||
+    nameLower.includes("vit") ||
+    nameLower.includes("manipal") ||
+    nameLower.includes("symbiosis") ||
+    nameLower.includes("thapar") ||
+    nameLower.includes("amrita") ||
+    nameLower.includes("srm") ||
+    nameLower.includes("ashoka") ||
+    nameLower.includes("nmims") ||
+    nameLower.includes("narsee monjee") ||
+    nameLower.includes("sharda") ||
+    nameLower.includes("amity") ||
+    nameLower.includes("jindal") ||
+    nameLower.includes("bennett") ||
+    nameLower.includes("flame") ||
+    nameLower.includes("plaksha") ||
+    nameLower.includes("krea") ||
+    nameLower.includes("rv college") ||
+    nameLower.includes("pes university") ||
+    nameLower.includes("ms ramaiah") ||
+    nameLower.includes("bms college") ||
+    nameLower.includes("mahe") ||
+    nameLower.includes("chitkara") ||
+    nameLower.includes("lpu") ||
+    nameLower.includes("sathyabama") ||
+    nameLower.includes("bharati vidyapeeth") ||
+    nameLower.includes("mit wpu") ||
+    nameLower.includes("dy patil") ||
+    nameLower.includes("xlri") ||
+    nameLower.includes("spjimr") ||
+    nameLower.includes("cmc vellore") ||
+    whyLower.includes("private")
+  ) {
+    return "Private";
+  }
+
+  // All IITs, NITs, AIIMS, IIMs, Central/State universities, Government Medical/Engg colleges
+  return "Government";
+}
 
 /**
  * Helper to match state names safely handling variations like 'Delhi (NCR)' vs 'Delhi',
