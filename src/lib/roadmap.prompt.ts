@@ -11,6 +11,7 @@ Rules:
 6. REALISTIC DETAIL: Provide "honest_challenges" (key trade-offs or difficulties) and "day_in_life" (a typical daily workflow) for every recommendation.
 7. QUALITATIVE CONTEXT & TARGET SKILLS: When extra_context or career_goal mentions a specific skill, interest, or track (e.g. Generative AI, Full Stack Web Development, Investment Banking, Robotics, Medical, Design), the "roadmap" phases and milestones MUST be explicitly designed to acquire that skill step-by-step from beginner fundamentals to practical portfolio and job-readiness.
 8. NO FALSE GUARANTEES: Describe outcomes, fees, and salaries realistically for India without guaranteeing selection or income.
+9. STRICT RFC-8259 JSON COMPLIANCE: Return ONLY a valid JSON object. Every key and string value MUST be enclosed in double quotes (e.g. "entrance": "JEE / VITEEE", NEVER "entrance": JEE / VITEEE"). All internal quotation marks inside strings MUST be escaped as \". NEVER emit unquoted strings, naked identifiers, or trailing commas.
 
 Respond with ONLY valid JSON matching this schema:
 {

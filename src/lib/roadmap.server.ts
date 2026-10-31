@@ -283,6 +283,7 @@ export async function generateRoadmapFromProfile(
             ],
             generationConfig: {
               responseMimeType: "application/json",
+              temperature: 0.2,
               maxOutputTokens: 8192,
             },
           }),
@@ -356,7 +357,94 @@ export async function generateRoadmapFromProfile(
     );
   }
 
-  // Parse JSON with robust recovery
+/**
+ * Repairs commonly observed malformed JSON patterns from LLMs:
+ * 1. Missing opening quotes (e.g. `"entrance":EEE / VITE"`)
+ * 2. Unquoted string values before commas or braces
+ * 3. Trailing commas before `}` or `]`
+ * 4. Control characters
+ * 5. Unbalanced/truncated quotes, brackets, and braces
+ */
+function repairMalformedJson(jsonStr: string): string {
+  let str = jsonStr.trim();
+
+  // Strip Markdown code fences if present
+  if (str.startsWith("```json")) {
+    str = str.replace(/^```json\s*/i, "").replace(/\s*```$/, "");
+  } else if (str.startsWith("```")) {
+    str = str.replace(/^```\s*/, "").replace(/\s*```$/, "");
+  }
+
+  const firstBrace = str.indexOf("{");
+  const lastBrace = str.lastIndexOf("}");
+  if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
+    str = str.slice(firstBrace, lastBrace + 1);
+  }
+
+  // Fix 1: Missing opening double quote after colon (e.g. "entrance":EEE / VITE")
+  str = str.replace(
+    /(:\s*)([A-Za-z0-9_./& +\\-][^"{\[\d\n\r]*?)("(?:\s*[,\]}\n\r]))/g,
+    '$1"$2$3',
+  );
+
+  // Fix 2: Unquoted string values before commas or closing delimiters (e.g. "entrance": JEE / VITEEE,)
+  str = str.replace(
+    /(:\s*)([A-Za-z][A-Za-z0-9_./& +\\-]*?)(\s*[,\]}\n\r])/g,
+    (match, p1, p2, p3) => {
+      const trimmed = p2.trim();
+      if (
+        trimmed === "true" ||
+        trimmed === "false" ||
+        trimmed === "null" ||
+        trimmed === "undefined"
+      ) {
+        return match;
+      }
+      return `${p1}"${trimmed}"${p3}`;
+    },
+  );
+
+  // Fix 3: Remove trailing commas before closing braces/brackets
+  str = str.replace(/,\s*([\]}])/g, "$1");
+
+  // Fix 4: Strip invisible control characters (preserve standard whitespace)
+  str = str.replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F-\u009F]/g, "");
+
+  // Fix 5: Balance unclosed quotes and brackets if output was cut off
+  let inString = false;
+  let escape = false;
+  const stack: string[] = [];
+
+  for (let i = 0; i < str.length; i++) {
+    const char = str[i];
+    if (char === '"' && !escape) {
+      inString = !inString;
+    } else if (!inString) {
+      if (char === "{" || char === "[") {
+        stack.push(char);
+      } else if (char === "}" && stack[stack.length - 1] === "{") {
+        stack.pop();
+      } else if (char === "]" && stack[stack.length - 1] === "[") {
+        stack.pop();
+      }
+    }
+    escape = char === "\\" && !escape;
+  }
+
+  if (inString) {
+    str += '"';
+  }
+
+  while (stack.length > 0) {
+    const unclosed = stack.pop();
+    if (unclosed === "{") str += "}";
+    else if (unclosed === "[") str += "]";
+  }
+
+  return str;
+}
+
+  // Parse JSON with robust recovery pipeline
   let parsed: RoadmapResult;
   let cleaned = rawContent.trim();
   if (cleaned.startsWith("```json")) {
@@ -367,7 +455,7 @@ export async function generateRoadmapFromProfile(
 
   const firstBrace = cleaned.indexOf("{");
   const lastBrace = cleaned.lastIndexOf("}");
-  if (firstBrace !== -1 && lastBrace !== -1) {
+  if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
     cleaned = cleaned.slice(firstBrace, lastBrace + 1);
   }
 
@@ -375,15 +463,26 @@ export async function generateRoadmapFromProfile(
     parsed = JSON.parse(cleaned) as RoadmapResult;
   } catch (err1) {
     try {
-      const sanitized = cleaned
-        .replace(/,\s*([\]}])/g, "$1")
-        .replace(/[\u0000-\u001F\u007F-\u009F]/g, (c) => (c === "\n" || c === "\r" || c === "\t" ? c : ""));
-      parsed = JSON.parse(sanitized) as RoadmapResult;
+      const repaired = repairMalformedJson(cleaned);
+      parsed = JSON.parse(repaired) as RoadmapResult;
     } catch (err2) {
-      console.error("[generate-roadmap] Malformed JSON error 1:", (err1 as Error).message);
-      console.error("[generate-roadmap] Malformed JSON error 2:", (err2 as Error).message);
-      console.error("[generate-roadmap] Text tail (last 500 chars):", cleaned.slice(-500));
-      throw new Error(`AI returned malformed JSON: ${(err1 as Error).message}`);
+      try {
+        const repaired = repairMalformedJson(cleaned);
+        const lineFixed = repaired.replace(
+          /^(\s*"[^"]+"\s*:\s*")(.+)("(?:\s*[,}\]]\s*))$/gm,
+          (m, prefix, content, suffix) => {
+            const escapedContent = content.replace(/(?<!\\)"/g, '\\"');
+            return prefix + escapedContent + suffix;
+          },
+        );
+        parsed = JSON.parse(lineFixed) as RoadmapResult;
+      } catch (err3) {
+        console.error("[generate-roadmap] Malformed JSON error 1:", (err1 as Error).message);
+        console.error("[generate-roadmap] Malformed JSON error 2:", (err2 as Error).message);
+        console.error("[generate-roadmap] Malformed JSON error 3:", (err3 as Error).message);
+        console.error("[generate-roadmap] Text tail (last 500 chars):", cleaned.slice(-500));
+        throw new Error(`AI returned malformed JSON: ${(err1 as Error).message}`);
+      }
     }
   }
 
