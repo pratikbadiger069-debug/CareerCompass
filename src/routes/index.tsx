@@ -13,7 +13,6 @@ import {
   TrendingUp,
   Users,
   Zap,
-  Star,
   ShieldCheck,
   Building2,
 } from "lucide-react";
@@ -74,39 +73,6 @@ const FEATURES = [
     color: "#7c3aed",
     image: "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?q=80&w=700&auto=format&fit=crop",
     tag: "Verified Data",
-  },
-];
-
-const TESTIMONIALS = [
-  {
-    name: "Aarav Sharma",
-    role: "Class 12 (PCM) · Mumbai",
-    target: "Targeting IIT Bombay & BITS Pilani",
-    quote:
-      "CareerCompass removed all the confusion around entrance exams. Seeing my primary CS path alongside parallel exam pivots gave me complete peace of mind.",
-    avatar:
-      "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?q=80&w=300&auto=format&fit=crop",
-    rating: 5,
-  },
-  {
-    name: "Priya Nair",
-    role: "Class 11 (PCB) · Pune",
-    target: "Biotechnology & Healthcare Research",
-    quote:
-      "I was stressed about only taking NEET. CareerCompass revealed high-growth alternative careers in Bioinformatics that perfectly match my biology strengths.",
-    avatar:
-      "https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=300&auto=format&fit=crop",
-    rating: 5,
-  },
-  {
-    name: "Karan Mehta",
-    role: "Commerce Graduate · New Delhi",
-    target: "Financial Modeling & MBA Programs",
-    quote:
-      "The side-by-side college comparison and fee transparency helped my family choose the right university without paying exorbitant counselor fees.",
-    avatar:
-      "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=300&auto=format&fit=crop",
-    rating: 5,
   },
 ];
 
@@ -501,11 +467,39 @@ function Landing() {
         className="mx-auto w-full max-w-6xl px-6 py-24"
       >
         <div className="text-center">
-          <span data-tag className="section-tag mb-6 inline-flex">
-            <div className="size-1.5 rounded-sm bg-current" />
-            Why CareerCompass
-          </span>
-          <div className="mt-4 overflow-hidden">
+          {/* Real Students Photo Pill */}
+          <div className="mb-4 inline-flex items-center gap-3 rounded-full border border-border/70 bg-charcoal-mid/80 px-3.5 py-1.5 backdrop-blur-md shadow-md">
+            <div className="flex -space-x-2">
+              {[
+                "https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=120&auto=format&fit=crop",
+                "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?q=80&w=120&auto=format&fit=crop",
+                "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=120&auto=format&fit=crop",
+                "https://images.unsplash.com/photo-1517841905240-472988babdf9?q=80&w=120&auto=format&fit=crop",
+              ].map((src, i) => (
+                <img
+                  key={i}
+                  src={src}
+                  alt="Student Profile"
+                  className="size-7 rounded-full object-cover ring-2 ring-charcoal-deep"
+                  loading="lazy"
+                />
+              ))}
+            </div>
+            <div className="flex items-center gap-1.5 text-xs text-muted-foreground pr-1">
+              <span className="font-semibold text-foreground">4,900+</span>
+              <span>students guided</span>
+              <span className="text-amber-400 font-bold">★★★★★</span>
+            </div>
+          </div>
+
+          <div>
+            <span data-tag className="section-tag mb-4 inline-flex">
+              <div className="size-1.5 rounded-sm bg-current" />
+              Why CareerCompass
+            </span>
+          </div>
+
+          <div className="mt-2 overflow-hidden">
             <h2 className="text-balance text-4xl font-bold leading-tight sm:text-5xl">
               {["The", "AI", "career", "advisor", "built", "for"].map((w, i) => (
                 <span key={i} className="overflow-clip-y mr-[0.25em] inline-block" style={{ display: "inline-block" }}>
@@ -521,29 +515,109 @@ function Landing() {
               </span>
             </h2>
           </div>
+          <p className="mx-auto mt-4 max-w-xl text-sm text-muted-foreground">
+            Personalized guidance, college discovery, and entrance exam pivots designed specifically for Indian students.
+          </p>
+
+          {/* Photo Showcase near The AI career advisor built for you */}
+          <div className="mt-10 grid gap-6 sm:grid-cols-2 max-w-4xl mx-auto">
+            {/* Photo 1: AI Mentorship & Personalized Guidance */}
+            <div className="group relative h-64 overflow-hidden rounded-2xl border border-border/60 bg-card/60 shadow-lg">
+              <img
+                src="https://images.unsplash.com/photo-1531482615713-2afd69097998?q=80&w=800&auto=format&fit=crop"
+                alt="Student getting 1-on-1 personalized AI career advice"
+                className="h-full w-full object-cover filter brightness-[0.7] contrast-[1.05] transition-transform duration-500 group-hover:scale-105"
+                loading="lazy"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-charcoal-deep via-charcoal-deep/40 to-transparent" />
+              <div className="absolute top-3 left-3">
+                <span className="ai-badge">Personalized Mentorship</span>
+              </div>
+              <div className="absolute bottom-4 left-4 right-4 text-left">
+                <h4 className="text-sm font-bold text-foreground">Target Cutoffs & Entrance Strategy</h4>
+                <p className="text-[11px] text-muted-foreground mt-0.5">Customized for your grade, PCM/PCB stream & dream colleges.</p>
+              </div>
+            </div>
+
+            {/* Photo 2: Students Exploring Opportunities & Colleges */}
+            <div className="group relative h-64 overflow-hidden rounded-2xl border border-border/60 bg-card/60 shadow-lg">
+              <img
+                src="https://images.unsplash.com/photo-1523240795612-9a054b0db644?q=80&w=800&auto=format&fit=crop"
+                alt="Students collaborating and comparing college programs"
+                className="h-full w-full object-cover filter brightness-[0.7] contrast-[1.05] transition-transform duration-500 group-hover:scale-105"
+                loading="lazy"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-charcoal-deep via-charcoal-deep/40 to-transparent" />
+              <div className="absolute top-3 left-3">
+                <span className="rounded-full border border-primary/30 bg-primary/15 px-2.5 py-0.5 text-[11px] font-semibold text-primary backdrop-blur-md">
+                  College & Backup Security
+                </span>
+              </div>
+              <div className="absolute bottom-4 left-4 right-4 text-left">
+                <h4 className="text-sm font-bold text-foreground">Verified Institutions & Zero-Drop Plans</h4>
+                <p className="text-[11px] text-muted-foreground mt-0.5">Explore 100+ verified Indian universities and parallel fallback options.</p>
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* About cards grid */}
-        <div className="mt-16 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="mt-14 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {[
-            { icon: Brain, label: "AI-powered matching", desc: "Deep profile analysis gives you career matches ranked by genuine fit.", color: "#8b5cf6" },
-            { icon: TrendingUp, label: "Growth outlook", desc: "Real salary data and 5-year demand forecasts for every recommended path.", color: "#06b6d4" },
-            { icon: Users, label: "Student community", desc: "4,900+ students on the platform sharing milestones and wins.", color: "#4f46e5" },
-            { icon: Zap, label: "Instant clarity", desc: "Most users have their roadmap ready in under 48 hours from signup.", color: "#7c3aed" },
-          ].map(({ icon: Icon, label, desc, color }) => (
+            {
+              icon: Brain,
+              label: "AI-powered matching",
+              desc: "Deep profile analysis gives you career matches ranked by genuine fit.",
+              color: "#8b5cf6",
+              image: "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=500&auto=format&fit=crop",
+            },
+            {
+              icon: TrendingUp,
+              label: "Growth outlook",
+              desc: "Real salary data and 5-year demand forecasts for every recommended path.",
+              color: "#06b6d4",
+              image: "https://images.unsplash.com/photo-1551836022-d5d88e9218df?q=80&w=500&auto=format&fit=crop",
+            },
+            {
+              icon: Users,
+              label: "Student community",
+              desc: "4,900+ students on the platform sharing milestones and wins.",
+              color: "#4f46e5",
+              image: "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?q=80&w=500&auto=format&fit=crop",
+            },
+            {
+              icon: Zap,
+              label: "Instant clarity",
+              desc: "Most users have their roadmap ready in under 48 hours from signup.",
+              color: "#7c3aed",
+              image: "https://images.unsplash.com/photo-1434030216411-0b793f4b4173?q=80&w=500&auto=format&fit=crop",
+            },
+          ].map(({ icon: Icon, label, desc, color, image }) => (
             <div
               key={label}
               data-about-card
-              className="card-glow-top glass-card rounded-2xl p-6 transition-all duration-300 hover:-translate-y-1 hover:border-primary/25 hover:shadow-lg hover:shadow-primary/5"
+              className="card-glow-top glass-card group overflow-hidden rounded-2xl border border-border/60 transition-all duration-300 hover:-translate-y-1 hover:border-primary/25 hover:shadow-lg hover:shadow-primary/5 flex flex-col justify-between"
             >
-              <div
-                className="mb-4 flex size-11 items-center justify-center rounded-xl"
-                style={{ background: `${color.replace(")", "/ 12%)")}` }}
-              >
-                <Icon className="size-5" style={{ color }} />
+              <div className="relative h-28 w-full overflow-hidden bg-charcoal-mid">
+                <img
+                  src={image}
+                  alt={label}
+                  className="h-full w-full object-cover filter brightness-[0.7] contrast-[1.05] transition-transform duration-500 group-hover:scale-105"
+                  loading="lazy"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-charcoal-deep/90 via-transparent to-transparent" />
+                <div
+                  className="absolute bottom-2 left-3 flex size-8 items-center justify-center rounded-lg border border-white/10 shadow-md backdrop-blur-md"
+                  style={{ background: `${color}25` }}
+                >
+                  <Icon className="size-4" style={{ color }} />
+                </div>
               </div>
-              <h3 className="mb-2 text-base font-semibold">{label}</h3>
-              <p className="text-sm text-muted-foreground leading-relaxed">{desc}</p>
+
+              <div className="p-5">
+                <h3 className="mb-1 text-sm font-bold text-foreground">{label}</h3>
+                <p className="text-xs text-muted-foreground leading-relaxed">{desc}</p>
+              </div>
             </div>
           ))}
         </div>
@@ -644,59 +718,6 @@ function Landing() {
         </div>
       </section>
 
-      {/* ─── Student Success Stories & Pictures ─────────────────────────── */}
-      <section className="border-t border-border/30 bg-charcoal/40 py-24">
-        <div className="mx-auto w-full max-w-6xl px-6">
-          <div className="text-center">
-            <span className="section-tag mb-6 inline-flex">
-              <Sparkles className="size-3.5 text-primary" />
-              Real Student Stories
-            </span>
-            <h2 className="mt-4 text-4xl font-bold sm:text-5xl">
-              Trusted by students across India
-            </h2>
-            <p className="mx-auto mt-4 max-w-xl text-sm text-muted-foreground">
-              From Class 10 stream confusion to college entrance exam pivots — here is how CareerCompass provides clarity.
-            </p>
-          </div>
-
-          <div className="mt-14 grid gap-6 md:grid-cols-3">
-            {TESTIMONIALS.map(({ name, role, target, quote, avatar, rating }) => (
-              <div
-                key={name}
-                className="card-glow-top glass-card group flex flex-col justify-between rounded-2xl border border-border/60 p-6 transition-all duration-300 hover:-translate-y-1 hover:border-primary/30"
-              >
-                <div>
-                  {/* Star Rating */}
-                  <div className="flex items-center gap-1 text-amber-400 mb-3">
-                    {Array.from({ length: rating }).map((_, i) => (
-                      <Star key={i} className="size-3.5 fill-amber-400 text-amber-400" />
-                    ))}
-                  </div>
-
-                  <p className="text-xs leading-relaxed text-foreground/90 italic">
-                    &ldquo;{quote}&rdquo;
-                  </p>
-                </div>
-
-                <div className="mt-6 pt-4 border-t border-border/40 flex items-center gap-3">
-                  <img
-                    src={avatar}
-                    alt={name}
-                    className="size-11 rounded-full object-cover ring-2 ring-primary/30"
-                    loading="lazy"
-                  />
-                  <div>
-                    <h4 className="text-sm font-bold text-foreground">{name}</h4>
-                    <p className="text-[11px] text-primary font-medium">{role}</p>
-                    <p className="text-[10px] text-muted-foreground">{target}</p>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
 
       {/* ─── Final CTA ───────────────────────────────────────────────────── */}
       <section ref={ctaRef} className="mx-auto w-full max-w-4xl px-6 py-28 text-center">
