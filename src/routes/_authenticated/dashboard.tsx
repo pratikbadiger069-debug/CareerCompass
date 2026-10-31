@@ -537,31 +537,26 @@ function Dashboard() {
               {/* Error state */}
               {status === "error" && (
                 error?.toLowerCase().includes("not configured") || error?.toLowerCase().includes("api key") ? (
-                  <div className="mb-6 rounded-2xl border border-violet-500/40 bg-violet-500/10 p-5 text-foreground backdrop-blur-md">
-                    <div className="flex items-start gap-3">
+                  <div className="mb-6 rounded-2xl border border-violet-500/35 bg-gradient-to-br from-violet-500/10 via-card/90 to-charcoal-deep p-5 text-foreground backdrop-blur-md shadow-lg shadow-violet-500/5">
+                    <div className="flex items-start gap-3.5">
                       <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-violet-500/20 text-violet-300 border border-violet-500/30">
-                        <Sparkles className="size-5" />
+                        <Sparkles className="size-5 text-violet-400 animate-pulse" />
                       </div>
-                      <div className="space-y-2 flex-1">
+                      <div className="space-y-2.5 flex-1">
                         <div className="flex items-center gap-2">
-                          <h3 className="text-sm font-bold text-violet-200">AI Service Configuration Required</h3>
-                          <span className="ai-badge">Setup Needed</span>
+                          <h3 className="text-sm font-bold text-violet-200">AI Service Activation & Key Setup</h3>
+                          <span className="ai-badge">Gemini Flash</span>
                         </div>
                         <p className="text-xs text-muted-foreground leading-relaxed">
-                          Career recommendations and advisor chat are powered by AI models. To enable this feature, provide an API key in your server environment:
+                          Your recommendations and advisor chat are powered by Google Gemini. Enter your Gemini API key below to activate intelligent career guidance instantly:
                         </p>
-                        <div className="rounded-xl border border-white/10 bg-black/40 p-3 font-mono text-[11px] space-y-1 text-muted-foreground">
-                          <p className="text-violet-300 font-semibold"># Server configuration (.env / Lovable Secrets):</p>
-                          <p className="text-white">GEMINI_API_KEY=&quot;your_gemini_api_key&quot;</p>
-                          <p className="text-white">GEMINI_MODEL=&quot;gemini-flash-lite-latest&quot;</p>
-                        </div>
-                        <div className="pt-2 flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+                        <div className="pt-1 flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
                           <Input
-                            placeholder="Or enter Gemini API key here (AIza... or AQ...)"
+                            placeholder="Enter Gemini API key (AIza... or AQ...)"
                             value={customApiKey}
                             onChange={(e) => setCustomApiKey(e.target.value)}
                             type="password"
-                            className="text-xs h-8 bg-background/80"
+                            className="text-xs h-9 bg-background/90 border-violet-500/30 focus-visible:ring-violet-500/50"
                           />
                           <Button
                             size="sm"
@@ -572,20 +567,23 @@ function Dashboard() {
                               }
                               void loadRecommendations(true);
                             }}
-                            className="h-8 text-xs shrink-0 ai-button text-white"
+                            className="h-9 text-xs shrink-0 ai-button text-white font-medium px-4 shadow-sm"
                           >
-                            <Sparkles className="size-3 mr-1" /> Save & Activate AI
+                            <Sparkles className="size-3.5 mr-1 text-violet-200" /> Save & Activate AI
                           </Button>
                           <Button
                             variant="outline"
                             size="sm"
                             onClick={() => void loadRecommendations(true)}
-                            className="h-8 text-xs shrink-0 border-violet-500/30 text-violet-300 hover:bg-violet-500/20 hover:text-white"
+                            className="h-9 text-xs shrink-0 border-violet-500/30 text-violet-300 hover:bg-violet-500/20 hover:text-white"
                           >
                             <Loader2 className="size-3.5 mr-1" />
-                            Retry Generation
+                            Retry
                           </Button>
                         </div>
+                        <p className="text-[11px] text-muted-foreground/75">
+                          Tip: You can get a free API key at <a href="https://aistudio.google.com/" target="_blank" rel="noreferrer" className="text-violet-300 underline underline-offset-2 hover:text-white">Google AI Studio</a>.
+                        </p>
                       </div>
                     </div>
                   </div>
@@ -705,11 +703,18 @@ function Dashboard() {
             <Card className="group h-full border-border/60 bg-card/70 transition-all hover:border-primary/50 hover:bg-card hover:shadow-md">
               <CardContent className="flex flex-col justify-between p-5 h-full">
                 <div>
-                  <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-purple-500/10 text-purple-400 border border-purple-500/20">
+                  <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary border border-primary/20">
                     <GraduationCap className="size-5" />
                   </div>
-                  <h3 className="font-bold text-base group-hover:text-primary transition-colors">College Explorer & Comparer</h3>
-                  <p className="mt-1 text-xs text-muted-foreground leading-relaxed">Explore top universities, filter by your location & compare fees, entrance exams and ratings side-by-side.</p>
+                  <div className="flex items-center justify-between">
+                    <h3 className="font-bold text-base group-hover:text-primary transition-colors">College Explorer & Comparer</h3>
+                    <Badge variant="outline" className="bg-primary/10 text-primary border-primary/25 text-[10px]">
+                      Verified Hub
+                    </Badge>
+                  </div>
+                  <p className="mt-1 text-xs text-muted-foreground leading-relaxed">
+                    Explore top universities, filter by your location & compare fees, entrance exams and ratings side-by-side.
+                  </p>
                 </div>
                 <div className="mt-4 flex items-center gap-1 text-xs font-semibold text-primary">
                   Explore Colleges <ArrowRight className="size-3.5 transition-transform group-hover:translate-x-1" />

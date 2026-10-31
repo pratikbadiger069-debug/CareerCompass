@@ -781,7 +781,7 @@ function CollegesPage() {
                   </div>
 
                   {/* Category Pills */}
-                  <div className="flex flex-wrap items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0">
+                  <div className="flex flex-wrap items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0 scrollbar-none">
                     {CATEGORIES.map((cat) => (
                       <Button
                         key={cat}
@@ -1138,7 +1138,10 @@ function CollegesPage() {
                 </div>
 
                 {/* Side-by-Side Responsive Comparison Grid */}
-                <div className="overflow-x-auto pb-4">
+                <div className="block sm:hidden text-center text-[11px] text-muted-foreground pb-1">
+                  👈 Swipe sideways to compare all {selectedForCompare.length} colleges 👉
+                </div>
+                <div className="overflow-x-auto pb-4 scrollbar-none">
                   <div
                     className="grid gap-4 min-w-[700px]"
                     style={{

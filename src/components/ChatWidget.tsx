@@ -32,9 +32,12 @@ export function ChatWidget() {
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // Visible on /dashboard and main /roadmap only (hidden on /demo and /roadmap/:shareId)
+  // Visible on /dashboard, /roadmap, /colleges, and /backup (hidden on /demo and /roadmap/:shareId)
   const isVisible =
-    (pathname.startsWith("/dashboard") || pathname === "/roadmap") &&
+    (pathname.startsWith("/dashboard") ||
+      pathname === "/roadmap" ||
+      pathname.startsWith("/colleges") ||
+      pathname.startsWith("/backup")) &&
     !pathname.startsWith("/demo") &&
     !pathname.includes("/roadmap/");
 
