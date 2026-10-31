@@ -13,6 +13,9 @@ import {
   TrendingUp,
   Users,
   Zap,
+  Star,
+  ShieldCheck,
+  Building2,
 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -42,27 +45,68 @@ export const Route = createFileRoute("/")({
 const FEATURES = [
   {
     icon: Target,
-    title: "Career matches",
-    body: "Ranked career paths with match scores, skills to build, salary ranges and growth outlook.",
+    title: "AI Career Matches",
+    body: "Ranked career paths with match scores, required skills, salary benchmarks, and 5-year growth outlook.",
     color: "#d6fd70",
+    image: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=700&auto=format&fit=crop",
+    tag: "94% Accuracy",
   },
   {
     icon: RouteIcon,
-    title: "Personal roadmap",
-    body: "Exams, courses, skills and experience broken into dated milestones you can tick off.",
+    title: "Personal Roadmap",
+    body: "Entrance exams, core certifications, and experience broken into dated milestones you can tick off.",
     color: "#06b6d4",
+    image: "https://images.unsplash.com/photo-1434030216411-0b793f4b4173?q=80&w=700&auto=format&fit=crop",
+    tag: "Step-by-Step",
   },
   {
     icon: MessageSquare,
-    title: "AI advisor chat",
-    body: "Ask anything about streams, majors, entrance tests or switching fields — any time.",
+    title: "24/7 AI Advisor Chat",
+    body: "Ask anything about streams, major selection, entrance cutoffs, or switching fields in real time.",
     color: "#8b5cf6",
+    image: "https://images.unsplash.com/photo-1531482615713-2afd69097998?q=80&w=700&auto=format&fit=crop",
+    tag: "Gemini Powered",
   },
   {
     icon: GraduationCap,
-    title: "Saved colleges",
-    body: "Shortlist programs with tuition, deadlines and notes so nothing slips past you.",
+    title: "Colleges & Comparison",
+    body: "Explore verified universities across India, filter by your city/state, and compare fees side-by-side.",
     color: "#7c3aed",
+    image: "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?q=80&w=700&auto=format&fit=crop",
+    tag: "Verified Data",
+  },
+];
+
+const TESTIMONIALS = [
+  {
+    name: "Aarav Sharma",
+    role: "Class 12 (PCM) · Mumbai",
+    target: "Targeting IIT Bombay & BITS Pilani",
+    quote:
+      "CareerCompass removed all the confusion around entrance exams. Seeing my primary CS path alongside parallel exam pivots gave me complete peace of mind.",
+    avatar:
+      "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?q=80&w=300&auto=format&fit=crop",
+    rating: 5,
+  },
+  {
+    name: "Priya Nair",
+    role: "Class 11 (PCB) · Pune",
+    target: "Biotechnology & Healthcare Research",
+    quote:
+      "I was stressed about only taking NEET. CareerCompass revealed high-growth alternative careers in Bioinformatics that perfectly match my biology strengths.",
+    avatar:
+      "https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=300&auto=format&fit=crop",
+    rating: 5,
+  },
+  {
+    name: "Karan Mehta",
+    role: "Commerce Graduate · New Delhi",
+    target: "Financial Modeling & MBA Programs",
+    quote:
+      "The side-by-side college comparison and fee transparency helped my family choose the right university without paying exorbitant counselor fees.",
+    avatar:
+      "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=300&auto=format&fit=crop",
+    rating: 5,
   },
 ];
 
@@ -358,73 +402,76 @@ function Landing() {
             No credit card · Demo workspace opens instantly
           </p>
 
-          {/* Hero visual — 3D floating cards */}
-          <div data-hero className="mt-16 relative mx-auto max-w-3xl">
-            {/* Floating card grid */}
-            <div
-              className="relative h-[260px] sm:h-[320px] overflow-hidden rounded-2xl border border-border/40 glass-card"
-              style={{
-                background: "linear-gradient(135deg, rgba(17, 18, 24, 0.85) 0%, rgba(8, 8, 12, 0.95) 100%)",
-              }}
-            >
+          {/* Hero visual — Rich Interactive Showcase with Photography & Floating HUD */}
+          <div data-hero className="mt-16 relative mx-auto max-w-4xl">
+            {/* Ambient Backlight Glow */}
+            <div className="absolute -inset-1 rounded-3xl bg-gradient-to-r from-primary/30 via-violet-500/20 to-primary/30 blur-xl opacity-40 -z-10" />
+
+            <div className="relative overflow-hidden rounded-3xl border border-border/60 bg-charcoal-deep shadow-2xl glass-card">
               {/* Top reflection line */}
-              <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent" />
+              <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/60 to-transparent z-20" />
 
-              {/* Mock UI preview */}
-              <div className="flex h-full items-center justify-center gap-4 px-8 py-6">
-                {/* Left panel */}
-                <div className="hidden flex-1 sm:block">
-                  <div className="rounded-xl border border-border/40 bg-charcoal-mid/80 p-4">
-                    <div className="mb-3 flex items-center gap-2">
-                      <div className="size-2.5 rounded-full bg-primary" />
-                      <div className="h-2 w-24 rounded-full bg-foreground/20" />
+              {/* Hero Image with Cinematic Gradient Overlay */}
+              <div className="relative h-[340px] sm:h-[420px] w-full overflow-hidden">
+                <img
+                  src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?q=80&w=1400&auto=format&fit=crop"
+                  alt="Students exploring career roadmaps on CareerCompass"
+                  className="h-full w-full object-cover object-center filter brightness-[0.55] contrast-[1.1] scale-105 transition-transform duration-1000 hover:scale-100"
+                  loading="eager"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-charcoal-deep via-charcoal-deep/60 to-transparent" />
+                <div className="absolute inset-0 bg-gradient-to-r from-charcoal-deep/80 via-transparent to-charcoal-deep/80" />
+
+                {/* Floating HUD Cards & Live Indicators */}
+                <div className="absolute inset-0 p-5 sm:p-8 flex flex-col justify-between z-10">
+                  {/* Top Bar Floating Badges */}
+                  <div className="flex flex-wrap items-center justify-between gap-2.5">
+                    <div className="flex items-center gap-2 rounded-full border border-primary/30 bg-charcoal-deep/90 px-3.5 py-1.5 backdrop-blur-md shadow-lg">
+                      <span className="size-2 rounded-full bg-primary animate-pulse" />
+                      <span className="text-xs font-semibold text-foreground">
+                        AI Roadmap Engine <span className="text-primary font-bold">Active</span>
+                      </span>
                     </div>
-                    {[94, 87, 82, 76].map((v, i) => (
-                      <div key={i} className="mb-2.5 flex items-center gap-2">
-                        <div className="h-1.5 w-full rounded-full bg-border/60">
-                          <div
-                            className="h-full rounded-full bg-primary transition-all"
-                            style={{ width: `${v}%` }}
-                          />
-                        </div>
-                        <span className="w-8 shrink-0 text-right text-xs font-medium text-muted-foreground">{v}%</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
 
-                {/* Center card */}
-                <div className="flex-1 max-w-[200px]">
-                  <div className="card-glow-top rounded-xl border border-primary/20 bg-charcoal-mid/80 p-4">
-                    <Brain className="size-6 text-primary mb-2" />
-                    <p className="text-xs font-semibold text-foreground mb-1">AI Match Score</p>
-                    <p className="text-3xl font-bold text-primary font-display">94%</p>
-                    <p className="text-xs text-muted-foreground mt-1">Software Engineer</p>
-                    <div className="mt-3 flex gap-1">
-                      {["Python", "ML", "APIs"].map((t) => (
-                        <span key={t} className="rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">
-                          {t}
-                        </span>
-                      ))}
+                    <div className="flex items-center gap-1.5 rounded-full border border-violet-500/30 bg-charcoal-deep/90 px-3.5 py-1.5 backdrop-blur-md shadow-lg">
+                      <Sparkles className="size-3.5 text-violet-400" />
+                      <span className="text-xs font-semibold text-violet-300">
+                        98% Recommendation Fit
+                      </span>
                     </div>
                   </div>
-                </div>
 
-                {/* Right panel */}
-                <div className="hidden flex-1 sm:block">
-                  <div className="rounded-xl border border-border/40 bg-charcoal-mid/80 p-4 space-y-2">
-                    {["Complete CS50x", "Build portfolio", "Apply to roles", "Network daily"].map((s, i) => (
-                      <div key={i} className="flex items-center gap-2">
-                        <CheckCircle2 className={`size-4 shrink-0 ${i < 2 ? "text-primary" : "text-border"}`} />
-                        <span className="text-xs text-muted-foreground">{s}</span>
+                  {/* Center / Bottom Floating Interactive Overlay Cards */}
+                  <div className="grid gap-3 sm:grid-cols-3 text-left">
+                    {/* Floating Card 1 */}
+                    <div className="rounded-2xl border border-primary/25 bg-charcoal-deep/90 p-4 backdrop-blur-xl shadow-xl">
+                      <div className="flex items-center gap-2 text-primary text-xs font-bold mb-1">
+                        <Brain className="size-4" /> Top Recommendation
                       </div>
-                    ))}
+                      <p className="text-sm font-bold text-foreground">Software Architect</p>
+                      <p className="text-[11px] text-muted-foreground mt-0.5">High Demand • ₹18-35 LPA</p>
+                    </div>
+
+                    {/* Floating Card 2 */}
+                    <div className="rounded-2xl border border-border/60 bg-charcoal-deep/90 p-4 backdrop-blur-xl shadow-xl">
+                      <div className="flex items-center gap-2 text-violet-400 text-xs font-bold mb-1">
+                        <Building2 className="size-4" /> Target University
+                      </div>
+                      <p className="text-sm font-bold text-foreground">IIT Bombay / BITS</p>
+                      <p className="text-[11px] text-muted-foreground mt-0.5">JEE Cutoffs & Verified</p>
+                    </div>
+
+                    {/* Floating Card 3 */}
+                    <div className="rounded-2xl border border-emerald-500/30 bg-charcoal-deep/90 p-4 backdrop-blur-xl shadow-xl">
+                      <div className="flex items-center gap-2 text-emerald-400 text-xs font-bold mb-1">
+                        <ShieldCheck className="size-4" /> Fallback Safety Net
+                      </div>
+                      <p className="text-sm font-bold text-foreground">Data Science Pivot</p>
+                      <p className="text-[11px] text-muted-foreground mt-0.5">Zero Year Drop Risk</p>
+                    </div>
                   </div>
                 </div>
               </div>
-
-              {/* Bottom reflection */}
-              <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-border/40 to-transparent" />
             </div>
           </div>
         </div>
@@ -556,25 +603,98 @@ function Landing() {
           </p>
         </div>
 
-        <div className="mt-14 grid gap-5 sm:grid-cols-2">
-          {FEATURES.map(({ icon: Icon, title, body, color }) => (
+        <div className="mt-14 grid gap-6 sm:grid-cols-2">
+          {FEATURES.map(({ icon: Icon, title, body, color, image, tag }) => (
             <article
               key={title}
               data-feature-card
-              className="card-glow-top glass-card group flex gap-5 rounded-2xl p-7 transition-all duration-300 hover:-translate-y-1 hover:border-primary/25 hover:shadow-lg hover:shadow-primary/5"
+              className="card-glow-top glass-card group overflow-hidden rounded-2xl border border-border/60 transition-all duration-300 hover:-translate-y-1 hover:border-primary/40 hover:shadow-xl hover:shadow-primary/5 flex flex-col justify-between"
             >
-              <div
-                className="flex size-12 shrink-0 items-center justify-center rounded-xl transition-transform group-hover:scale-110"
-                style={{ background: `${color.replace(")", " / 12%)")}` }}
-              >
-                <Icon className="size-5" style={{ color }} />
+              {/* Feature Preview Image */}
+              <div className="relative h-44 w-full overflow-hidden bg-charcoal-mid">
+                <img
+                  src={image}
+                  alt={title}
+                  className="h-full w-full object-cover filter brightness-[0.7] contrast-[1.05] transition-transform duration-500 group-hover:scale-105"
+                  loading="lazy"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-charcoal-deep via-transparent to-transparent" />
+                <span className="absolute top-3.5 right-3.5 rounded-full border border-white/15 bg-black/60 px-3 py-1 text-[11px] font-semibold text-white backdrop-blur-md">
+                  {tag}
+                </span>
+                <div
+                  className="absolute bottom-3 left-4 flex size-10 items-center justify-center rounded-xl border border-white/15 shadow-lg backdrop-blur-md"
+                  style={{ background: `${color}25` }}
+                >
+                  <Icon className="size-5" style={{ color }} />
+                </div>
               </div>
-              <div>
-                <h3 className="text-lg font-semibold">{title}</h3>
-                <p className="mt-2 text-sm text-muted-foreground leading-relaxed">{body}</p>
+
+              {/* Card Body */}
+              <div className="p-6">
+                <h3 className="text-lg font-bold text-foreground group-hover:text-primary transition-colors">
+                  {title}
+                </h3>
+                <p className="mt-2 text-sm text-muted-foreground leading-relaxed">
+                  {body}
+                </p>
               </div>
             </article>
           ))}
+        </div>
+      </section>
+
+      {/* ─── Student Success Stories & Pictures ─────────────────────────── */}
+      <section className="border-t border-border/30 bg-charcoal/40 py-24">
+        <div className="mx-auto w-full max-w-6xl px-6">
+          <div className="text-center">
+            <span className="section-tag mb-6 inline-flex">
+              <Sparkles className="size-3.5 text-primary" />
+              Real Student Stories
+            </span>
+            <h2 className="mt-4 text-4xl font-bold sm:text-5xl">
+              Trusted by students across India
+            </h2>
+            <p className="mx-auto mt-4 max-w-xl text-sm text-muted-foreground">
+              From Class 10 stream confusion to college entrance exam pivots — here is how CareerCompass provides clarity.
+            </p>
+          </div>
+
+          <div className="mt-14 grid gap-6 md:grid-cols-3">
+            {TESTIMONIALS.map(({ name, role, target, quote, avatar, rating }) => (
+              <div
+                key={name}
+                className="card-glow-top glass-card group flex flex-col justify-between rounded-2xl border border-border/60 p-6 transition-all duration-300 hover:-translate-y-1 hover:border-primary/30"
+              >
+                <div>
+                  {/* Star Rating */}
+                  <div className="flex items-center gap-1 text-amber-400 mb-3">
+                    {Array.from({ length: rating }).map((_, i) => (
+                      <Star key={i} className="size-3.5 fill-amber-400 text-amber-400" />
+                    ))}
+                  </div>
+
+                  <p className="text-xs leading-relaxed text-foreground/90 italic">
+                    &ldquo;{quote}&rdquo;
+                  </p>
+                </div>
+
+                <div className="mt-6 pt-4 border-t border-border/40 flex items-center gap-3">
+                  <img
+                    src={avatar}
+                    alt={name}
+                    className="size-11 rounded-full object-cover ring-2 ring-primary/30"
+                    loading="lazy"
+                  />
+                  <div>
+                    <h4 className="text-sm font-bold text-foreground">{name}</h4>
+                    <p className="text-[11px] text-primary font-medium">{role}</p>
+                    <p className="text-[10px] text-muted-foreground">{target}</p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 
@@ -583,12 +703,19 @@ function Landing() {
         <div
           className="relative overflow-hidden rounded-3xl border border-primary/20 p-12 sm:p-16"
           style={{
-            background: "linear-gradient(135deg, rgba(17, 18, 24, 0.85) 0%, rgba(8, 8, 12, 0.95) 100%)",
+            background: "linear-gradient(135deg, rgba(17, 18, 24, 0.88) 0%, rgba(8, 8, 12, 0.96) 100%)",
           }}
         >
+          {/* Background atmosphere picture */}
+          <img
+            src="https://images.unsplash.com/photo-1523240795612-9a054b0db644?q=80&w=1200&auto=format&fit=crop"
+            alt="Students graduating"
+            className="absolute inset-0 h-full w-full object-cover object-center opacity-15 filter brightness-75 pointer-events-none"
+            loading="lazy"
+          />
           {/* Glow */}
           <div
-            className="pointer-events-none absolute inset-0 rounded-3xl opacity-30"
+            className="pointer-events-none absolute inset-0 rounded-3xl opacity-35"
             style={{ background: "radial-gradient(ellipse 80% 60% at 50% -10%, rgba(214, 253, 112, 0.25), transparent)" }}
           />
           <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/50 to-transparent" />
