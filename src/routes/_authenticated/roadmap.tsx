@@ -5,11 +5,14 @@ import {
   Check,
   CheckCircle2,
   Circle,
+  ExternalLink,
   Loader2,
   Map,
   Share2,
   Sparkles,
+  Youtube,
 } from "lucide-react";
+import { getYoutubeResourcesForMilestone } from "@/lib/youtubeResources";
 
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
@@ -518,6 +521,60 @@ function RoadmapPage() {
                               <Loader2 className="size-3.5 animate-spin text-muted-foreground" />
                             )}
                           </div>
+
+                          {/* YouTube Tutorials & Learning Resources */}
+                          {(() => {
+                            const ytResources = getYoutubeResourcesForMilestone(
+                              milestone.title,
+                              milestone.category,
+                              activeRec?.career_title,
+                            );
+                            if (!ytResources || ytResources.length === 0) return null;
+                            return (
+                              <div className="mt-3.5 space-y-2 rounded-xl border border-red-500/20 bg-red-500/5 p-3">
+                                <div className="flex items-center justify-between">
+                                  <span className="flex items-center gap-1.5 text-[11px] font-bold text-red-400">
+                                    <Youtube className="size-3.5 text-red-500" /> Recommended YouTube Tutorials & Courses
+                                  </span>
+                                  <span className="text-[10px] text-muted-foreground">Free Video Learning</span>
+                                </div>
+
+                                <div className="grid gap-2">
+                                  {ytResources.map((yt, idx) => (
+                                    <div
+                                      key={idx}
+                                      className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 rounded-lg border border-border/50 bg-card/70 p-2.5 transition-all hover:border-red-500/40"
+                                    >
+                                      <div className="min-w-0 flex-1 space-y-0.5">
+                                        <div className="flex items-center gap-1.5 flex-wrap">
+                                          <span className="text-xs font-semibold text-foreground leading-snug">
+                                            {yt.title}
+                                          </span>
+                                          {yt.badge && (
+                                            <Badge variant="outline" className="text-[9px] py-0 px-1.5 border-red-500/30 text-red-400 bg-red-500/10">
+                                              {yt.badge}
+                                            </Badge>
+                                          )}
+                                        </div>
+                                        <p className="text-[11px] text-muted-foreground leading-relaxed">
+                                          <span className="font-semibold text-foreground/80">Channel: {yt.channel}</span> • {yt.description}
+                                        </p>
+                                      </div>
+
+                                      <a
+                                        href={yt.url}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="inline-flex items-center justify-center gap-1.5 shrink-0 rounded-lg bg-red-600 hover:bg-red-700 text-white font-semibold text-[11px] px-3 py-1.5 transition-all shadow-sm self-start sm:self-auto"
+                                      >
+                                        <ExternalLink className="size-3" /> Watch Tutorial
+                                      </a>
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                            );
+                          })()}
                         </div>
                       </div>
                     </CardContent>

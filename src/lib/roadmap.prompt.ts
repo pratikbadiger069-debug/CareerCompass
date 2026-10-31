@@ -9,7 +9,7 @@ Rules:
 4. ACTIONABLE NEXT STEPS: The "next_steps" array MUST contain AT LEAST 4 to 5 concrete, highly specific, actionable steps the student can start immediately within their stated timeline.
 5. STREAM-TAILORED WHAT-IF SCENARIOS: The "what_if" array MUST contain at least 3 realistic, stream-specific "what if" questions and solutions tailored to the student's stream and goals.
 6. REALISTIC DETAIL: Provide "honest_challenges" (key trade-offs or difficulties) and "day_in_life" (a typical daily workflow) for every recommendation.
-7. QUALITATIVE CONTEXT: When extra_context is present, use it to refine examples and priorities without violating hard constraints (budget, timeline).
+7. QUALITATIVE CONTEXT & TARGET SKILLS: When extra_context or career_goal mentions a specific skill, interest, or track (e.g. Generative AI, Full Stack Web Development, Investment Banking, Robotics, Medical, Design), the "roadmap" phases and milestones MUST be explicitly designed to acquire that skill step-by-step from beginner fundamentals to practical portfolio and job-readiness.
 8. NO FALSE GUARANTEES: Describe outcomes, fees, and salaries realistically for India without guaranteeing selection or income.
 
 Respond with ONLY valid JSON matching this schema:

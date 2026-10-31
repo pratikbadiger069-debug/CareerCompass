@@ -10,6 +10,7 @@ import {
   Compass,
   Database,
   DollarSign,
+  ExternalLink,
   GraduationCap,
   Lightbulb,
   Link2,
@@ -22,6 +23,7 @@ import {
   Target,
   TrendingUp,
   User,
+  Youtube,
   Zap,
 } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -45,6 +47,7 @@ import type { Tables } from "@/integrations/supabase/types";
 import { useAuth } from "@/hooks/useAuth";
 import { usePrefersReducedMotion } from "@/hooks/use-reduced-motion";
 import { HeaderNav } from "@/components/HeaderNav";
+import { getYoutubeResourcesForMilestone } from "@/lib/youtubeResources";
 import {
   EDUCATION_LEVEL_PRESETS,
   getEduStageDetails,
@@ -1036,12 +1039,34 @@ function RecommendationCard({
         </CardContent>
       </div>
 
-      <CardContent className="pt-0">
+      <CardContent className="pt-0 space-y-2">
+        {/* YouTube Learning Shortcut */}
+        {(() => {
+          const yt = getYoutubeResourcesForMilestone(rec.career_title, "Track", rec.career_title);
+          if (!yt || yt.length === 0) return null;
+          const firstYt = yt[0];
+          return (
+            <a
+              href={firstYt.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={(e) => e.stopPropagation()}
+              className="flex items-center justify-between rounded-lg border border-red-500/25 bg-red-500/10 px-3 py-1.5 text-[11px] font-medium text-red-400 hover:bg-red-500/15 transition-colors"
+            >
+              <span className="flex items-center gap-1.5 truncate">
+                <Youtube className="size-3.5 text-red-500 shrink-0" />
+                <span className="truncate">{firstYt.title}</span>
+              </span>
+              <ExternalLink className="size-3 shrink-0 ml-1 opacity-80" />
+            </a>
+          );
+        })()}
+
         {/* View Roadmap button */}
-        <Button asChild variant="outline" size="sm" className="w-full gap-2">
+        <Button asChild variant="outline" size="sm" className="w-full gap-2 text-xs">
           <Link to="/roadmap" search={{ rec: rec.id }}>
-            <MapIcon className="size-4" />
-            View Roadmap
+            <MapIcon className="size-4 text-primary" />
+            View Full Roadmap & Video Guides
           </Link>
         </Button>
       </CardContent>

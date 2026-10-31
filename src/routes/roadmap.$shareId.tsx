@@ -5,11 +5,13 @@ import {
   CheckCircle2,
   Circle,
   Compass,
+  ExternalLink,
   Lock,
   Map,
   Share2,
   Sparkles,
   UserCheck,
+  Youtube,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -20,6 +22,7 @@ import type { Tables } from "@/integrations/supabase/types";
 import { usePrefersReducedMotion } from "@/hooks/use-reduced-motion";
 import { getStaggerContainer, getFadeUp } from "@/lib/motion";
 import { motion } from "framer-motion";
+import { getYoutubeResourcesForMilestone } from "@/lib/youtubeResources";
 
 type Recommendation = Tables<"career_recommendations">;
 type Milestone = Tables<"roadmap_milestones">;
@@ -218,6 +221,51 @@ function SharedRoadmapPage() {
                       {m.description}
                     </p>
                   )}
+
+                  {/* YouTube Tutorials & Video Details */}
+                  {(() => {
+                    const yt = getYoutubeResourcesForMilestone(
+                      m.title,
+                      m.category,
+                      recommendation?.career_title,
+                    );
+                    if (!yt || yt.length === 0) return null;
+                    return (
+                      <div className="mt-3 space-y-2 rounded-xl border border-red-500/20 bg-red-500/5 p-3">
+                        <div className="flex items-center justify-between">
+                          <span className="flex items-center gap-1.5 text-[11px] font-bold text-red-400">
+                            <Youtube className="size-3.5 text-red-500" /> Recommended Video Tutorials
+                          </span>
+                          <span className="text-[10px] text-muted-foreground">Free Learning</span>
+                        </div>
+                        <div className="grid gap-2">
+                          {yt.map((item, idx) => (
+                            <div
+                              key={idx}
+                              className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 rounded-lg border border-border/50 bg-background/80 p-2.5 text-xs"
+                            >
+                              <div className="min-w-0 flex-1 space-y-0.5">
+                                <span className="font-semibold text-foreground text-xs block">
+                                  {item.title}
+                                </span>
+                                <p className="text-[11px] text-muted-foreground line-clamp-2">
+                                  <span className="font-medium text-foreground/80">{item.channel}</span> • {item.description}
+                                </p>
+                              </div>
+                              <a
+                                href={item.url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-flex items-center gap-1 text-[11px] font-semibold text-red-400 hover:text-red-300 transition-colors shrink-0"
+                              >
+                                <ExternalLink className="size-3" /> Watch
+                              </a>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    );
+                  })()}
                 </div>
               </motion.div>
             ))}

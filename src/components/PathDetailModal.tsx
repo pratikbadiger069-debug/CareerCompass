@@ -13,14 +13,17 @@ import {
   Briefcase,
   Clock,
   DollarSign,
+  ExternalLink,
   GraduationCap,
   Map as MapIcon,
   ShieldCheck,
   Sparkles,
   TrendingUp,
+  Youtube,
   Zap,
 } from "lucide-react";
 import { Link } from "@tanstack/react-router";
+import { getYoutubeResourcesForMilestone } from "@/lib/youtubeResources";
 
 export type OptionPath = {
   title: string;
@@ -170,6 +173,58 @@ export function PathDetailModal({
               <p className="text-xs leading-relaxed text-foreground/90">{rec.honest_challenges}</p>
             </div>
           )}
+
+          {/* Curated YouTube Learning Playlists & Tutorials */}
+          {(() => {
+            const yt = getYoutubeResourcesForMilestone(
+              rec.career_title,
+              "Career Mastery",
+              rec.career_title,
+            );
+            if (!yt || yt.length === 0) return null;
+            return (
+              <div className="rounded-xl border border-red-500/25 bg-red-500/5 p-4 space-y-3">
+                <div className="flex items-center justify-between">
+                  <h4 className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-red-400">
+                    <Youtube className="size-4 text-red-500" /> Recommended YouTube Courses & Tutorials
+                  </h4>
+                  <span className="text-[10px] text-muted-foreground">Free Video Learning</span>
+                </div>
+                <div className="grid gap-2.5 sm:grid-cols-2">
+                  {yt.map((item, idx) => (
+                    <div
+                      key={idx}
+                      className="flex flex-col justify-between rounded-lg border border-border/50 bg-background/80 p-3 text-xs space-y-2 hover:border-red-500/40 transition-colors"
+                    >
+                      <div>
+                        <div className="flex items-center justify-between gap-1 mb-1">
+                          <span className="font-semibold text-foreground leading-snug line-clamp-1">
+                            {item.title}
+                          </span>
+                          {item.badge && (
+                            <Badge variant="outline" className="text-[9px] py-0 px-1 border-red-500/30 text-red-400 bg-red-500/10 shrink-0">
+                              {item.badge}
+                            </Badge>
+                          )}
+                        </div>
+                        <p className="text-[11px] text-muted-foreground line-clamp-2">
+                          <strong className="text-foreground/90">{item.channel}:</strong> {item.description}
+                        </p>
+                      </div>
+                      <a
+                        href={item.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-red-400 hover:text-red-300 transition-colors pt-1"
+                      >
+                        <ExternalLink className="size-3" /> Watch on YouTube
+                      </a>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            );
+          })()}
 
           {/* Relevant Institutions / Colleges */}
           {rec.colleges && rec.colleges.length > 0 && (
