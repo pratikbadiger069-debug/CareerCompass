@@ -55,80 +55,124 @@ export async function sendMessage(
     }
 
     const isLovable = Boolean(lovableKey);
-    const apiKey = lovableKey || geminiKey;
-    const gatewayUrl = isLovable
-      ? "https://ai.gateway.lovable.dev/v1/chat/completions"
-      : "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions";
-    const model = isLovable
-      ? "google/gemini-2.5-flash"
-      : (process.env["GEMINI_MODEL"] || "gemini-3.5-flash-lite");
-
     let reply: string | undefined;
 
-    // 1. Try OpenAI-compatible chat gateway
-    try {
-      const response = await fetch(gatewayUrl, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${apiKey}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          model,
-          messages: [
-            { role: "system", content: systemPrompt },
-            ...safeHistory,
-            { role: "user", content: message },
-          ],
-        }),
-      });
-
-      if (response.ok) {
-        const payload = (await response.json()) as {
-          choices?: Array<{ message?: { content?: string } }>;
-        };
-        reply = payload.choices?.[0]?.message?.content?.trim();
-      } else {
-        const errText = await response.text();
-        console.warn(`[chat.server] AI Gateway Error (${response.status}): ${errText}`);
-      }
-    } catch (gatewayErr) {
-      console.warn("[chat.server] Gateway fetch exception:", gatewayErr);
-    }
-
-    // 2. Fallback to Gemini Native REST API if reply is empty and geminiKey is available
-    if (!reply && geminiKey) {
+    // 1. Try Lovable gateway if key exists
+    if (isLovable) {
+      const gatewayUrl = "https://ai.gateway.lovable.dev/v1/chat/completions";
+      const model = "google/gemini-2.5-flash";
       try {
-        console.log("[chat.server] Calling Gemini Native generateContent fallback...");
-        const nativeEndpoint = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${geminiKey}`;
-        const geminiRes = await fetch(nativeEndpoint, {
+        const response = await fetch(gatewayUrl, {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            Authorization: `Bearer ${lovableKey}`,
+            "Content-Type": "application/json",
+          },
           body: JSON.stringify({
-            contents: [
-              {
-                role: "user",
-                parts: [
-                  {
-                    text: `${systemPrompt}\n\nConversation History:\n${safeHistory.map((h) => `${h.role}: ${h.content}`).join('\n')}\n\nUser: ${message}`,
-                  },
-                ],
-              },
+            model,
+            messages: [
+              { role: "system", content: systemPrompt },
+              ...safeHistory,
+              { role: "user", content: message },
             ],
           }),
         });
 
-        if (geminiRes.ok) {
-          const nativeData = (await geminiRes.json()) as {
-            candidates?: Array<{ content?: { parts?: Array<{ text?: string }> } }>;
+        if (response.ok) {
+          const payload = (await response.json()) as {
+            choices?: Array<{ message?: { content?: string } }>;
           };
-          reply = nativeData.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
+          reply = payload.choices?.[0]?.message?.content?.trim();
         } else {
-          const nativeErr = await geminiRes.text();
-          console.error(`[chat.server] Gemini native fallback failed (${geminiRes.status}): ${nativeErr}`);
+          const errText = await response.text();
+          console.warn(`[chat.server] Lovable Gateway Error (${response.status}): ${errText}`);
         }
-      } catch (nativeExc) {
-        console.error("[chat.server] Exception in Gemini native fallback:", nativeExc);
+      } catch (gatewayErr) {
+        console.warn("[chat.server] Lovable gateway exception:", gatewayErr);
+      }
+    }
+
+    // 2. Google Gemini: Try OpenAI-compatible endpoint with model fallback
+    if (!reply && geminiKey) {
+      const preferredModel = process.env["GEMINI_MODEL"] || "gemini-flash-lite-latest";
+      const candidateModels = Array.from(
+        new Set([preferredModel, "gemini-flash-lite-latest", "gemini-3.8-flash", "gemini-flash-latest"])
+      );
+
+      const openAiEndpoint = "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions";
+
+      for (const modelCandidate of candidateModels) {
+        if (reply) break;
+        try {
+          const response = await fetch(openAiEndpoint, {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${geminiKey}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              model: modelCandidate,
+              messages: [
+                { role: "system", content: systemPrompt },
+                ...safeHistory,
+                { role: "user", content: message },
+              ],
+            }),
+          });
+
+          if (response.ok) {
+            const payload = (await response.json()) as {
+              choices?: Array<{ message?: { content?: string } }>;
+            };
+            reply = payload.choices?.[0]?.message?.content?.trim();
+            if (reply) break;
+          } else {
+            const errText = await response.text();
+            console.warn(`[chat.server] Gemini ${modelCandidate} returned (${response.status}): ${errText.slice(0, 150)}`);
+          }
+        } catch (gatewayErr) {
+          console.warn(`[chat.server] Exception testing model ${modelCandidate}:`, gatewayErr);
+        }
+      }
+
+      // 3. Fallback to Gemini Native REST API if reply is still empty
+      if (!reply) {
+        for (const modelCandidate of candidateModels) {
+          if (reply) break;
+          try {
+            console.log(`[chat.server] Calling Gemini Native generateContent fallback with ${modelCandidate}...`);
+            const nativeEndpoint = `https://generativelanguage.googleapis.com/v1beta/models/${modelCandidate}:generateContent?key=${geminiKey}`;
+            const geminiRes = await fetch(nativeEndpoint, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                contents: [
+                  {
+                    role: "user",
+                    parts: [
+                      {
+                        text: `${systemPrompt}\n\nConversation History:\n${safeHistory.map((h) => `${h.role}: ${h.content}`).join('\n')}\n\nUser: ${message}`,
+                      },
+                    ],
+                  },
+                ],
+              }),
+            });
+
+            if (geminiRes.ok) {
+              const nativeData = (await geminiRes.json()) as {
+                candidates?: Array<{ content?: { parts?: Array<{ text?: string }> } }>;
+              };
+              reply = nativeData.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
+              if (reply) break;
+            } else {
+              const nativeErr = await geminiRes.text();
+              console.warn(`[chat.server] Gemini native fallback with ${modelCandidate} failed (${geminiRes.status}): ${nativeErr.slice(0, 150)}`);
+            }
+          } catch (nativeExc) {
+            console.warn(`[chat.server] Exception in Gemini native fallback with ${modelCandidate}:`, nativeExc);
+          }
+        }
       }
     }
 
