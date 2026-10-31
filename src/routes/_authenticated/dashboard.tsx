@@ -651,80 +651,77 @@ function Dashboard() {
                 </div>
 
                 {/* Live Curated YouTube Tutorials specifically for the target skill */}
-                {(() => {
-                  if (!activeTargetSkill || activeTargetSkillYtResources.length === 0) return null;
-                  return (
-                    <div className="rounded-xl border border-red-500/25 bg-red-500/5 p-4 space-y-3">
-                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1.5 border-b border-red-500/15 pb-2.5">
-                        <div className="flex items-center gap-2">
-                          <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-red-500/20 text-red-500">
-                            <Youtube className="size-4" />
-                          </div>
-                          <div>
-                            <span className="text-xs font-bold text-red-400 flex items-center gap-1.5 flex-wrap">
-                              Curated YouTube Video Courses for:
-                              <span className="text-white font-extrabold underline decoration-red-500/60">
-                                {activeTargetSkill}
-                              </span>
+                {Boolean(activeTargetSkill && activeTargetSkillYtResources.length > 0) && (
+                  <div className="rounded-xl border border-red-500/25 bg-red-500/5 p-4 space-y-3">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1.5 border-b border-red-500/15 pb-2.5">
+                      <div className="flex items-center gap-2">
+                        <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-red-500/20 text-red-500">
+                          <Youtube className="size-4" />
+                        </div>
+                        <div>
+                          <span className="text-xs font-bold text-red-400 flex items-center gap-1.5 flex-wrap">
+                            Curated YouTube Video Courses for:
+                            <span className="text-white font-extrabold underline decoration-red-500/60">
+                              {activeTargetSkill}
                             </span>
-                            <p className="text-[10px] text-muted-foreground">
-                              Free full-length courses, project walkthroughs & verified playlists to acquire this skill
+                          </span>
+                          <p className="text-[10px] text-muted-foreground">
+                            Free full-length courses, project walkthroughs & verified playlists to acquire this skill
+                          </p>
+                        </div>
+                      </div>
+
+                      <a
+                        href={getDirectYoutubeSearchUrl(activeTargetSkill)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1 text-[11px] font-semibold text-red-400 hover:text-red-300 hover:underline"
+                      >
+                        <span>Explore more {activeTargetSkill} on YouTube</span>
+                        <ExternalLink className="size-3" />
+                      </a>
+                    </div>
+
+                    <div className="grid gap-2.5 sm:grid-cols-3">
+                      {activeTargetSkillYtResources.slice(0, 3).map((yt, idx) => (
+                        <div
+                          key={idx}
+                          className="flex flex-col justify-between rounded-lg border border-white/10 bg-background/80 p-3 text-xs space-y-2 hover:border-red-500/40 transition-colors shadow-sm"
+                        >
+                          <div>
+                            <div className="flex items-start justify-between gap-1 mb-1">
+                              <span className="font-semibold text-foreground leading-snug line-clamp-2">
+                                {yt.title}
+                              </span>
+                              {yt.badge && (
+                                <Badge
+                                  variant="outline"
+                                  className="text-[9px] py-0 px-1 border-red-500/30 text-red-400 bg-red-500/10 shrink-0"
+                                >
+                                  {yt.badge}
+                                </Badge>
+                              )}
+                            </div>
+                            <p className="text-[11px] text-muted-foreground line-clamp-2">
+                              <strong className="text-foreground/90">{yt.channel}:</strong>{" "}
+                              {yt.description}
                             </p>
                           </div>
-                        </div>
-
-                        <a
-                          href={getDirectYoutubeSearchUrl(activeTargetSkill)}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="inline-flex items-center gap-1 text-[11px] font-semibold text-red-400 hover:text-red-300 hover:underline"
-                        >
-                          <span>Explore more {activeTargetSkill} on YouTube</span>
-                          <ExternalLink className="size-3" />
-                        </a>
-                      </div>
-
-                      <div className="grid gap-2.5 sm:grid-cols-3">
-                        {activeTargetSkillYtResources.slice(0, 3).map((yt, idx) => (
-                          <div
-                            key={idx}
-                            className="flex flex-col justify-between rounded-lg border border-white/10 bg-background/80 p-3 text-xs space-y-2 hover:border-red-500/40 transition-colors shadow-sm"
+                          <a
+                            href={yt.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center justify-center gap-1.5 rounded-md bg-red-500/15 hover:bg-red-500/25 text-red-400 py-1.5 px-2.5 text-[11px] font-semibold transition-colors mt-1"
                           >
-                            <div>
-                              <div className="flex items-start justify-between gap-1 mb-1">
-                                <span className="font-semibold text-foreground leading-snug line-clamp-2">
-                                  {yt.title}
-                                </span>
-                                {yt.badge && (
-                                  <Badge
-                                    variant="outline"
-                                    className="text-[9px] py-0 px-1 border-red-500/30 text-red-400 bg-red-500/10 shrink-0"
-                                  >
-                                    {yt.badge}
-                                  </Badge>
-                                )}
-                              </div>
-                              <p className="text-[11px] text-muted-foreground line-clamp-2">
-                                <strong className="text-foreground/90">{yt.channel}:</strong>{" "}
-                                {yt.description}
-                              </p>
-                            </div>
-                            <a
-                              href={yt.url}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="inline-flex items-center justify-center gap-1.5 rounded-md bg-red-500/15 hover:bg-red-500/25 text-red-400 py-1.5 px-2.5 text-[11px] font-semibold transition-colors mt-1"
-                            >
-                              <Youtube className="size-3.5 text-red-500 shrink-0" />
-                              Watch Video Course
-                              <ExternalLink className="size-3 shrink-0 opacity-80" />
-                            </a>
-                          </div>
-                        ))}
-                      </div>
+                            <Youtube className="size-3.5 text-red-500 shrink-0" />
+                            Watch Video Course
+                            <ExternalLink className="size-3 shrink-0 opacity-80" />
+                          </a>
+                        </div>
+                      ))}
                     </div>
-                  );
-                })()}
+                  </div>
+                )}
 
                 {/* Action Bar */}
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pt-2 border-t border-white/10">

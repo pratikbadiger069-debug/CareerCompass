@@ -181,14 +181,6 @@ const CAREER_COMPASS_SCHEMA = {
   additionalProperties: false,
 };
 
-function getFallbackGeminiKey(): string {
-  try {
-    return Buffer.from("QVEuQWI4Uk42SUdxUW8xSTdxTXhaaGhmS2M2WGhtV2hkVkJqdlF6UWxMNkF1bWFOWVRvZkE=", "base64").toString("utf-8");
-  } catch {
-    return "";
-  }
-}
-
 export async function generateRoadmapFromProfile(
   userProfile: Record<string, unknown>,
   clientApiKey?: string,
@@ -198,7 +190,7 @@ export async function generateRoadmapFromProfile(
     clientApiKey?.trim() ||
     process.env["GEMINI_API_KEY"] ||
     process.env["GOOGLE_API_KEY"] ||
-    getFallbackGeminiKey();
+    "";
 
   if (!lovableKey && !geminiKey) {
     throw new Error(
@@ -366,14 +358,7 @@ export async function generateRoadmapFromProfile(
  * 5. Unbalanced/truncated quotes, brackets, and braces
  */
 function repairMalformedJson(jsonStr: string): string {
-  let str = jsonStr.trim();
-
-  // Strip Markdown code fences if present
-  if (str.startsWith("```json")) {
-    str = str.replace(/^```json\s*/i, "").replace(/\s*```$/, "");
-  } else if (str.startsWith("```")) {
-    str = str.replace(/^```\s*/, "").replace(/\s*```$/, "");
-  }
+  let str = jsonStr.trim().replace(/^```(?:json)?\s*|\s*```$/gi, "");
 
   const firstBrace = str.indexOf("{");
   const lastBrace = str.lastIndexOf("}");
@@ -446,12 +431,7 @@ function repairMalformedJson(jsonStr: string): string {
 
   // Parse JSON with robust recovery pipeline
   let parsed: RoadmapResult;
-  let cleaned = rawContent.trim();
-  if (cleaned.startsWith("```json")) {
-    cleaned = cleaned.replace(/^```json\s*/i, "").replace(/\s*```$/, "");
-  } else if (cleaned.startsWith("```")) {
-    cleaned = cleaned.replace(/^```\s*/, "").replace(/\s*```$/, "");
-  }
+  let cleaned = rawContent.trim().replace(/^```(?:json)?\s*|\s*```$/gi, "");
 
   const firstBrace = cleaned.indexOf("{");
   const lastBrace = cleaned.lastIndexOf("}");

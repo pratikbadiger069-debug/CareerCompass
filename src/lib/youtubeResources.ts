@@ -16,27 +16,11 @@ export function getDirectYoutubeSearchUrl(query?: string | null): string {
   return `https://www.youtube.com/results?search_query=${encodeURIComponent(`${searchTerm} tutorial course full playlist`)}`;
 }
 
-/**
- * Returns authentic, highly curated YouTube learning resources specifically for any skill
- * the student wants to achieve.
- */
-export function getYoutubeResourcesForSkill(skillName: string): YouTubeResource[] {
-  if (!skillName || !skillName.trim()) return [];
-  const text = skillName.trim().toLowerCase();
-
-  // 1. React / Next.js / Frontend / Web Development / JavaScript / TypeScript
-  if (
-    text.includes("react") ||
-    text.includes("next") ||
-    text.includes("frontend") ||
-    text.includes("web dev") ||
-    text.includes("html") ||
-    text.includes("css") ||
-    text.includes("tailwind") ||
-    text.includes("javascript") ||
-    text.includes("typescript")
-  ) {
-    return [
+const SKILL_CATALOG: Array<{ match: RegExp; courses: YouTubeResource[] }> = [
+  // 1. Web & Frontend
+  {
+    match: /react|next|frontend|web dev|html|css|tailwind|javascript|typescript/i,
+    courses: [
       {
         title: "React & Next.js Full Stack Masterclass",
         channel: "Chai aur Code",
@@ -58,19 +42,12 @@ export function getYoutubeResourcesForSkill(skillName: string): YouTubeResource[
         description: "Step-by-step video tutorials with downloadable notes, exercises, and real-world clone projects.",
         badge: "Beginner Friendly",
       },
-    ];
-  }
-
-  // 2. Data Structures & Algorithms (DSA) / LeetCode / Problem Solving
-  if (
-    text.includes("dsa") ||
-    text.includes("algorithm") ||
-    text.includes("data structure") ||
-    text.includes("leetcode") ||
-    text.includes("competitive programming") ||
-    text.includes("problem solving")
-  ) {
-    return [
+    ],
+  },
+  // 2. Data Structures & Algorithms (DSA)
+  {
+    match: /dsa|algorithm|data structure|leetcode|competitive programming|problem solving/i,
+    courses: [
       {
         title: "Striver's A2Z DSA Sheet & Video Solutions",
         channel: "take U forward (Striver)",
@@ -92,22 +69,12 @@ export function getYoutubeResourcesForSkill(skillName: string): YouTubeResource[
         description: "Learn the core 14 coding patterns asked by Google, Microsoft, Amazon, and top tech companies.",
         badge: "FAANG Ready",
       },
-    ];
-  }
-
-  // 3. AI, Machine Learning, Deep Learning, GenAI & LLMs
-  if (
-    text.includes("ai") ||
-    text.includes("machine learning") ||
-    text.includes("deep learning") ||
-    text.includes("generative ai") ||
-    text.includes("genai") ||
-    text.includes("llm") ||
-    text.includes("nlp") ||
-    text.includes("computer vision") ||
-    text.includes("langchain")
-  ) {
-    return [
+    ],
+  },
+  // 3. AI, Machine Learning, GenAI & Data Science
+  {
+    match: /ai|machine learning|deep learning|generative ai|genai|llm|nlp|computer vision|langchain/i,
+    courses: [
       {
         title: "Machine Learning Specialization by Andrew Ng",
         channel: "DeepLearning.AI / Stanford",
@@ -129,48 +96,39 @@ export function getYoutubeResourcesForSkill(skillName: string): YouTubeResource[
         description: "Rigorous mathematical intuition, gradient descent, feature engineering, and model deployment.",
         badge: "In-Depth Intuition",
       },
-    ];
-  }
-
-  // 4. Python, Java, C++, Go, Rust & Backend Engineering
-  if (
-    text.includes("python") ||
-    text.includes("java") ||
-    text.includes("spring") ||
-    text.includes("c++") ||
-    text.includes("golang") ||
-    text.includes("rust") ||
-    text.includes("backend") ||
-    text.includes("node") ||
-    text.includes("express")
-  ) {
-    if (text.includes("java") || text.includes("spring")) {
-      return [
-        {
-          title: "Java Full Course for Beginners to Advanced",
-          channel: "Telusko / freeCodeCamp",
-          url: "https://www.youtube.com/results?search_query=telusko+java+full+course+playlist",
-          description: "Core Java, OOP principles, Collections framework, Multi-threading, and Spring Boot foundations.",
-          badge: "Enterprise Standard",
-        },
-        {
-          title: "Spring Boot 3 & Microservices Complete Tutorial",
-          channel: "Amigoscode",
-          url: "https://www.youtube.com/results?search_query=amigoscode+spring+boot+tutorial",
-          description: "Build robust REST APIs, JPA/Hibernate persistence, Spring Security with JWT, and microservice architecture.",
-          badge: "Backend Microservices",
-        },
-        {
-          title: "Java & Data Structures Complete Series",
-          channel: "Kunal Kushwaha",
-          url: "https://www.youtube.com/results?search_query=kunal+kushwaha+java+dsa+playlist",
-          description: "In-depth Java walkthroughs with recursion, OOPs, Git, and interview coding challenges.",
-          badge: "Interview Centric",
-        },
-      ];
-    }
-
-    return [
+    ],
+  },
+  // 4. Java, Spring Boot & Backend
+  {
+    match: /java|spring/i,
+    courses: [
+      {
+        title: "Java Full Course for Beginners to Advanced",
+        channel: "Telusko / freeCodeCamp",
+        url: "https://www.youtube.com/results?search_query=telusko+java+full+course+playlist",
+        description: "Core Java, OOP principles, Collections framework, Multi-threading, and Spring Boot foundations.",
+        badge: "Enterprise Standard",
+      },
+      {
+        title: "Spring Boot 3 & Microservices Complete Tutorial",
+        channel: "Amigoscode",
+        url: "https://www.youtube.com/results?search_query=amigoscode+spring+boot+tutorial",
+        description: "Build robust REST APIs, JPA/Hibernate persistence, Spring Security with JWT, and microservice architecture.",
+        badge: "Backend Microservices",
+      },
+      {
+        title: "Java & Data Structures Complete Series",
+        channel: "Kunal Kushwaha",
+        url: "https://www.youtube.com/results?search_query=kunal+kushwaha+java+dsa+playlist",
+        description: "In-depth Java walkthroughs with recursion, OOPs, Git, and interview coding challenges.",
+        badge: "Interview Centric",
+      },
+    ],
+  },
+  // 5. Python, Node & Core Programming
+  {
+    match: /python|c\+\+|golang|rust|backend|node|express/i,
+    courses: [
       {
         title: "Python for Beginners (Full Comprehensive Masterclass)",
         channel: "freeCodeCamp.org",
@@ -192,21 +150,12 @@ export function getYoutubeResourcesForSkill(skillName: string): YouTubeResource[
         description: "Event loop, streams, RESTful APIs, authentication, MongoDB/PostgreSQL, and real-time WebSockets.",
         badge: "Full Backend",
       },
-    ];
-  }
-
-  // 5. Cloud, DevOps, Docker, Kubernetes & System Design
-  if (
-    text.includes("cloud") ||
-    text.includes("devops") ||
-    text.includes("docker") ||
-    text.includes("kubernetes") ||
-    text.includes("aws") ||
-    text.includes("azure") ||
-    text.includes("linux") ||
-    text.includes("system design")
-  ) {
-    return [
+    ],
+  },
+  // 6. Cloud, DevOps, Docker & Architecture
+  {
+    match: /cloud|devops|docker|kubernetes|aws|azure|linux|system design/i,
+    courses: [
       {
         title: "DevOps & Docker / Kubernetes Complete Bootcamp",
         channel: "TechWorld with Nana",
@@ -228,19 +177,12 @@ export function getYoutubeResourcesForSkill(skillName: string): YouTubeResource[
         description: "Practical AWS training covering EC2, S3, IAM, Lambda, VPC networking, and cloud security.",
         badge: "Cloud Certification",
       },
-    ];
-  }
-
-  // 6. Data Analytics, SQL, Power BI, Excel & Tableau
-  if (
-    text.includes("data analyst") ||
-    text.includes("data analytics") ||
-    text.includes("sql") ||
-    text.includes("power bi") ||
-    text.includes("tableau") ||
-    text.includes("excel")
-  ) {
-    return [
+    ],
+  },
+  // 7. Data Analytics, SQL, Power BI & Tableau
+  {
+    match: /data analyst|data analytics|sql|power bi|tableau|excel/i,
+    courses: [
       {
         title: "Complete Data Analyst Bootcamp & Portfolio Projects",
         channel: "Alex The Analyst",
@@ -262,20 +204,12 @@ export function getYoutubeResourcesForSkill(skillName: string): YouTubeResource[
         description: "Transform complex raw business datasets into executive KPI cards, charts, and interactive drill-downs.",
         badge: "Executive Dashboards",
       },
-    ];
-  }
-
-  // 7. Mobile Development: Flutter, Android (Kotlin), React Native, iOS (Swift)
-  if (
-    text.includes("flutter") ||
-    text.includes("android") ||
-    text.includes("kotlin") ||
-    text.includes("mobile") ||
-    text.includes("react native") ||
-    text.includes("ios") ||
-    text.includes("swift")
-  ) {
-    return [
+    ],
+  },
+  // 8. Mobile Development
+  {
+    match: /flutter|android|kotlin|mobile|react native|ios|swift/i,
+    courses: [
       {
         title: "Flutter & Dart Complete Guide (Cross-Platform Mobile Apps)",
         channel: "freeCodeCamp.org / Rivaan Ranawat",
@@ -297,19 +231,12 @@ export function getYoutubeResourcesForSkill(skillName: string): YouTubeResource[
         description: "Build native mobile experiences using JavaScript, Expo, tailwind styling, and real-time backend services.",
         badge: "Industry Projects",
       },
-    ];
-  }
-
-  // 8. Cybersecurity, Ethical Hacking & Networking
-  if (
-    text.includes("cyber") ||
-    text.includes("security") ||
-    text.includes("hacking") ||
-    text.includes("network") ||
-    text.includes("penetration") ||
-    text.includes("soc")
-  ) {
-    return [
+    ],
+  },
+  // 9. Cybersecurity & Networking
+  {
+    match: /cyber|security|hacking|network|penetration|soc/i,
+    courses: [
       {
         title: "Complete Ethical Hacking & Cybersecurity Course",
         channel: "NetworkChuck",
@@ -331,20 +258,12 @@ export function getYoutubeResourcesForSkill(skillName: string): YouTubeResource[
         description: "Capture the Flag (CTF) challenges, malware analysis, OSINT techniques, and real-world vulnerability testing.",
         badge: "Hands-on Labs",
       },
-    ];
-  }
-
-  // 9. Finance, Investment Banking, Stock Market, CA & CFA
-  if (
-    text.includes("finance") ||
-    text.includes("stock") ||
-    text.includes("investment") ||
-    text.includes("banking") ||
-    text.includes("ca") ||
-    text.includes("cfa") ||
-    text.includes("accounting")
-  ) {
-    return [
+    ],
+  },
+  // 10. Finance, CA, CFA & Stock Markets
+  {
+    match: /finance|stock|investment|banking|ca|cfa|accounting/i,
+    courses: [
       {
         title: "Basics of Stock Market & Fundamental Company Analysis",
         channel: "CA Rachana Ranade",
@@ -366,18 +285,12 @@ export function getYoutubeResourcesForSkill(skillName: string): YouTubeResource[
         description: "Global finance principles: equity investments, portfolio management, quantitative methods, and fixed income.",
         badge: "Global Finance",
       },
-    ];
-  }
-
-  // 10. UI/UX Design, Figma & Product Management
-  if (
-    text.includes("design") ||
-    text.includes("ui/ux") ||
-    text.includes("figma") ||
-    text.includes("product management") ||
-    text.includes("wireframing")
-  ) {
-    return [
+    ],
+  },
+  // 11. UI/UX Design & Product Management
+  {
+    match: /design|ui\/ux|figma|product management|wireframing/i,
+    courses: [
       {
         title: "Figma UI/UX Design Complete Masterclass",
         channel: "Mizko (The Designership)",
@@ -399,20 +312,12 @@ export function getYoutubeResourcesForSkill(skillName: string): YouTubeResource[
         description: "Product execution, user problem framing, metrics definition, roadmap prioritization, and PRD writing.",
         badge: "PM Career",
       },
-    ];
-  }
-
-  // 11. Competitive & Entrance Exams (JEE / NEET / GATE / CAT / UPSC)
-  if (
-    text.includes("jee") ||
-    text.includes("neet") ||
-    text.includes("gate") ||
-    text.includes("cat") ||
-    text.includes("upsc") ||
-    text.includes("entrance") ||
-    text.includes("exam")
-  ) {
-    return [
+    ],
+  },
+  // 12. Competitive & Entrance Exams
+  {
+    match: /jee|neet|gate|cat|upsc|entrance|exam/i,
+    courses: [
       {
         title: "Concept Revision & Speed Problem Solving",
         channel: "Physics Wallah / Unacademy",
@@ -434,31 +339,40 @@ export function getYoutubeResourcesForSkill(skillName: string): YouTubeResource[
         description: "Deep problem solving for analytical aptitude, number systems, algebra, and DILR sets.",
         badge: "Aptitude Prep",
       },
-    ];
-  }
+    ],
+  },
+];
 
-  // 12. Dynamic Fallback: generates curated search link for exact skill topic
-  const query = encodeURIComponent(`${skillName} tutorial course playlist`);
+/**
+ * Returns authentic, highly curated YouTube learning resources specifically for any skill
+ * the student wants to achieve.
+ */
+export function getYoutubeResourcesForSkill(skillName: string): YouTubeResource[] {
+  if (!skillName?.trim()) return [];
+  const found = SKILL_CATALOG.find((cat) => cat.match.test(skillName));
+  if (found) return found.courses;
+
+  const clean = skillName.trim();
   return [
     {
-      title: `${skillName} — Complete Video Tutorial Playlist`,
+      title: `${clean} — Complete Video Tutorial Playlist`,
       channel: "Top Community Video Guides",
-      url: `https://www.youtube.com/results?search_query=${query}`,
-      description: `Watch high-ranking, community-rated YouTube course playlists covering ${skillName} from foundation to advanced.`,
+      url: getDirectYoutubeSearchUrl(clean),
+      description: `Watch high-ranking, community-rated YouTube course playlists covering ${clean} from foundation to advanced.`,
       badge: "Targeted Series",
     },
     {
-      title: `${skillName} Crash Course & Practical Walkthrough`,
+      title: `${clean} Crash Course & Practical Walkthrough`,
       channel: "freeCodeCamp / Tech Tutorials",
-      url: `https://www.youtube.com/results?search_query=${encodeURIComponent(`${skillName} full course for beginners`)}`,
-      description: `Step-by-step masterclass to learn core concepts, practical syntax, and hands-on projects for ${skillName}.`,
+      url: `https://www.youtube.com/results?search_query=${encodeURIComponent(`${clean} full course for beginners`)}`,
+      description: `Step-by-step masterclass to learn core concepts, practical syntax, and hands-on projects for ${clean}.`,
       badge: "Full Course",
     },
     {
-      title: `${skillName} Top Interview & Practice Questions`,
+      title: `${clean} Top Interview & Practice Questions`,
       channel: "Industry Mentors",
-      url: `https://www.youtube.com/results?search_query=${encodeURIComponent(`${skillName} interview questions practice`)}`,
-      description: `Common interview problems, real-world case studies, and practical tips to master ${skillName}.`,
+      url: `https://www.youtube.com/results?search_query=${encodeURIComponent(`${clean} interview questions practice`)}`,
+      description: `Common interview problems, real-world case studies, and practical tips to master ${clean}.`,
       badge: "Job Ready",
     },
   ];
